@@ -30,8 +30,8 @@ CLASS zcl_semver_identifiers IMPLEMENTATION.
 
   METHOD compare_identifiers.
 
-    DATA(anum) = zcl_semver_functions=>is_numeric( a ).
-    DATA(bnum) = zcl_semver_functions=>is_numeric( b ).
+    DATA(anum) = zcl_semver_utils=>is_numeric( a ).
+    DATA(bnum) = zcl_semver_utils=>is_numeric( b ).
 
     IF anum = abap_true AND bnum = abap_true.
       DATA(aval) = CONV i( a ).

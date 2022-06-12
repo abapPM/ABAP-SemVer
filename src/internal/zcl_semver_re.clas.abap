@@ -275,7 +275,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'COERCE'
-      value = |$(^\|[^\\d])(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\})| &&
+      value = |(^\|[^\\d])(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\})| &&
               |(?:\\.(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\}))?| &&
               |(?:\\.(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\}))?| &&
               |(?:$\|[^\\d])| ).

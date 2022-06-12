@@ -1,0 +1,109 @@
+CLASS ltcl_tests DEFINITION FOR TESTING RISK LEVEL HARMLESS
+  DURATION SHORT FINAL.
+
+  PRIVATE SECTION.
+
+    METHODS:
+      test_comparator FOR TESTING RAISING zcx_semver_error,
+      test_to_string FOR TESTING RAISING zcx_semver_error,
+      test_intersect FOR TESTING RAISING zcx_semver_error,
+      test_any FOR TESTING RAISING zcx_semver_error,
+      test_invalid FOR TESTING RAISING zcx_semver_error,
+      test_ignore_equal FOR TESTING RAISING zcx_semver_error.
+
+ENDCLASS.
+
+CLASS ltcl_tests IMPLEMENTATION.
+
+  METHOD test_comparator.
+
+    DATA(c) = zcl_semver_comparator=>create( '>=1.2.3' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = c->test( '1.2.4' )
+      exp = abap_true ).
+
+    DATA(c2) = zcl_semver_comparator=>create( c ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = c2->test( '1.2.4' )
+      exp = abap_true ).
+
+    DATA(c3) = zcl_semver_comparator=>create( comp = c loose = abap_true ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = c3->test( '1.2.4' )
+      exp = abap_true ).
+
+    " test an invalid version, should not throw
+    DATA(c4) = zcl_semver_comparator=>create( c ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = c4->test( 'not a version string' )
+      exp = abap_false ).
+
+  ENDMETHOD.
+
+  METHOD test_to_string.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_comparator=>create( '>= 1.2.3' )->to_string( )
+      exp = '>=1.2.3' ).
+
+  ENDMETHOD.
+
+  METHOD test_intersect ##TODO.
+
+    LOOP AT zcl_semver_fixtures=>comparator_intersection( ) INTO DATA(intersection).
+      DATA(msg) = |{ intersection-c0 } { intersection-c1 }|.
+      DATA(comp0) = zcl_semver_comparator=>create( intersection-c0 ).
+      DATA(comp1) = zcl_semver_comparator=>create( intersection-c1 ).
+
+*      cl_abap_unit_assert=>assert_equals(
+*        act = comp0->intersects( comp1 )
+*        exp = intersection-res
+*        msg = msg ).
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD test_any.
+    " ANY matches anything
+
+    DATA(c) = zcl_semver_comparator=>create( '' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = c->test( '1.2.3' )
+      exp = abap_true
+      msg = 'ANY should match anything' ).
+
+    DATA(c1) = zcl_semver_comparator=>create( '>=1.2.3' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = c1->test( zcl_semver_comparator=>any_semver->version )
+      exp = abap_true
+      msg = 'anything should match ANY' ).
+
+  ENDMETHOD.
+
+  METHOD test_invalid.
+
+    TRY.
+        DATA(c) = zcl_semver_comparator=>create( 'foo bar baz' ).
+
+        cl_abap_unit_assert=>fail( msg = 'Should throw invalid comparator' ).
+      CATCH zcx_semver_error ##NO_HANDLER.
+    ENDTRY.
+
+  ENDMETHOD.
+
+  METHOD test_ignore_equal.
+    " equal sign is ignored
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_comparator=>create( '=1.2.3' )->value
+      exp = zcl_semver_comparator=>create( '1.2.3' )->value ).
+
+  ENDMETHOD.
+
+ENDCLASS.

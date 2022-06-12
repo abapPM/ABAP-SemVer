@@ -7,8 +7,8 @@ CLASS zcl_semver_fixtures DEFINITION
 
     TYPES:
       BEGIN OF ty_comparator_intersection,
-        v0  TYPE string,
-        v1  TYPE string,
+        c0  TYPE string,
+        c1  TYPE string,
         res TYPE abap_bool,
       END OF ty_comparator_intersection,
       ty_comparator_intersections TYPE STANDARD TABLE OF ty_comparator_intersection WITH DEFAULT KEY.
@@ -43,12 +43,12 @@ CLASS zcl_semver_fixtures DEFINITION
 
     TYPES:
       BEGIN OF ty_increment,
-        version           TYPE string,
-        inc               TYPE string,
-        expect            TYPE string,
-        loose             TYPE abap_bool,
-        includeprerelease TYPE abap_bool,
-        identifier        TYPE string,
+        version    TYPE string,
+        inc        TYPE string,
+        expect     TYPE string,
+        loose      TYPE abap_bool,
+        incpre     TYPE abap_bool,
+        identifier TYPE string,
       END OF ty_increment,
       ty_increments TYPE STANDARD TABLE OF ty_increment WITH DEFAULT KEY.
 
@@ -70,10 +70,10 @@ CLASS zcl_semver_fixtures DEFINITION
 
     TYPES:
       BEGIN OF ty_range,
-        range             TYPE string,
-        version           TYPE string,
-        loose             TYPE abap_bool,
-        includeprerelease TYPE abap_bool,
+        range   TYPE string,
+        version TYPE string,
+        loose   TYPE abap_bool,
+        incpre  TYPE abap_bool,
       END OF ty_range,
       ty_ranges TYPE STANDARD TABLE OF ty_range WITH DEFAULT KEY.
 
@@ -99,10 +99,10 @@ CLASS zcl_semver_fixtures DEFINITION
 
     TYPES:
       BEGIN OF ty_range_parse,
-        range             TYPE string,
-        res               TYPE abap_bool,
-        loose             TYPE abap_bool,
-        includeprerelease TYPE abap_bool,
+        range  TYPE string,
+        res    TYPE abap_bool,
+        loose  TYPE abap_bool,
+        incpre TYPE abap_bool,
       END OF ty_range_parse,
       ty_range_parses TYPE STANDARD TABLE OF ty_range_parse WITH DEFAULT KEY.
 
@@ -112,10 +112,10 @@ CLASS zcl_semver_fixtures DEFINITION
 
     TYPES:
       BEGIN OF ty_version_range,
-        range             TYPE string,
-        version           TYPE string,
-        loose             TYPE abap_bool,
-        includeprerelease TYPE abap_bool,
+        range   TYPE string,
+        version TYPE string,
+        loose   TYPE abap_bool,
+        incpre  TYPE abap_bool,
       END OF ty_version_range,
       ty_version_ranges TYPE STANDARD TABLE OF ty_version_range WITH DEFAULT KEY.
 
@@ -144,42 +144,42 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
 
 
   METHOD comparator_intersection.
-    " [v0, v1, expected intersection]
+    " [c0, c1, expected intersection]
 
     result = VALUE #(
       " One is a Version
-      ( v0 = '1.3.0' v1 = '>=1.3.0' res = abap_true )
-      ( v0 = '1.3.0' v1 = '>1.3.0' res = abap_false )
-      ( v0 = '>=1.3.0' v1 = '1.3.0' res = abap_true )
-      ( v0 = '>1.3.0' v1 = '1.3.0' res = abap_false )
+      ( c0 = '1.3.0' c1 = '>=1.3.0' res = abap_true )
+      ( c0 = '1.3.0' c1 = '>1.3.0' res = abap_false )
+      ( c0 = '>=1.3.0' c1 = '1.3.0' res = abap_true )
+      ( c0 = '>1.3.0' c1 = '1.3.0' res = abap_false )
       " Same direction increasing
-      ( v0 = '>1.3.0' v1 = '>1.2.0' res = abap_true )
-      ( v0 = '>1.2.0' v1 = '>1.3.0' res = abap_true )
-      ( v0 = '>=1.2.0' v1 = '>1.3.0' res = abap_true )
-      ( v0 = '>1.2.0' v1 = '>=1.3.0' res = abap_true )
+      ( c0 = '>1.3.0' c1 = '>1.2.0' res = abap_true )
+      ( c0 = '>1.2.0' c1 = '>1.3.0' res = abap_true )
+      ( c0 = '>=1.2.0' c1 = '>1.3.0' res = abap_true )
+      ( c0 = '>1.2.0' c1 = '>=1.3.0' res = abap_true )
       " Same direction decreasing
-      ( v0 = '<1.3.0' v1 = '<1.2.0' res = abap_true )
-      ( v0 = '<1.2.0' v1 = '<1.3.0' res = abap_true )
-      ( v0 = '<=1.2.0' v1 = '<1.3.0' res = abap_true )
-      ( v0 = '<1.2.0' v1 = '<=1.3.0' res = abap_true )
+      ( c0 = '<1.3.0' c1 = '<1.2.0' res = abap_true )
+      ( c0 = '<1.2.0' c1 = '<1.3.0' res = abap_true )
+      ( c0 = '<=1.2.0' c1 = '<1.3.0' res = abap_true )
+      ( c0 = '<1.2.0' c1 = '<=1.3.0' res = abap_true )
       " Different directions, same semver and inclusive operator
-      ( v0 = '>=1.3.0' v1 = '<=1.3.0' res = abap_true )
-      ( v0 = '>=v1.3.0' v1 = '<=1.3.0' res = abap_true )
-      ( v0 = '>=1.3.0' v1 = '>=1.3.0' res = abap_true )
-      ( v0 = '<=1.3.0' v1 = '<=1.3.0' res = abap_true )
-      ( v0 = '<=1.3.0' v1 = '<=v1.3.0' res = abap_true )
-      ( v0 = '>1.3.0' v1 = '<=1.3.0' res = abap_false )
-      ( v0 = '>=1.3.0' v1 = '<1.3.0' res = abap_false )
+      ( c0 = '>=1.3.0' c1 = '<=1.3.0' res = abap_true )
+      ( c0 = '>=v1.3.0' c1 = '<=1.3.0' res = abap_true )
+      ( c0 = '>=1.3.0' c1 = '>=1.3.0' res = abap_true )
+      ( c0 = '<=1.3.0' c1 = '<=1.3.0' res = abap_true )
+      ( c0 = '<=1.3.0' c1 = '<=v1.3.0' res = abap_true )
+      ( c0 = '>1.3.0' c1 = '<=1.3.0' res = abap_false )
+      ( c0 = '>=1.3.0' c1 = '<1.3.0' res = abap_false )
       " Opposite matching directions
-      ( v0 = '>1.0.0' v1 = '<2.0.0' res = abap_true )
-      ( v0 = '>=1.0.0' v1 = '<2.0.0' res = abap_true )
-      ( v0 = '>=1.0.0' v1 = '<=2.0.0' res = abap_true )
-      ( v0 = '>1.0.0' v1 = '<=2.0.0' res = abap_true )
-      ( v0 = '<=2.0.0' v1 = '>1.0.0' res = abap_true )
-      ( v0 = '<=1.0.0' v1 = '>=2.0.0' res = abap_false )
-      ( v0 = '' v1 = '' res = abap_true )
-      ( v0 = '' v1 = '>1.0.0' res = abap_true )
-      ( v0 = '<=2.0.0' v1 = '' res = abap_true ) ).
+      ( c0 = '>1.0.0' c1 = '<2.0.0' res = abap_true )
+      ( c0 = '>=1.0.0' c1 = '<2.0.0' res = abap_true )
+      ( c0 = '>=1.0.0' c1 = '<=2.0.0' res = abap_true )
+      ( c0 = '>1.0.0' c1 = '<=2.0.0' res = abap_true )
+      ( c0 = '<=2.0.0' c1 = '>1.0.0' res = abap_true )
+      ( c0 = '<=1.0.0' c1 = '>=2.0.0' res = abap_false )
+      ( c0 = '' c1 = '' res = abap_true )
+      ( c0 = '' c1 = '>1.0.0' res = abap_true )
+      ( c0 = '<=2.0.0' c1 = '' res = abap_true ) ).
   ENDMETHOD.
 
 
@@ -392,7 +392,12 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( value = |0.0.{ zif_semver_constants=>max_safe_integer }0| reason = 'too big' )
       ( value = 'hello, world' reason = 'not a version' )
       ( value = 'hello, world' reason = 'even loose, it''s still junk' loose = abap_true )
-      ( value = 'xyz' reason = 'even loose as an opt, same' loose = abap_true ) ).
+      ( value = 'xyz' reason = 'even loose as an opt, same' loose = abap_true )
+      ( value = 'NOT VALID' reason = 'nothing like a version' )
+      ( value = '1.2.3.4' reason = 'patch of a patch' )
+      ( value = '1.2' reason = 'no patch' )
+      ( value = '1' reason = 'no minor' )
+      ( value = '' reason = 'no data' ) ).
 *      ( value = /a regexp/ reason = 'regexp is not a string' )
 *      ( value = /1.2.3/ reason = 'semver-ish regexp is not a string' )
 *      ( value = { toString: () => '1.2.3' } reason = 'obj with a tostring is not a string' )
@@ -480,14 +485,14 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( range = '>=2' version = 'glorp' )
       ( range = '>=2' version = '' )
 
-      ( range = '2.x' version = '3.0.0-pre.0' includeprerelease = abap_true )
-      ( range = '^1.0.0' version = '1.0.0-rc1' includeprerelease = abap_true )
-      ( range = '^1.0.0' version = '2.0.0-rc1' includeprerelease = abap_true )
-      ( range = '^1.2.3-rc2' version = '2.0.0' includeprerelease = abap_true )
-      ( range = '^1.0.0' version = '2.0.0-rc1' includeprerelease = abap_true )
+      ( range = '2.x' version = '3.0.0-pre.0' incpre = abap_true )
+      ( range = '^1.0.0' version = '1.0.0-rc1' incpre = abap_true )
+      ( range = '^1.0.0' version = '2.0.0-rc1' incpre = abap_true )
+      ( range = '^1.2.3-rc2' version = '2.0.0' incpre = abap_true )
+      ( range = '^1.0.0' version = '2.0.0-rc1' incpre = abap_true )
       ( range = '^1.0.0' version = '2.0.0-rc1' )
 
-      ( range = '1 - 2' version = '3.0.0-pre' includeprerelease = abap_true )
+      ( range = '1 - 2' version = '3.0.0-pre' incpre = abap_true )
       ( range = '1 - 2' version = '2.0.0-pre' )
       ( range = '1 - 2' version = '1.0.0-pre' )
       ( range = '1.0 - 2' version = '1.0.0-pre' )
@@ -495,16 +500,16 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( range = '1.1.x' version = '1.0.0-a' )
       ( range = '1.1.x' version = '1.1.0-a' )
       ( range = '1.1.x' version = '1.2.0-a' )
-      ( range = '1.1.x' version = '1.2.0-a' includeprerelease = abap_true )
-      ( range = '1.1.x' version = '1.0.0-a' includeprerelease = abap_true )
+      ( range = '1.1.x' version = '1.2.0-a' incpre = abap_true )
+      ( range = '1.1.x' version = '1.0.0-a' incpre = abap_true )
       ( range = '1.x' version = '1.0.0-a' )
       ( range = '1.x' version = '1.1.0-a' )
       ( range = '1.x' version = '1.2.0-a' )
-      ( range = '1.x' version = '0.0.0-a' includeprerelease = abap_true )
-      ( range = '1.x' version = '2.0.0-a' includeprerelease = abap_true )
+      ( range = '1.x' version = '0.0.0-a' incpre = abap_true )
+      ( range = '1.x' version = '2.0.0-a' incpre = abap_true )
 
       ( range = '>=1.0.0 <1.1.0' version = '1.1.0' )
-      ( range = '>=1.0.0 <1.1.0' version = '1.1.0' includeprerelease = abap_true )
+      ( range = '>=1.0.0 <1.1.0' version = '1.1.0' incpre = abap_true )
       ( range = '>=1.0.0 <1.1.0' version = '1.1.0-pre' )
       ( range = '>=1.0.0 <1.1.0-pre' version = '1.1.0-pre' ) ).
 
@@ -622,24 +627,24 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( range = '1.0.0 - x' version = '1.9.7' )
       ( range = '1.x - x' version = '1.9.7' )
       ( range = '<=7.x' version = '7.9.9' )
-      ( range = '2.x' version = '2.0.0-pre.0' includeprerelease = abap_true )
-      ( range = '2.x' version = '2.1.0-pre.0' includeprerelease = abap_true )
-      ( range = '1.1.x' version = '1.1.0-a' includeprerelease = abap_true )
-      ( range = '1.1.x' version = '1.1.1-a' includeprerelease = abap_true )
-      ( range = '*' version = '1.0.0-rc1' includeprerelease = abap_true )
-      ( range = '^1.0.0-0' version = '1.0.1-rc1' includeprerelease = abap_true )
-      ( range = '^1.0.0-rc2' version = '1.0.1-rc1' includeprerelease = abap_true )
-      ( range = '^1.0.0' version = '1.0.1-rc1' includeprerelease = abap_true )
-      ( range = '^1.0.0' version = '1.1.0-rc1' includeprerelease = abap_true )
-      ( range = '1 - 2' version = '2.0.0-pre' includeprerelease = abap_true )
-      ( range = '1 - 2' version = '1.0.0-pre' includeprerelease = abap_true )
-      ( range = '1.0 - 2' version = '1.0.0-pre' includeprerelease = abap_true )
+      ( range = '2.x' version = '2.0.0-pre.0' incpre = abap_true )
+      ( range = '2.x' version = '2.1.0-pre.0' incpre = abap_true )
+      ( range = '1.1.x' version = '1.1.0-a' incpre = abap_true )
+      ( range = '1.1.x' version = '1.1.1-a' incpre = abap_true )
+      ( range = '*' version = '1.0.0-rc1' incpre = abap_true )
+      ( range = '^1.0.0-0' version = '1.0.1-rc1' incpre = abap_true )
+      ( range = '^1.0.0-rc2' version = '1.0.1-rc1' incpre = abap_true )
+      ( range = '^1.0.0' version = '1.0.1-rc1' incpre = abap_true )
+      ( range = '^1.0.0' version = '1.1.0-rc1' incpre = abap_true )
+      ( range = '1 - 2' version = '2.0.0-pre' incpre = abap_true )
+      ( range = '1 - 2' version = '1.0.0-pre' incpre = abap_true )
+      ( range = '1.0 - 2' version = '1.0.0-pre' incpre = abap_true )
 
-      ( range = '=0.7.x' version = '0.7.0-asdf' includeprerelease = abap_true )
-      ( range = '>=0.7.x' version = '0.7.0-asdf' includeprerelease = abap_true )
-      ( range = '<=0.7.x' version = '0.7.0-asdf' includeprerelease = abap_true )
+      ( range = '=0.7.x' version = '0.7.0-asdf' incpre = abap_true )
+      ( range = '>=0.7.x' version = '0.7.0-asdf' incpre = abap_true )
+      ( range = '<=0.7.x' version = '0.7.0-asdf' incpre = abap_true )
 
-      ( range = '>=1.0.0 <=1.1.0' version = '1.1.0-pre' includeprerelease = abap_true ) ).
+      ( range = '>=1.0.0 <=1.1.0' version = '1.1.0-pre' incpre = abap_true ) ).
 
   ENDMETHOD.
 
@@ -714,11 +719,11 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
     " new Range().range will be '' in those cases
     result = VALUE #(
       ( range = '1.0.0 - 2.0.0' res = '>=1.0.0 <=2.0.0' )
-      ( range = '1.0.0 - 2.0.0' res = '>=1.0.0-0 <2.0.1-0' includeprerelease = abap_true )
+      ( range = '1.0.0 - 2.0.0' res = '>=1.0.0-0 <2.0.1-0' incpre = abap_true )
       ( range = '1 - 2' res = '>=1.0.0 <3.0.0-0' )
-      ( range = '1 - 2' res = '>=1.0.0-0 <3.0.0-0' includeprerelease = abap_true )
+      ( range = '1 - 2' res = '>=1.0.0-0 <3.0.0-0' incpre = abap_true )
       ( range = '1.0 - 2.0' res = '>=1.0.0 <2.1.0-0' )
-      ( range = '1.0 - 2.0' res = '>=1.0.0-0 <2.1.0-0' includeprerelease = abap_true )
+      ( range = '1.0 - 2.0' res = '>=1.0.0-0 <2.1.0-0' incpre = abap_true )
       ( range = '1.0.0' res = '1.0.0' loose = abap_false )
       ( range = '>=*' res = '*' )
       ( range = '' res = '*' )
@@ -801,8 +806,8 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( range = '>x 2.x || * || <x' res = '*' )
       ( range = '>=09090' res = '' )
       ( range = '>=09090' res = '>=9090.0.0' loose = abap_true )
-      ( range = '>=09090-0' res = '' includeprerelease = abap_true )
-      ( range = '>=09090-0' res = '' loose = abap_true includeprerelease = abap_true )
+      ( range = '>=09090-0' res = '' incpre = abap_true )
+      ( range = '>=09090-0' res = '' loose = abap_true incpre = abap_true )
       ( range = |^{ zif_semver_constants=>max_safe_integer }.0.0| res = '' )
       ( range = |={ zif_semver_constants=>max_safe_integer }.0.0|
           res = |{ zif_semver_constants=>max_safe_integer }.0.0| )
@@ -1042,7 +1047,7 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( range = '^0.1.0 || ~3.0.1 || 5.0.0' version = '1.0.0beta' loose = abap_true )
       ( range = '^0.1.0 || ~3.0.1 || 5.0.0' version = '5.0.0-0' loose = abap_true )
       ( range = '^0.1.0 || ~3.0.1 || >4 <=5.0.0' version = '3.5.0' )
-      ( range = '0.7.x' version = '0.7.2-beta' includeprerelease = abap_true ) ).
+      ( range = '0.7.x' version = '0.7.2-beta' incpre = abap_true ) ).
 
   ENDMETHOD.
 
@@ -1136,7 +1141,7 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( range = '^1.0.0-alpha' version = '1.0.0-beta' )
       ( range = '~1.0.0-alpha' version = '1.0.0-beta' )
       ( range = '=0.1.0' version = '1.0.0' )
-      ( range = '>1.2.3' version = '1.3.0-alpha' includeprerelease = abap_true ) ).
+      ( range = '>1.2.3' version = '1.3.0-alpha' incpre = abap_true ) ).
 
   ENDMETHOD.
 ENDCLASS.

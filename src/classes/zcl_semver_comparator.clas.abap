@@ -1,15 +1,17 @@
 CLASS zcl_semver_comparator DEFINITION
   PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  CREATE PRIVATE.
 
   PUBLIC SECTION.
-    CONSTANTS any_symbol TYPE string VALUE 'SemVer ANY'.
+
+    CLASS-DATA any_semver TYPE REF TO zcl_semver.
 
     DATA:
       operator TYPE string READ-ONLY,
       value    TYPE string READ-ONLY,
       semver   TYPE REF TO zcl_semver READ-ONLY.
+
+    CLASS-METHODS class_constructor.
 
     METHODS constructor
       IMPORTING
@@ -19,9 +21,13 @@ CLASS zcl_semver_comparator DEFINITION
       RAISING
         zcx_semver_error.
 
-    METHODS get_any
+    CLASS-METHODS create
+      IMPORTING
+        comp          TYPE any
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
-        VALUE(result) TYPE REF TO zcl_semver
+        VALUE(result) TYPE REF TO zcl_semver_comparator
       RAISING
         zcx_semver_error.
 
@@ -44,7 +50,8 @@ CLASS zcl_semver_comparator DEFINITION
     METHODS intersects
       IMPORTING
         comp          TYPE REF TO zcl_semver_comparator
-        opt           TYPE zif_semver_definitions=>ty_options
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -61,6 +68,19 @@ ENDCLASS.
 CLASS zcl_semver_comparator IMPLEMENTATION.
 
 
+  METHOD class_constructor.
+
+    TRY.
+        any_semver = zcl_semver=>create( '9999.9999.9999' ).
+      CATCH zcx_semver_error ##NO_HANDLER.
+    ENDTRY.
+
+    " any_semver must be valid
+    ASSERT any_semver IS BOUND.
+
+  ENDMETHOD.
+
+
   METHOD constructor.
 
     options-loose  = loose.
@@ -68,7 +88,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
 
     parse( comp ).
 
-    IF semver = get_any( ).
+    IF semver = any_semver.
       value = ''.
     ELSE.
       value = operator && semver->version.
@@ -77,12 +97,34 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_any.
-    result = NEW zcl_semver( any_symbol ).
+  METHOD create.
+
+    DATA(kind) = cl_abap_typedescr=>describe_by_data( comp )->type_kind.
+
+    IF kind = cl_abap_typedescr=>typekind_oref AND comp IS INSTANCE OF zcl_semver_comparator.
+
+      result = comp.
+
+      IF result->options-loose = loose AND result->options-incpre = incpre.
+        RETURN.
+      ENDIF.
+
+      result = NEW zcl_semver_comparator( comp = |{ result->value }| loose = loose incpre = incpre ).
+
+    ELSEIF kind = cl_abap_typedescr=>typekind_char OR kind = cl_abap_typedescr=>typekind_string.
+
+      result = NEW zcl_semver_comparator( comp = |{ comp }| loose = loose incpre = incpre ).
+
+    ELSE.
+      zcx_semver_error=>raise( 'Invalid parameter type' ).
+    ENDIF.
+
   ENDMETHOD.
 
 
   METHOD intersects ##TODO.
+
+    zcx_semver_error=>raise( 'Not implemented' ).
 
     IF operator = ''.
       IF value = ''.
@@ -113,7 +155,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
           a     = semver->version
           op    = '<'
           b     = comp->semver->version
-          loose = opt-loose ) AND
+          loose = loose ) AND
         ( operator = '>=' OR operator = '>' ) AND
         ( comp->operator = '<=' OR comp->operator = '<' ) ).
       DATA(opposite_directions_greater) = xsdbool(
@@ -121,7 +163,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
           a     = semver->version
           op    = '>'
           b     = comp->semver->version
-          loose = opt-loose ) AND
+          loose = loose ) AND
         ( operator = '<=' OR operator = '<' ) AND
         ( comp->operator = '>=' OR comp->operator = '>' ) ).
 
@@ -158,9 +200,9 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
 
         " if it literally is just '>' or '' then allow anything
         IF m->get_submatch( 2 ) IS INITIAL.
-          semver = get_any( ).
+          semver = any_semver.
         ELSE.
-          semver = NEW zcl_semver( version = m->get_submatch( 2 ) loose = options-loose ).
+          semver = zcl_semver=>create( version = m->get_submatch( 2 ) loose = options-loose incpre = options-incpre ).
         ENDIF.
 
       CATCH cx_sy_matcher.
@@ -173,15 +215,15 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
   METHOD test.
 
     TRY.
-        DATA(test_semver) = NEW zcl_semver( version = version loose = options-loose incpre = options-incpre ).
+        DATA(testver) = zcl_semver=>create( version = version loose = options-loose incpre = options-incpre ).
 
-        IF semver = get_any( ) OR test_semver = get_any( ).
+        IF semver = any_semver OR testver = any_semver.
           result = abap_true.
         ELSE.
           result = zcl_semver_functions=>cmp(
-            a     = semver->version
+            a     = testver->version
             op    = operator
-            b     = test_semver->version
+            b     = semver->version
             loose = options-loose ).
         ENDIF.
 

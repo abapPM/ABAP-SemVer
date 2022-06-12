@@ -1,4 +1,4 @@
-CLASS ltcl_semver_tests DEFINITION FOR TESTING RISK LEVEL HARMLESS
+CLASS ltcl_semver DEFINITION FOR TESTING RISK LEVEL HARMLESS
   DURATION SHORT FINAL.
 
   PRIVATE SECTION.
@@ -7,23 +7,23 @@ CLASS ltcl_semver_tests DEFINITION FOR TESTING RISK LEVEL HARMLESS
       test_comparisons FOR TESTING RAISING zcx_semver_error,
       test_equality FOR TESTING RAISING zcx_semver_error,
       test_to_string FOR TESTING RAISING zcx_semver_error,
-      test_garbage FOR TESTING RAISING zcx_semver_error,
+      test_invalid_versions FOR TESTING RAISING zcx_semver_error,
+      test_options FOR TESTING RAISING zcx_semver_error,
       test_really_big FOR TESTING RAISING zcx_semver_error,
-      test_invalid_version_numbers FOR TESTING RAISING zcx_semver_error,
       test_incrementing FOR TESTING RAISING zcx_semver_error,
       test_compare_main_vs_pre FOR TESTING RAISING zcx_semver_error,
       test_compare_build FOR TESTING RAISING zcx_semver_error.
 
 ENDCLASS.
 
-CLASS ltcl_semver_tests IMPLEMENTATION.
+CLASS ltcl_semver IMPLEMENTATION.
 
   METHOD test_comparisons.
 
     LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose }|.
-      DATA(s0) = NEW zcl_semver( version = comparison-v0 loose = comparison-loose ).
-      DATA(s1) = NEW zcl_semver( version = comparison-v1 loose = comparison-loose ).
+      DATA(s0) = zcl_semver=>create( version = comparison-v0 loose = comparison-loose ).
+      DATA(s1) = zcl_semver=>create( version = comparison-v1 loose = comparison-loose ).
 
       cl_abap_unit_assert=>assert_equals( act = s0->compare( s1->version ) exp = 1 msg = msg ).
       cl_abap_unit_assert=>assert_equals( act = s0->compare( comparison-v1 ) exp = 1 msg = msg ).
@@ -39,8 +39,8 @@ CLASS ltcl_semver_tests IMPLEMENTATION.
 
     LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       DATA(msg) = |{ equality-v0 } { equality-v1 }|.
-      DATA(s0) = NEW zcl_semver( version = equality-v0 loose = equality-loose ).
-      DATA(s1) = NEW zcl_semver( version = equality-v1 loose = equality-loose ).
+      DATA(s0) = zcl_semver=>create( version = equality-v0 loose = equality-loose ).
+      DATA(s1) = zcl_semver=>create( version = equality-v1 loose = equality-loose ).
 
       cl_abap_unit_assert=>assert_equals( act = s0->compare( s1->version ) exp = 0 msg = msg ).
       cl_abap_unit_assert=>assert_equals( act = s1->compare( s0->version ) exp = 0 msg = msg ).
@@ -55,7 +55,7 @@ CLASS ltcl_semver_tests IMPLEMENTATION.
 
   METHOD test_to_string.
 
-    DATA(s) = NEW zcl_semver( 'v1.2.3' ).
+    DATA(s) = zcl_semver=>create( 'v1.2.3' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = s->to_string( )
@@ -64,54 +64,48 @@ CLASS ltcl_semver_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_garbage.
+  METHOD test_invalid_versions.
+    " throws when presented with garbage
 
     LOOP AT zcl_semver_fixtures=>invalid_versions( ) INTO DATA(invalid_version).
       DATA(msg) = |{ invalid_version-value } { invalid_version-reason }|.
 
       TRY.
-          DATA(s) = NEW zcl_semver( version = invalid_version-value loose = invalid_version-loose ).
+          DATA(s) = zcl_semver=>create( version = invalid_version-value loose = invalid_version-loose ).
           cl_abap_unit_assert=>fail( msg = msg ).
         CATCH zcx_semver_error ##NO_HANDLER.
-          " throws when presented with garbage
       ENDTRY.
     ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD test_options.
+
+    DATA(s) = zcl_semver=>create( version = '1.2.3' loose = abap_true incpre = abap_true ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver=>create( version = s loose = abap_true incpre = abap_true )
+      exp = s
+      msg = 'Should get same object when options match' ).
+
+    IF zcl_semver=>create( s ) = s.
+      cl_abap_unit_assert=>fail( msg = 'Should get new object when options do not match' ).
+    ENDIF.
 
   ENDMETHOD.
 
   METHOD test_really_big.
     " test really big numeric prerelease value.
 
-    DATA(r) = NEW zcl_semver( |1.2.3-beta.{ zif_semver_constants=>max_safe_integer }0| ).
+    DATA(s) = zcl_semver=>create( |1.2.3-beta.{ zif_semver_constants=>max_safe_integer }0| ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = r->prerelease[ 1 ]
+      act = s->prerelease[ 1 ]
       exp = 'beta' ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = r->prerelease[ 2 ]
-      exp = '21474836470' ).
-
-  ENDMETHOD.
-
-  METHOD test_invalid_version_numbers.
-
-    DATA invalid_versions TYPE string_table.
-
-    invalid_versions = VALUE #(
-      ( `1.2.3.4` )
-      ( `NOT VALID` )
-      ( `1.2` )
-      ( `` ) ).
-
-    LOOP AT invalid_versions INTO DATA(invalid_version).
-      TRY.
-          DATA(s) = NEW zcl_semver( invalid_version ).
-          cl_abap_unit_assert=>fail( msg = |Invalid version { invalid_version }| ).
-        CATCH zcx_semver_error ##NO_HANDLER.
-          " throws when presented with garbage
-      ENDTRY.
-    ENDLOOP.
+      act = s->prerelease[ 2 ]
+      exp = |{ zif_semver_constants=>max_safe_integer }0| ).
 
   ENDMETHOD.
 
@@ -122,7 +116,7 @@ CLASS ltcl_semver_tests IMPLEMENTATION.
 
       IF increments-expect = ''.
         TRY.
-            DATA(s) = NEW zcl_semver( version = increments-version loose = increments-loose ).
+            DATA(s) = zcl_semver=>create( version = increments-version loose = increments-loose ).
 
             s->inc( release = increments-inc identifier = increments-identifier ).
             cl_abap_unit_assert=>fail( msg = msg ).
@@ -130,7 +124,7 @@ CLASS ltcl_semver_tests IMPLEMENTATION.
             " throws when presented with garbage
         ENDTRY.
       ELSE.
-        s = NEW zcl_semver( version = increments-version loose = increments-loose ).
+        s = zcl_semver=>create( version = increments-version loose = increments-loose ).
 
         cl_abap_unit_assert=>assert_equals(
           act = s->inc( release = increments-inc identifier = increments-identifier )->version
@@ -143,7 +137,7 @@ CLASS ltcl_semver_tests IMPLEMENTATION.
 
   METHOD test_compare_main_vs_pre.
 
-    DATA(s) = NEW zcl_semver( '1.2.3' ).
+    DATA(s) = zcl_semver=>create( '1.2.3' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = s->compare_main( '2.3.4' )
@@ -165,7 +159,7 @@ CLASS ltcl_semver_tests IMPLEMENTATION.
       act = s->compare_main( '1.2.3-pre' )
       exp = 0 ).
 
-    DATA(p) = NEW zcl_semver( '1.2.3-alpha.0.pr.1' ).
+    DATA(p) = zcl_semver=>create( '1.2.3-alpha.0.pr.1' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = p->compare_pre( '9.9.9-alpha.0.pr.1' )
@@ -187,10 +181,10 @@ CLASS ltcl_semver_tests IMPLEMENTATION.
 
   METHOD test_compare_build.
 
-    DATA(nobuild) = NEW zcl_semver( '1.0.0' ).
-    DATA(build0) = NEW zcl_semver( '1.0.0+0' ).
-    DATA(build1) = NEW zcl_semver( '1.0.0+1' ).
-    DATA(build10) = NEW zcl_semver( '1.0.0+1.0' ).
+    DATA(nobuild) = zcl_semver=>create( '1.0.0' ).
+    DATA(build0) = zcl_semver=>create( '1.0.0+0' ).
+    DATA(build1) = zcl_semver=>create( '1.0.0+1' ).
+    DATA(build10) = zcl_semver=>create( '1.0.0+1.0' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = nobuild->compare_build( '1.0.0+0' )

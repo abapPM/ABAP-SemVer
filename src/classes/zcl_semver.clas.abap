@@ -1,7 +1,7 @@
 CLASS zcl_semver DEFINITION
   PUBLIC
   FINAL
-  CREATE PUBLIC.
+  CREATE PRIVATE.
 
   PUBLIC SECTION.
 
@@ -18,6 +18,16 @@ CLASS zcl_semver DEFINITION
         version TYPE string
         loose   TYPE abap_bool DEFAULT abap_false
         incpre  TYPE abap_bool DEFAULT abap_false
+      RAISING
+        zcx_semver_error.
+
+    CLASS-METHODS create
+      IMPORTING
+        version       TYPE any
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
+      RETURNING
+        VALUE(result) TYPE REF TO zcl_semver
       RAISING
         zcx_semver_error.
 
@@ -86,16 +96,15 @@ CLASS zcl_semver IMPLEMENTATION.
 
   METHOD compare.
 
-    DATA(semver) = NEW zcl_semver( version = other loose = options-loose incpre = options-incpre ).
+    DATA(semver) = zcl_semver=>create( version = other loose = options-loose incpre = options-incpre ).
 
     IF semver->version = version.
       result = 0.
     ELSE.
       DATA(comp_main) = compare_main( other ).
-      DATA(comp_pre)  = compare_pre( other ).
 
       IF comp_main = 0.
-        result = comp_pre.
+        result = compare_pre( other ).
       ELSE.
         result = comp_main.
       ENDIF.
@@ -106,7 +115,7 @@ CLASS zcl_semver IMPLEMENTATION.
 
   METHOD compare_build.
 
-    DATA(semver) = NEW zcl_semver( version = other loose = options-loose incpre = options-incpre ).
+    DATA(semver) = zcl_semver=>create( version = other loose = options-loose incpre = options-incpre ).
 
     DATA(i) = 1.
     DO.
@@ -133,7 +142,7 @@ CLASS zcl_semver IMPLEMENTATION.
 
   METHOD compare_main.
 
-    DATA(semver) = NEW zcl_semver( version = other loose = options-loose incpre = options-incpre ).
+    DATA(semver) = zcl_semver=>create( version = other loose = options-loose incpre = options-incpre ).
 
     result = zcl_semver_identifiers=>compare_identifiers( a = major b = semver->major ).
     IF result = 0.
@@ -148,7 +157,7 @@ CLASS zcl_semver IMPLEMENTATION.
 
   METHOD compare_pre.
 
-    DATA(semver) = NEW zcl_semver( version = other loose = options-loose incpre = options-incpre ).
+    DATA(semver) = zcl_semver=>create( version = other loose = options-loose incpre = options-incpre ).
 
     " NOT having a prerelease is > having one
     IF prerelease IS NOT INITIAL AND semver->prerelease IS INITIAL.
@@ -252,6 +261,31 @@ CLASS zcl_semver IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD create.
+
+    DATA(kind) = cl_abap_typedescr=>describe_by_data( version )->type_kind.
+
+    IF kind = cl_abap_typedescr=>typekind_oref AND version IS INSTANCE OF zcl_semver.
+
+      result ?= version.
+
+      IF result->options-loose = loose AND result->options-incpre = incpre.
+        RETURN.
+      ENDIF.
+
+      result = NEW zcl_semver( version = |{ result->version }| loose = loose incpre = incpre ).
+
+    ELSEIF kind = cl_abap_typedescr=>typekind_char OR kind = cl_abap_typedescr=>typekind_string.
+
+      result = NEW zcl_semver( version = |{ version }| loose = loose incpre = incpre ).
+
+    ELSE.
+      zcx_semver_error=>raise( 'Invalid parameter type' ).
+    ENDIF.
+
+  ENDMETHOD.
+
+
   METHOD format.
 
     version = |{ major }.{ minor }.{ patch }|.
@@ -333,7 +367,7 @@ CLASS zcl_semver IMPLEMENTATION.
         ELSE.
           DATA(i) = lines( prerelease ).
           WHILE i > 0.
-            IF zcl_semver_functions=>is_numeric( prerelease[ i ] ).
+            IF zcl_semver_utils=>is_numeric( prerelease[ i ] ).
               prerelease[ i ] += 1.
               prerelease[ i ] = condense( prerelease[ i ] ).
               i = 0.
@@ -349,7 +383,7 @@ CLASS zcl_semver IMPLEMENTATION.
           " 1.2.0-beta.1 bumps to 1.2.0-beta.2,
           " 1.2.0-beta.fooblz or 1.2.0-beta bumps to 1.2.0-beta.0
           IF zcl_semver_identifiers=>compare_identifiers( a = prerelease[ 1 ] b = identifier ) = 0.
-            IF NOT zcl_semver_functions=>is_numeric( VALUE #( prerelease[ 2 ] DEFAULT `-` ) ).
+            IF NOT zcl_semver_utils=>is_numeric( VALUE #( prerelease[ 2 ] DEFAULT `-` ) ).
               prerelease = VALUE #( ( identifier ) ( `0` ) ).
             ENDIF.
           ELSE.

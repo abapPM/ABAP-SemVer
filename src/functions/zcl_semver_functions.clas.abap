@@ -5,16 +5,11 @@ CLASS zcl_semver_functions DEFINITION
 
   PUBLIC SECTION.
 
-    CLASS-METHODS is_numeric
-      IMPORTING
-        a             TYPE any
-      RETURNING
-        VALUE(result) TYPE abap_bool.
-
     CLASS-METHODS clean
       IMPORTING
         version       TYPE string
-        opt           TYPE zif_semver_definitions=>ty_options OPTIONAL
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string
       RAISING
@@ -22,9 +17,9 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS cmp
       IMPORTING
-        a             TYPE string
+        a             TYPE any
         op            TYPE string
-        b             TYPE string
+        b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
@@ -34,7 +29,7 @@ CLASS zcl_semver_functions DEFINITION
     CLASS-METHODS coerce
       IMPORTING
         version       TYPE string
-        opt           TYPE zif_semver_definitions=>ty_options OPTIONAL
+        rtl           TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE REF TO zcl_semver
       RAISING
@@ -42,8 +37,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS compare
       IMPORTING
-        a             TYPE string
-        b             TYPE string
+        a             TYPE any
+        b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
@@ -52,8 +47,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS compare_build
       IMPORTING
-        a             TYPE string
-        b             TYPE string
+        a             TYPE any
+        b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
@@ -62,8 +57,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS compare_loose
       IMPORTING
-        a             TYPE string
-        b             TYPE string
+        a             TYPE any
+        b             TYPE any
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -71,8 +66,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS diff
       IMPORTING
-        version_1     TYPE string
-        version_2     TYPE string
+        version_1     TYPE any
+        version_2     TYPE any
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -80,8 +75,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS eq
       IMPORTING
-        a             TYPE string
-        b             TYPE string
+        a             TYPE any
+        b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
@@ -90,8 +85,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS gt
       IMPORTING
-        a             TYPE string
-        b             TYPE string
+        a             TYPE any
+        b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
@@ -100,8 +95,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS gte
       IMPORTING
-        a             TYPE string
-        b             TYPE string
+        a             TYPE any
+        b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
@@ -110,17 +105,18 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS inc
       IMPORTING
-        version       TYPE string
+        version       TYPE any
         release       TYPE string
-        opt           TYPE zif_semver_definitions=>ty_options OPTIONAL
         identifier    TYPE string OPTIONAL
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE REF TO zcl_semver.
 
     CLASS-METHODS lt
       IMPORTING
-        a             TYPE string
-        b             TYPE string
+        a             TYPE any
+        b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
@@ -129,8 +125,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS lte
       IMPORTING
-        a             TYPE string
-        b             TYPE string
+        a             TYPE any
+        b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
@@ -139,7 +135,7 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS major
       IMPORTING
-        version       TYPE string
+        version       TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
@@ -148,7 +144,7 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS minor
       IMPORTING
-        version       TYPE string
+        version       TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
@@ -157,8 +153,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS neq
       IMPORTING
-        a             TYPE string
-        b             TYPE string
+        a             TYPE any
+        b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
@@ -167,8 +163,9 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS parse
       IMPORTING
-        version       TYPE string
-        opt           TYPE zif_semver_definitions=>ty_options OPTIONAL
+        version       TYPE any
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE REF TO zcl_semver
       RAISING
@@ -176,7 +173,7 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS patch
       IMPORTING
-        version       TYPE string
+        version       TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
@@ -185,8 +182,9 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS prerelease
       IMPORTING
-        version       TYPE string
-        opt           TYPE zif_semver_definitions=>ty_options OPTIONAL
+        version       TYPE any
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string_table
       RAISING
@@ -194,8 +192,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS rcompare
       IMPORTING
-        a             TYPE string
-        b             TYPE string
+        a             TYPE any
+        b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
@@ -222,9 +220,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS satisfies
       IMPORTING
-        version       TYPE string
-        range         TYPE string
-        opt           TYPE zif_semver_definitions=>ty_options OPTIONAL
+        version       TYPE any
+        range         TYPE any
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -232,13 +231,24 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS valid
       IMPORTING
-        version       TYPE string
-        opt           TYPE zif_semver_definitions=>ty_options OPTIONAL
+        version       TYPE any
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
+
+    CLASS-METHODS equality
+      IMPORTING
+        a             TYPE any
+        b             TYPE any
+      RETURNING
+        VALUE(result) TYPE abap_bool
+      RAISING
+        zcx_semver_error.
+
 ENDCLASS.
 
 
@@ -248,15 +258,19 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD clean.
 
-    DATA(vers) = replace(
-      val   = condense( version )
+    DATA(vers) = condense(
+      val = version
+      del = | \t\n\r| ).
+
+    vers = replace(
+      val   = vers
       regex = '^[=v]+'
       with  = '' ).
 
-    DATA(s) = parse( version = vers opt = opt ).
+    DATA(semver) = parse( version = vers loose = loose incpre = incpre ).
 
-    IF s IS NOT INITIAL.
-      result = s->version.
+    IF semver IS NOT INITIAL.
+      result = semver->version.
     ENDIF.
 
   ENDMETHOD.
@@ -266,9 +280,9 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
     CASE op.
       WHEN '==='.
-        zcx_semver_error=>raise( 'Not implemented' ).
+        result = equality( a = a b = b ).
       WHEN '!=='.
-        zcx_semver_error=>raise( 'Not implemented' ).
+        result = xsdbool( NOT equality( a = a b = b ) ).
       WHEN '' OR '=' OR '=='.
         result = eq( a = a b = b loose = loose ).
       WHEN '!=' OR '<>'.
@@ -290,44 +304,52 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD coerce.
 
-    DATA(r) = COND #( WHEN opt-rtl = abap_true THEN zcl_semver_re=>re-coercertl ELSE zcl_semver_re=>re-coerce ).
+    DATA(r) = COND #( WHEN rtl = abap_true THEN zcl_semver_re=>re-coercertl ELSE zcl_semver_re=>re-coerce ).
 
     TRY.
         DATA(m) = r->create_matcher( text = version ).
 
-        IF m->match( ).
-
-          IF opt-rtl IS INITIAL.
-            DATA(major) = m->get_submatch( 3 ).
-            DATA(minor) = m->get_submatch( 4 ).
-            DATA(patch) = m->get_submatch( 5 ).
-          ELSE.
-            zcx_semver_error=>raise( 'Not implemented' ).
-          ENDIF.
-
-          IF minor IS INITIAL.
-            minor = '0'.
-          ENDIF.
-
-          IF patch IS INITIAL.
-            patch = '0'.
-          ENDIF.
-
-          result = parse( |{ major }.{ minor }.{ patch }| ).
-
+        IF NOT m->match( ).
+          RETURN.
         ENDIF.
-
       CATCH cx_sy_matcher.
         zcx_semver_error=>raise( |Error evaluating regex for { version }| ).
     ENDTRY.
+
+    IF rtl IS INITIAL.
+      TRY.
+          DATA(major) = m->get_submatch( 2 ).
+        CATCH cx_sy_matcher ##NO_HANDLER.
+      ENDTRY.
+      TRY.
+          DATA(minor) = m->get_submatch( 3 ).
+        CATCH cx_sy_matcher ##NO_HANDLER.
+      ENDTRY.
+      TRY.
+          DATA(patch) = m->get_submatch( 4 ).
+        CATCH cx_sy_matcher ##NO_HANDLER.
+      ENDTRY.
+    ELSE.
+      zcx_semver_error=>raise( 'Not implemented' ).
+    ENDIF.
+
+    IF minor IS INITIAL.
+      minor = '0'.
+    ENDIF.
+
+    IF patch IS INITIAL.
+      patch = '0'.
+    ENDIF.
+
+    result = parse( |{ major }.{ minor }.{ patch }| ).
 
   ENDMETHOD.
 
 
   METHOD compare.
 
-    DATA(semver_a) = NEW zcl_semver( version = a loose = loose ).
-    DATA(semver_b) = NEW zcl_semver( version = b loose = loose ).
+    DATA(semver_a) = zcl_semver=>create( version = a loose = loose ).
+    DATA(semver_b) = zcl_semver=>create( version = b loose = loose ).
 
     result = semver_a->compare( semver_b->version ).
 
@@ -336,8 +358,8 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD compare_build.
 
-    DATA(semver_a) = NEW zcl_semver( version = a loose = loose ).
-    DATA(semver_b) = NEW zcl_semver( version = b loose = loose ).
+    DATA(semver_a) = zcl_semver=>create( version = a loose = loose ).
+    DATA(semver_b) = zcl_semver=>create( version = b loose = loose ).
 
     result = semver_a->compare( semver_b->version ).
     IF result = 0.
@@ -385,6 +407,22 @@ CLASS zcl_semver_functions IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD equality.
+
+    DATA semver_a TYPE REF TO zcl_semver.
+    DATA semver_b TYPE REF TO zcl_semver.
+
+    IF a IS BOUND AND a IS INSTANCE OF zcl_semver AND b IS BOUND AND b IS INSTANCE OF zcl_semver.
+      semver_a ?= a.
+      semver_b ?= b.
+      result = xsdbool( semver_a->version = semver_b->version ).
+    ELSE.
+      zcx_semver_error=>raise( |Invalid parameter type| ).
+    ENDIF.
+
+  ENDMETHOD.
+
+
   METHOD gt.
     result = xsdbool( compare( a = a b = b loose = loose ) > 0 ).
   ENDMETHOD.
@@ -398,22 +436,10 @@ CLASS zcl_semver_functions IMPLEMENTATION.
   METHOD inc.
 
     TRY.
-        DATA(semver) = NEW zcl_semver( version = version loose = opt-loose incpre = opt-incpre ).
+        DATA(semver) = zcl_semver=>create( version = version loose = loose incpre = incpre ).
 
         semver->inc( release = release identifier = identifier ).
       CATCH zcx_semver_error ##NO_HANDLER.
-    ENDTRY.
-
-  ENDMETHOD.
-
-
-  METHOD is_numeric.
-
-    TRY.
-        result = xsdbool( |{ a }| CO '0123456789' ).
-      CATCH cx_root.
-        " can't be converted to string/numeric
-        result = abap_false.
     ENDTRY.
 
   ENDMETHOD.
@@ -430,13 +456,13 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
 
   METHOD major.
-    DATA(semver) = NEW zcl_semver( version = version loose = loose ).
+    DATA(semver) = zcl_semver=>create( version = version loose = loose ).
     result = semver->major.
   ENDMETHOD.
 
 
   METHOD minor.
-    DATA(semver) = NEW zcl_semver( version = version loose = loose ).
+    DATA(semver) = zcl_semver=>create( version = version loose = loose ).
     result = semver->minor.
   ENDMETHOD.
 
@@ -448,39 +474,46 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD parse.
 
-    IF strlen( version ) <= zif_semver_constants=>max_length.
+    DATA(kind) = cl_abap_typedescr=>describe_by_data( version )->type_kind.
 
-      DATA(r) = zcl_semver_re=>re-full.
-
-      TRY.
-          DATA(m) = r->create_matcher( text = version ).
-
-          IF m->match( ).
-
-            TRY.
-                DATA(semver) = NEW zcl_semver( version = version loose = opt-loose incpre = opt-incpre ).
-              CATCH zcx_semver_error ##NO_HANDLER.
-            ENDTRY.
-
-          ENDIF.
-
-        CATCH cx_sy_matcher.
-          zcx_semver_error=>raise( |Error evaluating regex for { version }| ).
-      ENDTRY.
-
+    IF kind = cl_abap_typedescr=>typekind_oref AND version IS INSTANCE OF zcl_semver.
+      result ?= version.
+      RETURN.
     ENDIF.
+
+    CHECK kind = cl_abap_typedescr=>typekind_char OR kind = cl_abap_typedescr=>typekind_string.
+
+    CHECK strlen( version ) <= zif_semver_constants=>max_length.
+
+    DATA(r) = COND #( WHEN loose = abap_true THEN zcl_semver_re=>re-loose ELSE zcl_semver_re=>re-full ).
+
+    TRY.
+        DATA(m) = r->create_matcher( text = version ).
+
+        IF m->match( ).
+
+          TRY.
+              result = zcl_semver=>create( version = version loose = loose incpre = incpre ).
+            CATCH zcx_semver_error ##NO_HANDLER.
+          ENDTRY.
+
+        ENDIF.
+
+      CATCH cx_sy_matcher.
+        zcx_semver_error=>raise( |Error evaluating regex for { version }| ).
+    ENDTRY.
 
   ENDMETHOD.
 
 
   METHOD patch.
-    DATA(semver) = NEW zcl_semver( version = version loose = loose ).
+    DATA(semver) = zcl_semver=>create( version = version loose = loose ).
     result = semver->patch.
   ENDMETHOD.
 
 
   METHOD prerelease.
-    DATA(semver) = parse( version = version opt = opt ).
+    DATA(semver) = parse( version = version loose = loose incpre = incpre ).
     result = semver->prerelease.
   ENDMETHOD.
 
@@ -499,7 +532,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       DATA(j) = 1.
       WHILE j < lines( result ) - i.
         IF compare_build( b = result[ j ] a = result[ j + 1 ] loose = loose ) < 0.
-          DATA(temp)    = result[ j ].
+          DATA(temp)      = result[ j ].
           result[ j ]     = result[ j + 1 ].
           result[ j + 1 ] = temp.
         ENDIF.
@@ -511,10 +544,12 @@ CLASS zcl_semver_functions IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD satisfies ##TODO.
+  METHOD satisfies.
+
+    zcx_semver_error=>raise( 'Not implemented' ).     " TODO
 
     TRY.
-*        DATA(semrange) = NEW zcl_semver_range( range = range opt = opt ).
+*        DATA(semrange) = zcl_semver=>create_range( range = range opt = opt ).
 *
 *        result = semrange->test( version ).
       CATCH zcx_semver_error.
@@ -533,7 +568,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       DATA(j) = 1.
       WHILE j < lines( result ) - i.
         IF compare_build( a = result[ j ] b = result[ j + 1 ] loose = loose ) < 0.
-          DATA(temp)    = result[ j ].
+          DATA(temp)      = result[ j ].
           result[ j ]     = result[ j + 1 ].
           result[ j + 1 ] = temp.
         ENDIF.
@@ -548,7 +583,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
   METHOD valid.
 
     TRY.
-        DATA(semver) = parse( version = version opt = opt ).
+        DATA(semver) = parse( version = version loose = loose incpre = incpre ).
 
         IF semver IS NOT INITIAL.
           result = semver->version.
