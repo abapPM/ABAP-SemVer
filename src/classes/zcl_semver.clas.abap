@@ -41,7 +41,7 @@ CLASS zcl_semver DEFINITION
 
     METHODS compare
       IMPORTING
-        other         TYPE string
+        other         TYPE any
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -49,7 +49,7 @@ CLASS zcl_semver DEFINITION
 
     METHODS compare_main
       IMPORTING
-        other         TYPE string
+        other         TYPE any
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -57,7 +57,7 @@ CLASS zcl_semver DEFINITION
 
     METHODS compare_pre
       IMPORTING
-        other         TYPE string
+        other         TYPE any
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -65,7 +65,7 @@ CLASS zcl_semver DEFINITION
 
     METHODS compare_build
       IMPORTING
-        other         TYPE string
+        other         TYPE any
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -79,7 +79,6 @@ CLASS zcl_semver DEFINITION
         VALUE(result) TYPE REF TO zcl_semver
       RAISING
         zcx_semver_error.
-
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -241,6 +240,12 @@ CLASS zcl_semver IMPLEMENTATION.
           ELSE.
             prerelease = VALUE #( ( m4 ) ).
           ENDIF.
+          LOOP AT prerelease ASSIGNING FIELD-SYMBOL(<pre>).
+            IF zcl_semver_utils=>is_numeric( <pre> ).
+              DATA(pre_num) = CONV decfloat34( <pre> ).
+              <pre> = pre_num.
+            ENDIF.
+          ENDLOOP.
         ENDIF.
 
         DATA(m5) = m->get_submatch( 5 ).

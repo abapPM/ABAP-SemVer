@@ -69,7 +69,7 @@ CLASS zcl_semver_functions DEFINITION
         version_1     TYPE any
         version_2     TYPE any
       RETURNING
-        VALUE(result) TYPE abap_bool
+        VALUE(result) TYPE string
       RAISING
         zcx_semver_error.
 
@@ -236,7 +236,6 @@ CLASS zcl_semver_functions DEFINITION
         incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string.
-
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -361,9 +360,9 @@ CLASS zcl_semver_functions IMPLEMENTATION.
     DATA(semver_a) = zcl_semver=>create( version = a loose = loose ).
     DATA(semver_b) = zcl_semver=>create( version = b loose = loose ).
 
-    result = semver_a->compare( semver_b->version ).
+    result = semver_a->compare( semver_b ).
     IF result = 0.
-      result = semver_a->compare_build( semver_b->version ).
+      result = semver_a->compare_build( semver_b ).
     ENDIF.
 
   ENDMETHOD.
