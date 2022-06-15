@@ -6,7 +6,8 @@ CLASS ltcl_semver_re DEFINITION FOR TESTING RISK LEVEL HARMLESS
 
     METHODS:
       test_src FOR TESTING,
-      test_regex FOR TESTING.
+      test_regex FOR TESTING,
+      test_occ FOR TESTING.
 
 ENDCLASS.
 
@@ -19,15 +20,17 @@ CLASS ltcl_semver_re IMPLEMENTATION.
 
     DATA i TYPE i.
 
+    FIELD-SYMBOLS <token> TYPE zcl_semver_re=>ty_token.
+
     DO.
       i += 1.
-      ASSIGN COMPONENT i OF STRUCTURE zcl_semver_re=>src TO FIELD-SYMBOL(<src>).
+      ASSIGN COMPONENT i OF STRUCTURE zcl_semver_re=>token TO <token>.
       IF sy-subrc <> 0.
         EXIT.
       ENDIF.
 
       cl_abap_unit_assert=>assert_not_initial(
-        act = <src>
+        act = <token>-src
         msg = |Regex component #{ i } must not be initial| ).
     ENDDO.
 
@@ -39,20 +42,45 @@ CLASS ltcl_semver_re IMPLEMENTATION.
     DATA i TYPE i.
     DATA regex TYPE REF TO cl_abap_regex.
 
+    FIELD-SYMBOLS <token> TYPE zcl_semver_re=>ty_token.
+
     DO.
       i += 1.
-      ASSIGN COMPONENT i OF STRUCTURE zcl_semver_re=>re TO FIELD-SYMBOL(<regex>).
+      ASSIGN COMPONENT i OF STRUCTURE zcl_semver_re=>token TO <token>.
       IF sy-subrc <> 0.
         EXIT.
       ENDIF.
 
       TRY.
-          regex = <regex>.
+          regex = <token>-regex.
           DATA(matcher) = regex->create_matcher( text = '1.2.3' ).
         CATCH cx_root.
           cl_abap_unit_assert=>fail(
             msg = |Error processing regex component #{ i }| ).
       ENDTRY.
+    ENDDO.
+
+  ENDMETHOD.
+
+  METHOD test_occ.
+    " either 0 or 1
+
+    DATA i TYPE i.
+
+    FIELD-SYMBOLS <token> TYPE zcl_semver_re=>ty_token.
+
+    DO.
+      i += 1.
+      ASSIGN COMPONENT i OF STRUCTURE zcl_semver_re=>token TO <token>.
+      IF sy-subrc <> 0.
+        EXIT.
+      ENDIF.
+
+      cl_abap_unit_assert=>assert_number_between(
+        number = <token>-occ
+        lower  = 0
+        upper  = 1
+        msg    = |Occurence of component #{ i } must be either 0 or 1| ).
     ENDDO.
 
   ENDMETHOD.

@@ -43,13 +43,13 @@ CLASS zcl_semver_comparator DEFINITION
 
     METHODS test
       IMPORTING
-        version       TYPE string
+        version       TYPE any
       RETURNING
         VALUE(result) TYPE abap_bool.
 
     METHODS intersects
       IMPORTING
-        comp          TYPE REF TO zcl_semver_comparator
+        comp          TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
         incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
@@ -122,50 +122,60 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD intersects ##TODO.
+  METHOD intersects.
 
-    zcx_semver_error=>raise( 'Not implemented' ).
+    DATA(semcomp) = zcl_semver_comparator=>create( comp ).
+
+    CHECK semcomp IS BOUND.
 
     IF operator = ''.
       IF value = ''.
         result = abap_true.
       ELSE.
-        "result = NEW zcl_range( value = comp->value opt = opt )->test( value ).
+        DATA(semrange) = zcl_semver_range=>create( range = semcomp->value loose = loose incpre = incpre ).
+
+        CHECK semrange IS BOUND.
+
+        result = semrange->test( value ).
       ENDIF.
-    ELSEIF comp->operator = ''.
-      IF comp->value = ''.
+    ELSEIF semcomp->operator = ''.
+      IF semcomp->value = ''.
         result = abap_true.
       ELSE.
-        "result = NEW zcl_range( value = value opt = opt )->test( comp->value ). " comp->semver?
+        semrange = zcl_semver_range=>create( range = value loose = loose incpre = incpre ).
+
+        CHECK semrange IS BOUND.
+
+        result = semrange->test( semcomp->semver ).
       ENDIF.
     ELSE.
       DATA(same_direction_increasing) = xsdbool(
         ( operator = '>=' OR operator = '>' ) AND
-        ( comp->operator = '>=' OR comp->operator = '>' ) ).
+        ( semcomp->operator = '>=' OR semcomp->operator = '>' ) ).
       DATA(same_direction_decreasing) = xsdbool(
         ( operator = '<=' OR operator = '<' ) AND
-        ( comp->operator = '<=' OR comp->operator = '<' ) ).
+        ( semcomp->operator = '<=' OR semcomp->operator = '<' ) ).
       DATA(same_semver) = xsdbool(
-        semver->version = comp->semver->version ).
+        semver->version = semcomp->semver->version ).
       DATA(different_directions_inclusive) = xsdbool(
         ( operator = '>=' OR operator = '<=' ) AND
-        ( comp->operator = '>=' OR comp->operator = '<=' ) ).
+        ( semcomp->operator = '>=' OR semcomp->operator = '<=' ) ).
       DATA(opposite_directions_less) = xsdbool(
         zcl_semver_functions=>cmp(
           a     = semver->version
           op    = '<'
-          b     = comp->semver->version
+          b     = semcomp->semver->version
           loose = loose ) AND
         ( operator = '>=' OR operator = '>' ) AND
-        ( comp->operator = '<=' OR comp->operator = '<' ) ).
+        ( semcomp->operator = '<=' OR semcomp->operator = '<' ) ).
       DATA(opposite_directions_greater) = xsdbool(
         zcl_semver_functions=>cmp(
           a     = semver->version
           op    = '>'
-          b     = comp->semver->version
+          b     = semcomp->semver->version
           loose = loose ) AND
         ( operator = '<=' OR operator = '<' ) AND
-        ( comp->operator = '>=' OR comp->operator = '>' ) ).
+        ( semcomp->operator = '>=' OR semcomp->operator = '>' ) ).
 
       result = xsdbool(
         same_direction_increasing = abap_true OR
@@ -182,8 +192,8 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
 
     DATA(r) = COND #(
       WHEN options-loose = abap_true
-      THEN zcl_semver_re=>re-comparatorloose
-      ELSE zcl_semver_re=>re-comparator ).
+      THEN zcl_semver_re=>token-comparatorloose-regex
+      ELSE zcl_semver_re=>token-comparator-regex ).
 
     TRY.
         DATA(m) = r->create_matcher( text = comp ).

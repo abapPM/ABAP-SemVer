@@ -34,8 +34,8 @@ CLASS zcl_semver_identifiers IMPLEMENTATION.
     DATA(bnum) = zcl_semver_utils=>is_numeric( b ).
 
     IF anum = abap_true AND bnum = abap_true.
-      DATA(aval) = CONV i( a ).
-      DATA(bval) = CONV i( b ).
+      DATA(aval) = CONV decfloat34( a ).
+      DATA(bval) = CONV decfloat34( b ).
       IF aval = bval.
         result = 0.
       ELSEIF aval < bval.

@@ -1,6 +1,5 @@
 CLASS zcl_semver DEFINITION
   PUBLIC
-  FINAL
   CREATE PRIVATE.
 
   PUBLIC SECTION.
@@ -79,6 +78,7 @@ CLASS zcl_semver DEFINITION
         VALUE(result) TYPE REF TO zcl_semver
       RAISING
         zcx_semver_error.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -97,15 +97,14 @@ CLASS zcl_semver IMPLEMENTATION.
 
     DATA(semver) = zcl_semver=>create( version = other loose = options-loose incpre = options-incpre ).
 
+    CHECK semver IS BOUND.
+
     IF semver->version = version.
       result = 0.
     ELSE.
-      DATA(comp_main) = compare_main( other ).
-
-      IF comp_main = 0.
+      result = compare_main( other ).
+      IF result = 0.
         result = compare_pre( other ).
-      ELSE.
-        result = comp_main.
       ENDIF.
     ENDIF.
 
@@ -143,6 +142,8 @@ CLASS zcl_semver IMPLEMENTATION.
 
     DATA(semver) = zcl_semver=>create( version = other loose = options-loose incpre = options-incpre ).
 
+    CHECK semver IS BOUND.
+
     result = zcl_semver_identifiers=>compare_identifiers( a = major b = semver->major ).
     IF result = 0.
       result = zcl_semver_identifiers=>compare_identifiers( a = minor b = semver->minor ).
@@ -157,6 +158,8 @@ CLASS zcl_semver IMPLEMENTATION.
   METHOD compare_pre.
 
     DATA(semver) = zcl_semver=>create( version = other loose = options-loose incpre = options-incpre ).
+
+    CHECK semver IS BOUND.
 
     " NOT having a prerelease is > having one
     IF prerelease IS NOT INITIAL AND semver->prerelease IS INITIAL.
@@ -199,10 +202,13 @@ CLASS zcl_semver IMPLEMENTATION.
     options-loose  = loose.
     options-incpre = incpre.
 
-    DATA(r) = COND #( WHEN loose = abap_true THEN zcl_semver_re=>re-loose ELSE zcl_semver_re=>re-full ).
+    DATA(r) = COND #(
+      WHEN loose = abap_true
+      THEN zcl_semver_re=>token-loose-regex
+      ELSE zcl_semver_re=>token-full-regex ).
 
     TRY.
-        DATA(m) = r->create_matcher( text = condense( version ) ).
+        DATA(m) = r->create_matcher( text = zcl_semver_utils=>trim( version ) ).
 
         IF NOT m->match( ).
           zcx_semver_error=>raise( |Invalid version { version }| ).
@@ -235,11 +241,8 @@ CLASS zcl_semver IMPLEMENTATION.
 
         DATA(m4) = m->get_submatch( 4 ).
         IF m4 IS NOT INITIAL.
-          IF m4 CS '.'.
-            SPLIT m4 AT '.' INTO TABLE prerelease.
-          ELSE.
-            prerelease = VALUE #( ( m4 ) ).
-          ENDIF.
+          SPLIT m4 AT '.' INTO TABLE prerelease.
+
           LOOP AT prerelease ASSIGNING FIELD-SYMBOL(<pre>).
             IF zcl_semver_utils=>is_numeric( <pre> ).
               DATA(pre_num) = CONV decfloat34( <pre> ).
@@ -250,11 +253,7 @@ CLASS zcl_semver IMPLEMENTATION.
 
         DATA(m5) = m->get_submatch( 5 ).
         IF m5 IS NOT INITIAL.
-          IF m5 CS '.'.
-            SPLIT m5 AT '.' INTO TABLE build.
-          ELSE.
-            build = VALUE #( ( m5 ) ).
-          ENDIF.
+          SPLIT m5 AT '.' INTO TABLE build.
         ENDIF.
 
       CATCH cx_sy_matcher.

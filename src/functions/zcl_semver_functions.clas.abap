@@ -236,6 +236,7 @@ CLASS zcl_semver_functions DEFINITION
         incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -257,20 +258,16 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD clean.
 
-    DATA(vers) = condense(
-      val = version
-      del = | \t\n\r| ).
-
-    vers = replace(
-      val   = vers
+    DATA(vers) = replace(
+      val   = zcl_semver_utils=>trim( version )
       regex = '^[=v]+'
       with  = '' ).
 
     DATA(semver) = parse( version = vers loose = loose incpre = incpre ).
 
-    IF semver IS NOT INITIAL.
-      result = semver->version.
-    ENDIF.
+    CHECK semver IS BOUND.
+
+    result = semver->version.
 
   ENDMETHOD.
 
@@ -303,7 +300,10 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD coerce.
 
-    DATA(r) = COND #( WHEN rtl = abap_true THEN zcl_semver_re=>re-coercertl ELSE zcl_semver_re=>re-coerce ).
+    DATA(r) = COND #(
+      WHEN rtl = abap_true
+      THEN zcl_semver_re=>token-coercertl-regex
+      ELSE zcl_semver_re=>token-coerce-regex ).
 
     TRY.
         DATA(m) = r->create_matcher( text = version ).
@@ -329,6 +329,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
         CATCH cx_sy_matcher ##NO_HANDLER.
       ENDTRY.
     ELSE.
+      " TODO: Is global regex!
       zcx_semver_error=>raise( 'Not implemented' ).
     ENDIF.
 
@@ -350,7 +351,9 @@ CLASS zcl_semver_functions IMPLEMENTATION.
     DATA(semver_a) = zcl_semver=>create( version = a loose = loose ).
     DATA(semver_b) = zcl_semver=>create( version = b loose = loose ).
 
-    result = semver_a->compare( semver_b->version ).
+    CHECK semver_a IS BOUND AND semver_b IS BOUND.
+
+    result = semver_a->compare( semver_b ).
 
   ENDMETHOD.
 
@@ -359,6 +362,8 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
     DATA(semver_a) = zcl_semver=>create( version = a loose = loose ).
     DATA(semver_b) = zcl_semver=>create( version = b loose = loose ).
+
+    CHECK semver_a IS BOUND AND semver_b IS BOUND.
 
     result = semver_a->compare( semver_b ).
     IF result = 0.
@@ -375,27 +380,28 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD diff.
 
-    IF NOT eq( a = version_1 b = version_2 ).
+    CHECK NOT eq( a = version_1 b = version_2 ).
 
-      DATA(semver_1) = parse( version_1 ).
-      DATA(semver_2) = parse( version_2 ).
-      DATA(has_pre) = xsdbool( semver_1->prerelease IS NOT INITIAL OR semver_2->prerelease IS NOT INITIAL ).
+    DATA(semver_1) = parse( version_1 ).
+    DATA(semver_2) = parse( version_2 ).
 
-      IF has_pre = abap_true.
-        DATA(prefix) = 'pre'.
-        DATA(default_result) = 'prerelease'.
-      ENDIF.
+    CHECK semver_1 IS BOUND AND semver_2 IS BOUND.
 
-      IF semver_1->major <> semver_2->major.
-        result = prefix && 'major'.
-      ELSEIF semver_1->minor <> semver_2->minor.
-        result = prefix && 'minor'.
-      ELSEIF semver_1->patch <> semver_2->patch.
-        result = prefix && 'patch'.
-      ELSE.
-        result = default_result. " may be undefined
-      ENDIF.
+    DATA(has_pre) = xsdbool( semver_1->prerelease IS NOT INITIAL OR semver_2->prerelease IS NOT INITIAL ).
 
+    IF has_pre = abap_true.
+      DATA(prefix) = 'pre'.
+      DATA(default_result) = 'prerelease'.
+    ENDIF.
+
+    IF semver_1->major <> semver_2->major.
+      result = prefix && 'major'.
+    ELSEIF semver_1->minor <> semver_2->minor.
+      result = prefix && 'minor'.
+    ELSEIF semver_1->patch <> semver_2->patch.
+      result = prefix && 'patch'.
+    ELSE.
+      result = default_result. " may be undefined
     ENDIF.
 
   ENDMETHOD.
@@ -434,11 +440,24 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD inc.
 
-    TRY.
-        DATA(semver) = zcl_semver=>create( version = version loose = loose incpre = incpre ).
+    DATA semver TYPE REF TO zcl_semver.
 
-        semver->inc( release = release identifier = identifier ).
-      CATCH zcx_semver_error ##NO_HANDLER.
+    TRY.
+        " Create new semver object
+        DATA(kind) = cl_abap_typedescr=>describe_by_data( version )->type_kind.
+
+        IF kind = cl_abap_typedescr=>typekind_oref AND version IS INSTANCE OF zcl_semver.
+          semver ?= version.
+          result = zcl_semver=>create( version = semver->version loose = loose incpre = incpre ).
+        ELSE.
+          result = zcl_semver=>create( version = version loose = loose incpre = incpre ).
+        ENDIF.
+
+        CHECK result IS BOUND.
+
+        result->inc( release = release identifier = identifier ).
+      CATCH zcx_semver_error.
+        CLEAR result.
     ENDTRY.
 
   ENDMETHOD.
@@ -455,14 +474,24 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
 
   METHOD major.
+
     DATA(semver) = zcl_semver=>create( version = version loose = loose ).
+
+    CHECK semver IS BOUND.
+
     result = semver->major.
+
   ENDMETHOD.
 
 
   METHOD minor.
+
     DATA(semver) = zcl_semver=>create( version = version loose = loose ).
+
+    CHECK semver IS BOUND.
+
     result = semver->minor.
+
   ENDMETHOD.
 
 
@@ -484,7 +513,10 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
     CHECK strlen( version ) <= zif_semver_constants=>max_length.
 
-    DATA(r) = COND #( WHEN loose = abap_true THEN zcl_semver_re=>re-loose ELSE zcl_semver_re=>re-full ).
+    DATA(r) = COND #(
+      WHEN loose = abap_true
+      THEN zcl_semver_re=>token-loose-regex
+      ELSE zcl_semver_re=>token-full-regex ).
 
     TRY.
         DATA(m) = r->create_matcher( text = version ).
@@ -506,14 +538,24 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
 
   METHOD patch.
+
     DATA(semver) = zcl_semver=>create( version = version loose = loose ).
+
+    CHECK semver IS BOUND.
+
     result = semver->patch.
+
   ENDMETHOD.
 
 
   METHOD prerelease.
+
     DATA(semver) = parse( version = version loose = loose incpre = incpre ).
+
+    CHECK semver IS BOUND.
+
     result = semver->prerelease.
+
   ENDMETHOD.
 
 
@@ -529,8 +571,8 @@ CLASS zcl_semver_functions IMPLEMENTATION.
     DATA(i) = 1.
     WHILE i < lines( result ).
       DATA(j) = 1.
-      WHILE j < lines( result ) - i.
-        IF compare_build( b = result[ j ] a = result[ j + 1 ] loose = loose ) < 0.
+      WHILE j <= lines( result ) - i.
+        IF compare_build( b = result[ j ] a = result[ j + 1 ] loose = loose ) > 0.
           DATA(temp)      = result[ j ].
           result[ j ]     = result[ j + 1 ].
           result[ j + 1 ] = temp.
@@ -547,9 +589,11 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
     zcx_semver_error=>raise( 'Not implemented' ).     " TODO
 
-    TRY.
 *        DATA(semrange) = zcl_semver=>create_range( range = range opt = opt ).
-*
+
+*    check semrange IS BOUND.
+
+    TRY.
 *        result = semrange->test( version ).
       CATCH zcx_semver_error.
         result = abap_false.
@@ -565,8 +609,8 @@ CLASS zcl_semver_functions IMPLEMENTATION.
     DATA(i) = 1.
     WHILE i < lines( result ).
       DATA(j) = 1.
-      WHILE j < lines( result ) - i.
-        IF compare_build( a = result[ j ] b = result[ j + 1 ] loose = loose ) < 0.
+      WHILE j <= lines( result ) - i.
+        IF compare_build( a = result[ j ] b = result[ j + 1 ] loose = loose ) > 0.
           DATA(temp)      = result[ j ].
           result[ j ]     = result[ j + 1 ].
           result[ j + 1 ] = temp.
@@ -584,11 +628,10 @@ CLASS zcl_semver_functions IMPLEMENTATION.
     TRY.
         DATA(semver) = parse( version = version loose = loose incpre = incpre ).
 
-        IF semver IS NOT INITIAL.
-          result = semver->version.
-        ENDIF.
-      CATCH zcx_semver_error.
-        result = ''.
+        CHECK semver IS BOUND.
+
+        result = semver->version.
+      CATCH zcx_semver_error ##NO_HANDLER.
     ENDTRY.
 
   ENDMETHOD.

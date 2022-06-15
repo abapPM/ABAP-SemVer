@@ -52,17 +52,17 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_intersect ##TODO.
+  METHOD test_intersect.
 
     LOOP AT zcl_semver_fixtures=>comparator_intersection( ) INTO DATA(intersection).
       DATA(msg) = |{ intersection-c0 } { intersection-c1 }|.
       DATA(comp0) = zcl_semver_comparator=>create( intersection-c0 ).
       DATA(comp1) = zcl_semver_comparator=>create( intersection-c1 ).
 
-*      cl_abap_unit_assert=>assert_equals(
-*        act = comp0->intersects( comp1 )
-*        exp = intersection-res
-*        msg = msg ).
+      cl_abap_unit_assert=>assert_equals(
+        act = comp0->intersects( comp1 )
+        exp = intersection-res
+        msg = msg ).
     ENDLOOP.
 
   ENDMETHOD.

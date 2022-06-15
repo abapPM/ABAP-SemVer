@@ -7,6 +7,13 @@ CLASS zcl_semver_re DEFINITION
 
   PUBLIC SECTION.
 
+    TYPES:
+      BEGIN OF ty_token,
+        src   TYPE string,
+        regex TYPE REF TO cl_abap_regex,
+        occ   TYPE i, " 0 = global, 1 = once
+      END OF ty_token.
+
     CONSTANTS:
       caret_trim_replace      TYPE string VALUE '$1^',
       tilde_trim_replace      TYPE string VALUE '$1~',
@@ -16,95 +23,51 @@ CLASS zcl_semver_re DEFINITION
       class_constructor.
 
     CLASS-DATA:
-      BEGIN OF re,
-        build                     TYPE REF TO cl_abap_regex,
-        buildidentifier           TYPE REF TO cl_abap_regex,
-        caret                     TYPE REF TO cl_abap_regex,
-        caretloose                TYPE REF TO cl_abap_regex,
-        carettrim                 TYPE REF TO cl_abap_regex,
-        coerce                    TYPE REF TO cl_abap_regex,
-        coercertl                 TYPE REF TO cl_abap_regex,
-        comparator                TYPE REF TO cl_abap_regex,
-        comparatorloose           TYPE REF TO cl_abap_regex,
-        comparatortrim            TYPE REF TO cl_abap_regex,
-        full                      TYPE REF TO cl_abap_regex,
-        fullplain                 TYPE REF TO cl_abap_regex,
-        gte0                      TYPE REF TO cl_abap_regex,
-        gte0pre                   TYPE REF TO cl_abap_regex,
-        gtlt                      TYPE REF TO cl_abap_regex,
-        hyphenrange               TYPE REF TO cl_abap_regex,
-        hyphenrangeloose          TYPE REF TO cl_abap_regex,
-        lonecaret                 TYPE REF TO cl_abap_regex,
-        lonetilde                 TYPE REF TO cl_abap_regex,
-        loose                     TYPE REF TO cl_abap_regex,
-        looseplain                TYPE REF TO cl_abap_regex,
-        mainversion               TYPE REF TO cl_abap_regex,
-        mainversionloose          TYPE REF TO cl_abap_regex,
-        nonnumericidentifier      TYPE REF TO cl_abap_regex,
-        numericidentifier         TYPE REF TO cl_abap_regex,
-        numericidentifierloose    TYPE REF TO cl_abap_regex,
-        prerelease                TYPE REF TO cl_abap_regex,
-        prereleaseidentifier      TYPE REF TO cl_abap_regex,
-        prereleaseidentifierloose TYPE REF TO cl_abap_regex,
-        prereleaseloose           TYPE REF TO cl_abap_regex,
-        star                      TYPE REF TO cl_abap_regex,
-        tilde                     TYPE REF TO cl_abap_regex,
-        tildeloose                TYPE REF TO cl_abap_regex,
-        tildetrim                 TYPE REF TO cl_abap_regex,
-        xrange                    TYPE REF TO cl_abap_regex,
-        xrangeidentifier          TYPE REF TO cl_abap_regex,
-        xrangeidentifierloose     TYPE REF TO cl_abap_regex,
-        xrangeloose               TYPE REF TO cl_abap_regex,
-        xrangeplain               TYPE REF TO cl_abap_regex,
-        xrangeplainloose          TYPE REF TO cl_abap_regex,
-      END OF re.
+      BEGIN OF token,
+        build                     TYPE ty_token,
+        buildidentifier           TYPE ty_token,
+        caret                     TYPE ty_token,
+        caretloose                TYPE ty_token,
+        carettrim                 TYPE ty_token,
+        coerce                    TYPE ty_token,
+        coercertl                 TYPE ty_token,
+        comparator                TYPE ty_token,
+        comparatorloose           TYPE ty_token,
+        comparatortrim            TYPE ty_token,
+        full                      TYPE ty_token,
+        fullplain                 TYPE ty_token,
+        gte0                      TYPE ty_token,
+        gte0pre                   TYPE ty_token,
+        gtlt                      TYPE ty_token,
+        hyphenrange               TYPE ty_token,
+        hyphenrangeloose          TYPE ty_token,
+        lonecaret                 TYPE ty_token,
+        lonetilde                 TYPE ty_token,
+        loose                     TYPE ty_token,
+        looseplain                TYPE ty_token,
+        mainversion               TYPE ty_token,
+        mainversionloose          TYPE ty_token,
+        nonnumericidentifier      TYPE ty_token,
+        numericidentifier         TYPE ty_token,
+        numericidentifierloose    TYPE ty_token,
+        prerelease                TYPE ty_token,
+        prereleaseidentifier      TYPE ty_token,
+        prereleaseidentifierloose TYPE ty_token,
+        prereleaseloose           TYPE ty_token,
+        star                      TYPE ty_token,
+        tilde                     TYPE ty_token,
+        tildeloose                TYPE ty_token,
+        tildetrim                 TYPE ty_token,
+        xrange                    TYPE ty_token,
+        xrangeidentifier          TYPE ty_token,
+        xrangeidentifierloose     TYPE ty_token,
+        xrangeloose               TYPE ty_token,
+        xrangeplain               TYPE ty_token,
+        xrangeplainloose          TYPE ty_token,
+      END OF token.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
-
-    CLASS-DATA:
-      BEGIN OF src,
-        build                     TYPE string,
-        buildidentifier           TYPE string,
-        caret                     TYPE string,
-        caretloose                TYPE string,
-        carettrim                 TYPE string,
-        coerce                    TYPE string,
-        coercertl                 TYPE string,
-        comparator                TYPE string,
-        comparatorloose           TYPE string,
-        comparatortrim            TYPE string,
-        full                      TYPE string,
-        fullplain                 TYPE string,
-        gte0                      TYPE string,
-        gte0pre                   TYPE string,
-        gtlt                      TYPE string,
-        hyphenrange               TYPE string,
-        hyphenrangeloose          TYPE string,
-        lonecaret                 TYPE string,
-        lonetilde                 TYPE string,
-        loose                     TYPE string,
-        looseplain                TYPE string,
-        mainversion               TYPE string,
-        mainversionloose          TYPE string,
-        nonnumericidentifier      TYPE string,
-        numericidentifier         TYPE string,
-        numericidentifierloose    TYPE string,
-        prerelease                TYPE string,
-        prereleaseidentifier      TYPE string,
-        prereleaseidentifierloose TYPE string,
-        prereleaseloose           TYPE string,
-        star                      TYPE string,
-        tilde                     TYPE string,
-        tildeloose                TYPE string,
-        tildetrim                 TYPE string,
-        xrange                    TYPE string,
-        xrangeidentifier          TYPE string,
-        xrangeidentifierloose     TYPE string,
-        xrangeloose               TYPE string,
-        xrangeplain               TYPE string,
-        xrangeplainloose          TYPE string,
-      END OF src.
 
     CLASS-METHODS:
       create_token
@@ -148,28 +111,28 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'MAINVERSION'
-      value = |({ src-numericidentifier })\\.| &&
-              |({ src-numericidentifier })\\.| &&
-              |({ src-numericidentifier })| ).
+      value = |({ token-numericidentifier-src })\\.| &&
+              |({ token-numericidentifier-src })\\.| &&
+              |({ token-numericidentifier-src })| ).
 
     create_token(
       name  = 'MAINVERSIONLOOSE'
-      value = |({ src-numericidentifierloose })\\.| &&
-              |({ src-numericidentifierloose })\\.| &&
-              |({ src-numericidentifierloose })| ).
+      value = |({ token-numericidentifierloose-src })\\.| &&
+              |({ token-numericidentifierloose-src })\\.| &&
+              |({ token-numericidentifierloose-src })| ).
 
     " ## Pre-release Version Identifier
     " A numeric identifier, or a non-numeric identifier.
 
     create_token(
       name  = 'PRERELEASEIDENTIFIER'
-      value = |(?:{ src-numericidentifier }\|| &&
-              |{ src-nonnumericidentifier })| ).
+      value = |(?:{ token-numericidentifier-src }\|| &&
+              |{ token-nonnumericidentifier-src })| ).
 
     create_token(
       name  = 'PRERELEASEIDENTIFIERLOOSE'
-      value = |(?:{ src-numericidentifierloose }\|| &&
-              |{ src-nonnumericidentifier })| ).
+      value = |(?:{ token-numericidentifierloose-src }\|| &&
+              |{ token-nonnumericidentifier-src })| ).
 
     " ## Pre-release Version
     " Hyphen, followed by one or more dot-separated pre-release version
@@ -177,13 +140,13 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'PRERELEASE'
-      value = |(?:-({ src-prereleaseidentifier }| &&
-              |(?:\\.{ src-prereleaseidentifier })*))| ).
+      value = |(?:-({ token-prereleaseidentifier-src }| &&
+              |(?:\\.{ token-prereleaseidentifier-src })*))| ).
 
     create_token(
       name  = 'PRERELEASELOOSE'
-      value = |(?:-?({ src-prereleaseidentifierloose }| &&
-              |(?:\\.{ src-prereleaseidentifierloose })*))| ).
+      value = |(?:-?({ token-prereleaseidentifierloose-src }| &&
+              |(?:\\.{ token-prereleaseidentifierloose-src })*))| ).
 
     " ## Build Metadata Identifier
     " Any combination of digits, letters, or hyphens.
@@ -198,8 +161,8 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'BUILD'
-      value = |(?:\\+({ src-buildidentifier }| &&
-              |(?:\\.{ src-buildidentifier })*))| ).
+      value = |(?:\\+({ token-buildidentifier-src }| &&
+              |(?:\\.{ token-buildidentifier-src })*))| ).
 
     " ## Full Version String
     " A main version, followed optionally by a pre-release version and
@@ -212,11 +175,11 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'FULLPLAIN'
-      value = |v?{ src-mainversion }{ src-prerelease }?{ src-build }?| ).
+      value = |v?{ token-mainversion-src }{ token-prerelease-src }?{ token-build-src }?| ).
 
     create_token(
       name  = 'FULL'
-      value = |^{ src-fullplain }$| ).
+      value = |^{ token-fullplain-src }$| ).
 
     " like full, but allows v1.2.3 and =1.2.3, which people do sometimes.
     " also, 1.0.0alpha1 (prerelease without the hyphen) which is pretty
@@ -224,11 +187,11 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'LOOSEPLAIN'
-      value = |[v=\\s]*{ src-mainversionloose }{ src-prereleaseloose }?{ src-build }?| ).
+      value = |[v=\\s]*{ token-mainversionloose-src }{ token-prereleaseloose-src }?{ token-build-src }?| ).
 
     create_token(
       name  = 'LOOSE'
-      value = |^{ src-looseplain }$| ).
+      value = |^{ token-looseplain-src }$| ).
 
     create_token(
       name  = 'GTLT'
@@ -240,35 +203,35 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'XRANGEIDENTIFIERLOOSE'
-      value = |{ src-numericidentifierloose }\|x\|X\|\\*| ).
+      value = |{ token-numericidentifierloose-src }\|x\|X\|\\*| ).
     create_token(
       name  = 'XRANGEIDENTIFIER'
-      value = |{ src-numericidentifier }\|x\|X\|\\*| ).
+      value = |{ token-numericidentifier-src }\|x\|X\|\\*| ).
 
     create_token(
       name  = 'XRANGEPLAIN'
-      value = |[v=\\s]*({ src-xrangeidentifier })| &&
-              |(?:\\.({ src-xrangeidentifier })| &&
-              |(?:\\.({ src-xrangeidentifier })| &&
-              |(?:{ src-prerelease })?| &&
-              |{ src-build }?| &&
+      value = |[v=\\s]*({ token-xrangeidentifier-src })| &&
+              |(?:\\.({ token-xrangeidentifier-src })| &&
+              |(?:\\.({ token-xrangeidentifier-src })| &&
+              |(?:{ token-prerelease-src })?| &&
+              |{ token-build-src }?| &&
               |)?)?| ).
 
     create_token(
       name  = 'XRANGEPLAINLOOSE'
-      value = |[v=\\s]*({ src-xrangeidentifierloose })| &&
-              |(?:\\.({ src-xrangeidentifierloose })| &&
-              |(?:\\.({ src-xrangeidentifierloose })| &&
-              |(?:{ src-prereleaseloose })?| &&
-              |{ src-build }?| &&
+      value = |[v=\\s]*({ token-xrangeidentifierloose-src })| &&
+              |(?:\\.({ token-xrangeidentifierloose-src })| &&
+              |(?:\\.({ token-xrangeidentifierloose-src })| &&
+              |(?:{ token-prereleaseloose-src })?| &&
+              |{ token-build-src }?| &&
               |)?)?| ).
 
     create_token(
       name  = 'XRANGE'
-      value = |^{ src-gtlt }\\s*{ src-xrangeplain }$| ).
+      value = |^{ token-gtlt-src }\\s*{ token-xrangeplain-src }$| ).
     create_token(
       name  = 'XRANGELOOSE'
-      value = |^{ src-gtlt }\\s*{ src-xrangeplainloose }$| ).
+      value = |^{ token-gtlt-src }\\s*{ token-xrangeplainloose-src }$| ).
 
     " Coercion.
     " Extract anything that could conceivably be a part of a valid semver
@@ -281,7 +244,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
               |(?:$\|[^\\d])| ).
     create_token(
       name  = 'COERCERTL'
-      value = src-coerce
+      value = token-coerce-src
       is_global = abap_true ).
 
     " Tilde ranges.
@@ -293,15 +256,15 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'TILDETRIM'
-      value = |(\\s*){ src-lonetilde }\\s+|
+      value = |(\\s*){ token-lonetilde-src }\\s+|
       is_global = abap_true ).
 
     create_token(
       name  = 'TILDE'
-      value = |^{ src-lonetilde }{ src-xrangeplain }$| ).
+      value = |^{ token-lonetilde-src }{ token-xrangeplain-src }$| ).
     create_token(
       name  = 'TILDELOOSE'
-      value = |^{ src-lonetilde }{ src-xrangeplainloose }$| ).
+      value = |^{ token-lonetilde-src }{ token-xrangeplainloose-src }$| ).
 
     " Caret ranges.
     " Meaning is "at least and backwards compatible with"
@@ -312,32 +275,32 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'CARETTRIM'
-      value = |(\\s*){ src-lonecaret }\\s+|
+      value = |(\\s*){ token-lonecaret-src }\\s+|
       is_global = abap_true ).
 
     create_token(
       name  = 'CARET'
-      value = |^{ src-lonecaret }{ src-xrangeplain }$| ).
+      value = |^{ token-lonecaret-src }{ token-xrangeplain-src }$| ).
     create_token(
       name  = 'CARETLOOSE'
-      value = |^{ src-lonecaret }{ src-xrangeplainloose }$| ).
+      value = |^{ token-lonecaret-src }{ token-xrangeplainloose-src }$| ).
 
     " A simple gt/lt/eq thing, or just "" to indicate "any version"
 
     create_token(
       name  = 'COMPARATORLOOSE'
-      value = |^{ src-gtlt }\\s*({ src-looseplain })$\|^$| ).
+      value = |^{ token-gtlt-src }\\s*({ token-looseplain-src })$\|^$| ).
     create_token(
       name  = 'COMPARATOR'
-      value = |^{ src-gtlt }\\s*({ src-fullplain })$\|^$| ).
+      value = |^{ token-gtlt-src }\\s*({ token-fullplain-src })$\|^$| ).
 
     " An expression to strip any whitespace between the gtlt and the thing
     " it modifies, so that `> 1.2.3` ==> `>1.2.3`
 
     create_token(
       name  = 'COMPARATORTRIM'
-      value = |(\\s*){ src-gtlt }\\s*({ src-looseplain }\|| &&
-              |{ src-xrangeplain })|
+      value = |(\\s*){ token-gtlt-src }\\s*({ token-looseplain-src }\|| &&
+              |{ token-xrangeplain-src })|
       is_global = abap_true ).
 
     " Something like `1.2.3 - 1.2.4`
@@ -347,16 +310,16 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'HYPHENRANGE'
-      value = |^\\s*({ src-xrangeplain })| &&
+      value = |^\\s*({ token-xrangeplain-src })| &&
               |\\s+-\\s+| &&
-              |({ src-xrangeplain })| &&
+              |({ token-xrangeplain-src })| &&
               |\\s*$| ).
 
     create_token(
       name  = 'HYPHENRANGELOOSE'
-      value = |^\\s*({ src-xrangeplainloose })| &&
+      value = |^\\s*({ token-xrangeplainloose-src })| &&
               |\\s+-\\s+| &&
-              |({ src-xrangeplainloose })| &&
+              |({ token-xrangeplainloose-src })| &&
               |\\s*$| ).
 
     " Star ranges basically just allow anything at all.
@@ -379,15 +342,14 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
   METHOD create_token.
 
-    ASSIGN COMPONENT name OF STRUCTURE src TO FIELD-SYMBOL(<src>).
+    FIELD-SYMBOLS <token> TYPE ty_token.
+
+    ASSIGN COMPONENT name OF STRUCTURE token TO <token>.
     ASSERT sy-subrc = 0.
 
-    <src> = value.
-
-    ASSIGN COMPONENT name OF STRUCTURE re TO FIELD-SYMBOL(<regex>).
-    ASSERT sy-subrc = 0.
-
-    <regex> = NEW cl_abap_regex( value ).
+    <token>-src   = value.
+    <token>-regex = NEW cl_abap_regex( pattern = value ignore_case = abap_true ).
+    <token>-occ   = COND #( WHEN is_global = abap_true THEN 0 ELSE 1 ).
 
   ENDMETHOD.
 ENDCLASS.

@@ -112,13 +112,13 @@ CLASS ltcl_semver IMPLEMENTATION.
   METHOD test_incrementing.
 
     LOOP AT zcl_semver_fixtures=>increments( ) INTO DATA(increments).
-      DATA(msg) = |{ increments-version } { increments-inc } { increments-identifier }|.
+      DATA(msg) = |{ increments-version } { increments-release } { increments-identifier }|.
 
-      IF increments-expect = ''.
+      IF increments-res IS INITIAL.
         TRY.
             DATA(s) = zcl_semver=>create( version = increments-version loose = increments-loose ).
 
-            s->inc( release = increments-inc identifier = increments-identifier ).
+            s->inc( release = increments-release identifier = increments-identifier ).
             cl_abap_unit_assert=>fail( msg = msg ).
           CATCH zcx_semver_error ##NO_HANDLER.
             " throws when presented with garbage
@@ -127,8 +127,8 @@ CLASS ltcl_semver IMPLEMENTATION.
         s = zcl_semver=>create( version = increments-version loose = increments-loose ).
 
         cl_abap_unit_assert=>assert_equals(
-          act = s->inc( release = increments-inc identifier = increments-identifier )->version
-          exp = increments-expect
+          act = s->inc( release = increments-release identifier = increments-identifier )->version
+          exp = increments-res
           msg = msg ).
       ENDIF.
     ENDLOOP.

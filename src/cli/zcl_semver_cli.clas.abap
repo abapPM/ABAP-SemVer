@@ -109,11 +109,7 @@ CLASS zcl_semver_cli IMPLEMENTATION.
 
     DATA(arg) = replace( val = args sub = '=' with = ` ` occ = 0 ).
 
-    IF arg CA ` `.
-      SPLIT arg AT ` ` INTO TABLE argv.
-    ELSE.
-      argv = VALUE #( ( arg ) ).
-    ENDIF.
+    SPLIT arg AT ` ` INTO TABLE argv.
 
     DATA(idx) = 1.
     DATA(val) = ``.

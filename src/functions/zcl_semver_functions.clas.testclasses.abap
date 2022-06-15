@@ -4,6 +4,14 @@ CLASS ltcl_tests DEFINITION FOR TESTING RISK LEVEL HARMLESS
 * https://github.com/npm/node-semver/tree/main/test/functions
   PRIVATE SECTION.
 
+    TYPES:
+      BEGIN OF ty_test,
+        range   TYPE string,
+        version TYPE string,
+        loose   TYPE abap_bool,
+      END OF ty_test,
+      ty_tests TYPE STANDARD TABLE OF ty_test WITH DEFAULT KEY.
+
     METHODS:
       test_clean FOR TESTING RAISING zcx_semver_error,
       test_cmp_invalid FOR TESTING RAISING zcx_semver_error,
@@ -18,20 +26,20 @@ CLASS ltcl_tests DEFINITION FOR TESTING RISK LEVEL HARMLESS
       test_eq FOR TESTING RAISING zcx_semver_error,
       test_gt FOR TESTING RAISING zcx_semver_error,
       test_gte FOR TESTING RAISING zcx_semver_error,
-        test_inc FOR TESTING RAISING zcx_semver_error,
+      test_inc FOR TESTING RAISING zcx_semver_error,
       test_lt FOR TESTING RAISING zcx_semver_error,
       test_lte FOR TESTING RAISING zcx_semver_error,
-        test_major FOR TESTING RAISING zcx_semver_error,
-        test_minor FOR TESTING RAISING zcx_semver_error,
+      test_major FOR TESTING RAISING zcx_semver_error,
+      test_minor FOR TESTING RAISING zcx_semver_error,
       test_neq FOR TESTING RAISING zcx_semver_error,
-        test_parse FOR TESTING RAISING zcx_semver_error,
-        test_patch FOR TESTING RAISING zcx_semver_error,
-        test_prerelease FOR TESTING RAISING zcx_semver_error,
-        test_rcompare FOR TESTING RAISING zcx_semver_error,
-        test_rsort FOR TESTING RAISING zcx_semver_error,
-        test_satisfies FOR TESTING RAISING zcx_semver_error,
-        test_sort FOR TESTING RAISING zcx_semver_error,
-        test_valid FOR TESTING RAISING zcx_semver_error.
+      test_parse FOR TESTING RAISING zcx_semver_error,
+      test_patch FOR TESTING RAISING zcx_semver_error,
+      test_prerelease FOR TESTING RAISING zcx_semver_error,
+      test_rcompare FOR TESTING RAISING zcx_semver_error,
+      test_rsort FOR TESTING RAISING zcx_semver_error,
+      test_satisfies FOR TESTING RAISING zcx_semver_error,
+      test_sort FOR TESTING RAISING zcx_semver_error,
+      test_valid FOR TESTING RAISING zcx_semver_error.
 
 ENDCLASS.
 
@@ -40,15 +48,7 @@ CLASS ltcl_tests IMPLEMENTATION.
   METHOD test_clean.
     " Version should be detectable despite extra characters
 
-    TYPES:
-      BEGIN OF ty_test,
-        range   TYPE string,
-        version TYPE string,
-      END OF ty_test.
-
-    DATA tests TYPE TABLE OF ty_test.
-
-    tests = VALUE #(
+    DATA(tests) = VALUE ty_tests(
       ( range = '1.2.3' version = '1.2.3' )
       ( range = ' 1.2.3 ' version = '1.2.3' )
       ( range = ' 1.2.3-4 ' version = '1.2.3-4' )
@@ -63,12 +63,10 @@ CLASS ltcl_tests IMPLEMENTATION.
       ( range = '1.2.x' version = '' ) ).
 
     LOOP AT tests INTO DATA(test).
-
       cl_abap_unit_assert=>assert_equals(
         act = zcl_semver_functions=>clean( test-range )
         exp = test-version
         msg = |{ test-range } { test-version }| ).
-
     ENDLOOP.
 
   ENDMETHOD.
@@ -165,9 +163,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   METHOD test_coerce_to_null.
 
-    DATA tests TYPE string_table.
-
-    tests = VALUE #(
+    DATA(tests) = VALUE string_table(
       ( `` )
       ( `.` )
       ( `version one` )
@@ -597,6 +593,75 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   METHOD test_inc.
 
+    LOOP AT zcl_semver_fixtures=>increments( ) INTO DATA(increments).
+      DATA(msg) = |{ increments-version } { increments-release } { increments-identifier } { increments-res } |.
+
+      DATA(s) = zcl_semver_functions=>inc(
+                  version    = increments-version
+                  release    = increments-release
+                  identifier = increments-identifier
+                  loose      = increments-loose
+                  incpre     = increments-incpre ).
+
+      IF s IS BOUND.
+        cl_abap_unit_assert=>assert_equals(
+          act = s->version
+          exp = increments-res
+          msg = msg ).
+      ELSE.
+        cl_abap_unit_assert=>assert_equals(
+          act = ''
+          exp = increments-res
+          msg = msg ).
+      ENDIF.
+
+      DATA(parsed) = zcl_semver_functions=>parse(
+                       version = increments-version
+                       loose   = increments-loose
+                       incpre  = increments-incpre ).
+
+      DATA(parsed_input) = zcl_semver_functions=>parse(
+                             version = increments-version
+                             loose   = increments-loose
+                             incpre  = increments-incpre ).
+
+      IF increments-res IS NOT INITIAL.
+
+        parsed->inc( release = increments-release identifier = increments-identifier ).
+
+        cl_abap_unit_assert=>assert_equals(
+          act = parsed->version
+          exp = increments-res
+          msg = msg && 'version' ).
+
+        DATA(pre_inc) = parsed_input->version.
+
+        zcl_semver_functions=>inc(
+          version    = parsed_input
+          release    = increments-release
+          identifier = increments-identifier
+          loose      = increments-loose
+          incpre     = increments-incpre ).
+
+        DATA(post_inc) = parsed_input->version.
+
+        cl_abap_unit_assert=>assert_equals(
+          act = pre_inc
+          exp = post_inc
+          msg = msg && 'must not modify its input' ).
+
+      ELSEIF parsed IS NOT INITIAL.
+
+        TRY.
+            parsed->inc( release = increments-release identifier = increments-identifier ).
+            cl_abap_unit_assert=>fail( ).
+          CATCH zcx_semver_error ##NO_HANDLER.
+        ENDTRY.
+
+      ENDIF.
+
+    ENDLOOP.
+
   ENDMETHOD.
 
   METHOD test_lt.
@@ -676,10 +741,52 @@ CLASS ltcl_tests IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD test_major.
+    " Version should be detectable despite extra characters
+
+    DATA(tests) = VALUE ty_tests(
+      ( range = '1.2.3' version = 1 )
+      ( range = ' 1.2.3 ' version = 1 )
+      ( range = ' 2.2.3-4 ' version = 2 )
+      ( range = ' 3.2.3-pre ' version = 3 )
+      ( range = 'v5.2.3' version = 5 )
+      ( range = ' v8.2.3 ' version = 8 )
+      ( range = |\t13.2.3| version = 13 )
+      ( range = '=21.2.3' version = 21 loose = abap_true )
+      ( range = 'v=34.2.3' version = 34 loose = abap_true ) ).
+
+    LOOP AT tests INTO DATA(test).
+      DATA(msg) = |{ test-range } { test-loose } { test-version } |.
+
+      cl_abap_unit_assert=>assert_equals(
+        act = zcl_semver_functions=>major( version = test-range loose = test-loose )
+        exp = condense( test-version )
+        msg = msg ).
+    ENDLOOP.
 
   ENDMETHOD.
 
   METHOD test_minor.
+    " Version should be detectable despite extra characters
+
+    DATA(tests) = VALUE ty_tests(
+      ( range = '1.1.3' version = 1 )
+      ( range = ' 1.1.3 ' version = 1 )
+      ( range = ' 1.2.3-4 ' version = 2 )
+      ( range = ' 1.3.3-pre ' version = 3 )
+      ( range = 'v1.5.3' version = 5 )
+      ( range = ' v1.8.3 ' version = 8 )
+      ( range = |\t1.13.3| version = 13 )
+      ( range = '=1.21.3' version = 21 loose = abap_true )
+      ( range = 'v=1.34.3' version = 34 loose = abap_true ) ).
+
+    LOOP AT tests INTO DATA(test).
+      DATA(msg) = |{ test-range } { test-loose } { test-version } |.
+
+      cl_abap_unit_assert=>assert_equals(
+        act = zcl_semver_functions=>minor( version = test-range loose = test-loose )
+        exp = condense( test-version )
+        msg = msg ).
+    ENDLOOP.
 
   ENDMETHOD.
 
@@ -730,34 +837,231 @@ CLASS ltcl_tests IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD test_parse.
+    " returns null instead of throwing when presented with garbage
 
+    LOOP AT zcl_semver_fixtures=>invalid_versions( ) INTO DATA(invalid_version).
+      DATA(msg) = |{ invalid_version-value } { invalid_version-loose } { invalid_version-reason } |.
+
+      cl_abap_unit_assert=>assert_initial(
+        act = zcl_semver_functions=>parse( version = invalid_version-value loose = invalid_version-loose )
+        msg = msg ).
+    ENDLOOP.
+
+    " parse a version into a SemVer object
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>parse( '1.2.3' )->version
+      exp = '1.2.3' ).
+
+    DATA(s) = zcl_semver=>create( '4.5.6' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>parse( s )
+      exp = s
+      msg = 'return it if it is a SemVer obj' ).
+
+    DATA(l) = zcl_semver=>create( version = '4.2.0' loose = abap_true ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>parse( version = '4.2.0' loose = abap_true )->version
+      exp = l->version
+      msg = 'looseness as an option' ).
   ENDMETHOD.
 
   METHOD test_patch.
+    " Version should be detectable despite extra characters
+
+    DATA(tests) = VALUE ty_tests(
+      ( range = '1.2.1' version = 1 )
+      ( range = ' 1.2.1 ' version = 1 )
+      ( range = ' 1.2.2-4 ' version = 2 )
+      ( range = ' 1.2.3-pre ' version = 3 )
+      ( range = 'v1.2.5' version = 5 )
+      ( range = ' v1.2.8 ' version = 8 )
+      ( range = |\t1.2.13| version = 13 )
+      ( range = '=1.2.21' version = 21 loose = abap_true )
+      ( range = 'v=1.2.34' version = 34 loose = abap_true ) ).
+
+    LOOP AT tests INTO DATA(test).
+      DATA(msg) = |{ test-range } { test-loose } { test-version } |.
+
+      cl_abap_unit_assert=>assert_equals(
+        act = zcl_semver_functions=>patch( version = test-range loose = test-loose )
+        exp = condense( test-version )
+        msg = msg ).
+    ENDLOOP.
 
   ENDMETHOD.
 
   METHOD test_prerelease.
 
+    TYPES:
+      BEGIN OF ty_test,
+        version TYPE string,
+        loose   TYPE abap_bool,
+        prerel  TYPE string_table,
+      END OF ty_test.
+
+    DATA tests TYPE TABLE OF ty_test.
+
+    tests = VALUE #(
+      ( version = '1.2.2-alpha.1' prerel = VALUE #( ( `alpha` ) ( `1` ) ) )
+      ( version = '0.6.1-1' prerel = VALUE #( ( `1` ) ) )
+      ( version = '1.0.0-beta.2' prerel = VALUE #( ( `beta` ) ( `2` ) ) )
+      ( version = 'v0.5.4-pre' prerel = VALUE #( ( `pre` ) ) )
+      ( version = '1.2.2-alpha.1' prerel = VALUE #( ( `alpha` ) ( `1` ) ) loose = abap_false )
+      ( version = '0.6.1beta' prerel = VALUE #( ( `beta` ) ) loose = abap_true )
+      ( version = '1.0.0' loose = abap_true )
+      ( version = '~2.0.0-alpha.1'  loose = abap_false )
+      ( version = 'invalid version' ) ).
+
+    LOOP AT tests INTO DATA(test).
+      DATA(msg) = |{ test-version } { test-loose } { lines( test-prerel ) } |.
+
+      cl_abap_unit_assert=>assert_equals(
+        act = zcl_semver_functions=>prerelease( version = test-version loose = test-loose )
+        exp = test-prerel
+        msg = msg ).
+    ENDLOOP.
+
   ENDMETHOD.
 
   METHOD test_rcompare.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>rcompare( a = '1.0.0' b = '1.0.1' )
+      exp = +1 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>rcompare( a = '1.0.0' b = '1.0.0' )
+      exp = 0 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>rcompare( a = '1.0.0+0' b = '1.0.0' )
+      exp = 0 ).
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>rcompare( a = '1.0.1' b = '1.0.0' )
+      exp = -1 ).
 
   ENDMETHOD.
 
   METHOD test_rsort.
 
+    DATA(list) = VALUE string_table(
+      ( `1.2.3+1` )
+      ( `1.2.3+0` )
+      ( `1.2.3` )
+      ( `5.9.6` )
+      ( `0.1.2` ) ).
+
+    DATA(rsorted) = VALUE string_table(
+      ( `5.9.6` )
+      ( `1.2.3+1` )
+      ( `1.2.3+0` )
+      ( `1.2.3` )
+      ( `0.1.2` ) ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>rsort( list )
+      exp = rsorted ).
+
   ENDMETHOD.
 
   METHOD test_satisfies.
+
+    DATA tests TYPE zcl_semver_fixtures=>ty_ranges.
+
+    LOOP AT zcl_semver_fixtures=>range_include( ) INTO DATA(range_include).
+      DATA(msg) = |{ range_include-range } { range_include-version } { range_include-loose } { range_include-incpre } |.
+
+      cl_abap_unit_assert=>assert_equals(
+        act = zcl_semver_functions=>satisfies(
+                 version = range_include-version
+                 range   = range_include-range
+                 loose   = range_include-loose
+                 incpre  = range_include-incpre )
+        exp = abap_true
+        msg = msg ).
+    ENDLOOP.
+
+    LOOP AT zcl_semver_fixtures=>range_exclude( ) INTO DATA(range_exclude).
+      msg = |{ range_exclude-range } { range_exclude-version } { range_exclude-loose } { range_exclude-incpre } |.
+
+      cl_abap_unit_assert=>assert_equals(
+        act = zcl_semver_functions=>satisfies(
+                 version = range_exclude-version
+                 range   = range_exclude-range
+                 loose   = range_exclude-loose
+                 incpre  = range_exclude-incpre )
+        exp = abap_false
+        msg = msg ).
+    ENDLOOP.
+
+    " invalid ranges never satisfied (but do not throw)
+    tests = VALUE #(
+      ( range = 'blerg' version = '1.2.3' )
+      ( range = 'git+https://user:password0123@github.com/foo' version = '123.0.0' loose = abap_true )
+      ( range = '^1.2.3' version = '2.0.0-pre' )
+      ( range = '0.x' version = '' )
+      ( range = '*' version = '' ) ).
+
+    LOOP AT tests INTO DATA(test).
+      msg = |{ test-range } { test-version } |.
+
+      cl_abap_unit_assert=>assert_equals(
+        act = zcl_semver_functions=>satisfies( version = test-version range = test-range loose = test-loose )
+        exp = abap_false
+        msg = msg ).
+    ENDLOOP.
 
   ENDMETHOD.
 
   METHOD test_sort.
 
+    DATA(list) = VALUE string_table(
+      ( `1.2.3+1` )
+      ( `1.2.3+0` )
+      ( `1.2.3` )
+      ( `5.9.6` )
+      ( `0.1.2` ) ).
+
+    DATA(sorted) = VALUE string_table(
+      ( `0.1.2` )
+      ( `1.2.3` )
+      ( `1.2.3+0` )
+      ( `1.2.3+1` )
+      ( `5.9.6` ) ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>sort( list )
+      exp = sorted ).
+
   ENDMETHOD.
 
   METHOD test_valid.
+    " returns null instead of throwing when presented with garbage
+
+    LOOP AT zcl_semver_fixtures=>invalid_versions( ) INTO DATA(invalid_version).
+      DATA(msg) = |{ invalid_version-value } { invalid_version-loose } { invalid_version-reason } |.
+
+      cl_abap_unit_assert=>assert_initial(
+        act = zcl_semver_functions=>valid( version = invalid_version-value loose = invalid_version-loose )
+        msg = msg ).
+    ENDLOOP.
+
+    " validate a version into a SemVer object
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>valid( '1.2.3' )
+      exp = '1.2.3' ).
+
+    DATA(s) = zcl_semver=>create( '4.5.6' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>valid( s )
+      exp = '4.5.6'
+      msg = 'return the version if a SemVer obj' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>valid( version = '4.2.0foo' loose = abap_true )
+      exp = '4.2.0-foo'
+      msg = 'looseness as an option' ).
 
   ENDMETHOD.
 
