@@ -17,6 +17,12 @@ CLASS zcl_semver_utils DEFINITION
       RETURNING
         VALUE(result) TYPE string.
 
+    CLASS-METHODS version_trim
+      IMPORTING
+        !data         TYPE clike
+      RETURNING
+        VALUE(result) TYPE string.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -41,8 +47,16 @@ CLASS zcl_semver_utils IMPLEMENTATION.
 
   METHOD trim.
     " Trim tab, cr, lf and spaces Like JavaScript trim
-
     result = condense( val = data del = | \t\n\r| ).
+  ENDMETHOD.
 
+
+  METHOD version_trim.
+    " POSIX: Remove whitespace after "v" or "=" to avoid issue with greedy regex
+    result = replace(
+      val   = trim( data )
+      regex = zcl_semver_re=>token-vtrim-src
+      with  = zcl_semver_re=>version_trim_replace
+      occ   = zcl_semver_re=>token-vtrim-occ ).
   ENDMETHOD.
 ENDCLASS.

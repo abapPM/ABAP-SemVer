@@ -20,18 +20,18 @@ CLASS ltcl_semver_range IMPLEMENTATION.
 
   METHOD range_include.
 
-*    LOOP AT zcl_semver_fixtures=>range_include( ) INTO DATA(range_include).
-*      DATA(msg) = |{ range_include-range } { range_include-version } { range_include-loose } { range_include-incpre }|.
-*      DATA(r) = zcl_semver_range=>create(
-*        range  = range_include-range
-*        loose  = range_include-loose
-*        incpre = range_include-incpre ).
-*
-*      cl_abap_unit_assert=>assert_equals(
-*        act = r->test( range_include-version )
-*        exp = abap_true
-*        msg = msg ).
-*    ENDLOOP.
+    LOOP AT zcl_semver_fixtures=>range_include( ) INTO DATA(range_include).
+      DATA(msg) = |{ range_include-range } { range_include-version } { range_include-loose } { range_include-incpre }|.
+      DATA(r) = zcl_semver_range=>create(
+        range  = range_include-range
+        loose  = range_include-loose
+        incpre = range_include-incpre ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = r->test( range_include-version )
+        exp = abap_true
+        msg = msg ).
+    ENDLOOP.
 
   ENDMETHOD.
 

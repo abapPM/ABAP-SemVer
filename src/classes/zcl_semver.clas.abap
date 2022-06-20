@@ -208,7 +208,7 @@ CLASS zcl_semver IMPLEMENTATION.
       ELSE zcl_semver_re=>token-full-regex ).
 
     TRY.
-        DATA(m) = r->create_matcher( text = zcl_semver_utils=>trim( version ) ).
+        DATA(m) = r->create_matcher( text = zcl_semver_utils=>version_trim( version ) ).
 
         IF NOT m->match( ).
           zcx_semver_error=>raise( |Invalid version { version }| ).

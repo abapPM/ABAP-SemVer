@@ -259,7 +259,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
   METHOD clean.
 
     DATA(vers) = replace(
-      val   = zcl_semver_utils=>trim( version )
+      val   = zcl_semver_utils=>version_trim( version )
       regex = '^[=v]+'
       with  = '' ).
 

@@ -2,7 +2,7 @@ CLASS zcl_semver_re DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
-* TODO: Migrate to PCRE
+* TODO: Migrate POSIX to PCRE
 * https://help.sap.com/doc/abapdocu_latest_index_htm/latest/en-US/index.htm?file=abenregex_posix_pcre_incompat.htm
 
   PUBLIC SECTION.
@@ -17,13 +17,16 @@ CLASS zcl_semver_re DEFINITION
     CONSTANTS:
       caret_trim_replace      TYPE string VALUE '$1^',
       tilde_trim_replace      TYPE string VALUE '$1~',
-      comparator_trim_replace TYPE string VALUE '$1$2$3'.
+      comparator_trim_replace TYPE string VALUE '$1$2$3',
+      version_trim_replace    TYPE string VALUE '$1$2'. " added for POSIX
 
     CLASS-METHODS:
       class_constructor.
 
     CLASS-DATA:
       BEGIN OF token,
+        v                         TYPE ty_token, " added for POSIX
+        vtrim                     TYPE ty_token, " added for POSIX
         build                     TYPE ty_token,
         buildidentifier           TYPE ty_token,
         caret                     TYPE ty_token,
@@ -65,7 +68,6 @@ CLASS zcl_semver_re DEFINITION
         xrangeplain               TYPE ty_token,
         xrangeplainloose          TYPE ty_token,
       END OF token.
-
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -87,6 +89,18 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     " The following Regular Expressions can be used for tokenizing,
     " validating, and parsing SemVer version strings.
+
+    " ## POSIX: Additional logic required since POSIX regex is greedy
+    " The whitespace after "v" or "=" will be trimmed separately
+    create_token(
+      name  = 'V'
+      value = |[v=]*| ).
+      " value = |[v=\\s]*| ) " PCRE
+
+    create_token(
+      name  = 'VTRIM'
+      value = |([v=]+)\\s+(\\d)|
+      is_global = abap_true ).
 
     " ## Numeric Identifier
     " A single `0`, or a non-zero digit followed by zero or more digits.
@@ -187,7 +201,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'LOOSEPLAIN'
-      value = |[v=\\s]*{ token-mainversionloose-src }{ token-prereleaseloose-src }?{ token-build-src }?| ).
+      value = |{ token-v-src }{ token-mainversionloose-src }{ token-prereleaseloose-src }?{ token-build-src }?| ).
 
     create_token(
       name  = 'LOOSE'
@@ -210,7 +224,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'XRANGEPLAIN'
-      value = |[v=\\s]*({ token-xrangeidentifier-src })| &&
+      value = |{ token-v-src }({ token-xrangeidentifier-src })| &&
               |(?:\\.({ token-xrangeidentifier-src })| &&
               |(?:\\.({ token-xrangeidentifier-src })| &&
               |(?:{ token-prerelease-src })?| &&
@@ -219,7 +233,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'XRANGEPLAINLOOSE'
-      value = |[v=\\s]*({ token-xrangeidentifierloose-src })| &&
+      value = |{ token-v-src }({ token-xrangeidentifierloose-src })| &&
               |(?:\\.({ token-xrangeidentifierloose-src })| &&
               |(?:\\.({ token-xrangeidentifierloose-src })| &&
               |(?:{ token-prereleaseloose-src })?| &&
@@ -348,7 +362,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
     ASSERT sy-subrc = 0.
 
     <token>-src   = value.
-    <token>-regex = NEW cl_abap_regex( pattern = value ignore_case = abap_true ).
+    <token>-regex = NEW cl_abap_regex( pattern = value ).
     <token>-occ   = COND #( WHEN is_global = abap_true THEN 0 ELSE 1 ).
 
   ENDMETHOD.

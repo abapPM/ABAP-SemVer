@@ -68,6 +68,8 @@ CLASS zcl_semver_range DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
 
+    CONSTANTS no_replace TYPE string VALUE '!replace'.
+
     TYPES:
       BEGIN OF ty_cache_entry,
         key   TYPE string,
@@ -218,9 +220,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
     SPLIT range AT '||' INTO TABLE DATA(ranges).
 
     " map the range to a 2d array of comparators
-    CLEAR set.
     LOOP AT ranges ASSIGNING FIELD-SYMBOL(<range>).
-      INSERT parse_range( zcl_semver_utils=>trim( <range> ) ) INTO TABLE set.
+      INSERT parse_range( <range> ) INTO TABLE set.
     ENDLOOP.
 
     " throw out any comparator lists that are empty
@@ -420,7 +421,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
       cache_entry TYPE LINE OF ty_cache,
       comparators TYPE ty_comparators.
 
-    DATA(range) = zcl_semver_utils=>trim( range_string ).
+    DATA(range) = zcl_semver_utils=>version_trim( range_string ).
 
     " memoize range parsing for performance
     " this is a very hot path, and fully deterministic
@@ -517,7 +518,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
     result = comp.
 
     DATA(r) = COND #(
-      WHEN incpre = abap_true
+      WHEN loose = abap_true
       THEN zcl_semver_re=>token-caretloose-regex
       ELSE zcl_semver_re=>token-caret-regex ).
 
@@ -529,9 +530,11 @@ CLASS zcl_semver_range IMPLEMENTATION.
           DATA(mi) = m->get_submatch( 2 ).
           DATA(pa) = m->get_submatch( 3 ).
           DATA(pr) = m->get_submatch( 4 ).
+          "DATA(bi)  = m->get_submatch( 5 )
+
           DATA(z) = COND #( WHEN incpre = abap_true THEN '-0' ELSE '' ).
 
-          DATA(with) = ''.
+          DATA(with) = no_replace.
 
           IF is_x( ma ).
             with = ''.
@@ -565,7 +568,11 @@ CLASS zcl_semver_range IMPLEMENTATION.
             ENDIF.
           ENDIF.
 
-          m->replace_found( with ).
+          IF with <> no_replace.
+            m->replace_found( with ).
+          ENDIF.
+
+          result = m->text.
         ENDWHILE.
       CATCH cx_sy_regex cx_sy_matcher INTO DATA(error).
         BREAK-POINT.
@@ -608,6 +615,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
     " 1.2.3 - 3.4 => >=1.2.0 <3.5.0-0 Any 3.4.x will do
     " 1.2 - 3.4 => >=1.2.0 <3.5.0-0
 
+    result = range.
+
     DATA(r) = COND #(
       WHEN loose = abap_true
       THEN zcl_semver_re=>token-hyphenrangeloose-regex
@@ -616,50 +625,56 @@ CLASS zcl_semver_range IMPLEMENTATION.
     TRY.
         DATA(m) = r->create_matcher( text = result ).
 
-        CHECK m->match( ).
+        IF m->match( ).
 
-        DATA(from) = m->get_submatch( 1 ).
-        DATA(fma)  = m->get_submatch( 2 ).
-        DATA(fmi)  = m->get_submatch( 3 ).
-        DATA(fpa)  = m->get_submatch( 4 ).
-        DATA(fpr)  = m->get_submatch( 5 ).
-        DATA(to)   = m->get_submatch( 6 ).
-        DATA(tma)  = m->get_submatch( 7 ).
-        DATA(tmi)  = m->get_submatch( 8 ).
-        DATA(tpa)  = m->get_submatch( 9 ).
-        DATA(tpr)  = m->get_submatch( 10 ).
-        DATA(z) = COND #( WHEN incpre = abap_true THEN '-0' ELSE '' ).
+          DATA(from) = m->get_submatch( 1 ).
+          DATA(fma)  = m->get_submatch( 2 ).
+          DATA(fmi)  = m->get_submatch( 3 ).
+          DATA(fpa)  = m->get_submatch( 4 ).
+          DATA(fpr)  = m->get_submatch( 5 ).
+          "DATA(fbi)  = m->get_submatch( 6 )
 
-        IF is_x( fma ).
-          from = ''.
-        ELSEIF is_x( fmi ).
-          from = |>={ fma }.0.0{ z }|.
-        ELSEIF is_x( fpa ).
-          from = |>={ fma }.{ fmi }.0{ z }|.
-        ELSEIF fpr IS NOT INITIAL.
-          from = |>={ from }|.
-        ELSE.
-          from = |>={ from }{ z }|.
+          DATA(to)   = m->get_submatch( 7 ).
+          DATA(tma)  = m->get_submatch( 8 ).
+          DATA(tmi)  = m->get_submatch( 9 ).
+          DATA(tpa)  = m->get_submatch( 10 ).
+          DATA(tpr)  = m->get_submatch( 11 ).
+          "DATA(tbi)  = m->get_submatch( 12 )
+
+          DATA(z) = COND #( WHEN incpre = abap_true THEN '-0' ELSE '' ).
+
+          IF is_x( fma ).
+            from = ''.
+          ELSEIF is_x( fmi ).
+            from = |>={ fma }.0.0{ z }|.
+          ELSEIF is_x( fpa ).
+            from = |>={ fma }.{ fmi }.0{ z }|.
+          ELSEIF fpr IS NOT INITIAL.
+            from = |>={ from }|.
+          ELSE.
+            from = |>={ from }{ z }|.
+          ENDIF.
+
+          IF is_x( tma ).
+            to = ''.
+          ELSEIF is_x( tmi ).
+            to = |<{ tma + 1 }.0.0-0|.
+          ELSEIF is_x( tpa ).
+            to = |<{ tma }.{ tmi + 1 }.0-0|.
+          ELSEIF tpr IS NOT INITIAL.
+            to = |<={ tma }.{ tmi }.{ tpa }-{ tpr }|.
+          ELSEIF z IS NOT INITIAL.
+            to = |<{ tma }.{ tmi }.{ tpa + 1 }-0|.
+          ELSE.
+            to = |<={ to }|.
+          ENDIF.
+
+          DATA(with) = zcl_semver_utils=>trim( |{ from } { to }| ).
+
+          m->replace_found( with ).
+
+          result = m->text.
         ENDIF.
-
-        IF is_x( tma ).
-          to = ''.
-        ELSEIF is_x( tmi ).
-          to = |<{ tma + 1 }.0.0-0|.
-        ELSEIF is_x( tpa ).
-          to = |<{ tma }.{ tmi + 1 }.0-0|.
-        ELSEIF tpr IS NOT INITIAL.
-          to = |<={ tma }.{ tmi }.{ tpa }-{ tpr }|.
-        ELSEIF z IS NOT INITIAL.
-          to = |<{ tma }.{ tmi }.{ tpa + 1 }-0|.
-        ELSE.
-          to = |<={ to }|.
-        ENDIF.
-
-        DATA(with) = zcl_semver_utils=>trim( |{ from } { to }| ).
-
-        m->replace_found( with ).
-
       CATCH cx_sy_regex cx_sy_matcher INTO DATA(error).
         BREAK-POINT.
         " zcx_semver_error=>raise_with_text( error )
@@ -692,7 +707,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
     result = comp.
 
     DATA(r) = COND #(
-      WHEN incpre = abap_true
+      WHEN loose = abap_true
       THEN zcl_semver_re=>token-tildeloose-regex
       ELSE zcl_semver_re=>token-tilde-regex ).
 
@@ -704,8 +719,9 @@ CLASS zcl_semver_range IMPLEMENTATION.
           DATA(mi) = m->get_submatch( 2 ).
           DATA(pa) = m->get_submatch( 3 ).
           DATA(pr) = m->get_submatch( 4 ).
+          "DATA(bi)  = m->get_submatch( 5 )
 
-          DATA(with) = ''.
+          DATA(with) = no_replace.
 
           IF is_x( ma ).
             with = ''.
@@ -721,7 +737,11 @@ CLASS zcl_semver_range IMPLEMENTATION.
             with = |>={ ma }.{ mi }.{ pa } <{ ma }.{ mi + 1 }.0-0|.
           ENDIF.
 
-          m->replace_found( with ).
+          IF with <> no_replace.
+            m->replace_found( with ).
+          ENDIF.
+
+          result = m->text.
         ENDWHILE.
       CATCH cx_sy_regex cx_sy_matcher INTO DATA(error).
         BREAK-POINT.
@@ -749,7 +769,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
     result = zcl_semver_utils=>trim( comp ).
 
     DATA(r) = COND #(
-      WHEN incpre = abap_true
+      WHEN loose = abap_true
       THEN zcl_semver_re=>token-xrangeloose-regex
       ELSE zcl_semver_re=>token-xrange-regex ).
 
@@ -762,6 +782,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
           DATA(mi) = m->get_submatch( 3 ).
           DATA(pa) = m->get_submatch( 4 ).
           DATA(pr) = m->get_submatch( 5 ).
+          "DATA(bi)  = m->get_submatch( 6 )
 
           DATA(xma) = is_x( ma ).
           DATA(xmi) = xsdbool( xma = abap_true OR is_x( mi ) ).
@@ -776,7 +797,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
           " to fix this to -0, the lowest possible prerelease value
           pr = COND #( WHEN incpre = abap_true THEN '-0' ELSE '' ).
 
-          DATA(with) = ''.
+          DATA(with) = no_replace.
 
           IF xma = abap_true.
             IF gtlt = '>' OR gtlt = '<'.
@@ -828,7 +849,11 @@ CLASS zcl_semver_range IMPLEMENTATION.
             with = |>={ ma }.{ mi }.0{ pr } <{ ma }.{ mi + 1 }.0-0|.
           ENDIF.
 
-          m->replace_found( with ).
+          IF with <> no_replace.
+            m->replace_found( with ).
+          ENDIF.
+
+          result = m->text.
         ENDWHILE.
       CATCH cx_sy_regex cx_sy_matcher INTO DATA(error).
         BREAK-POINT.
@@ -858,7 +883,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
     CHECK semver IS BOUND.
 
     LOOP AT set ASSIGNING FIELD-SYMBOL(<comparators>).
-      IF test_set( comparators = <comparators> version = version loose = options-loose incpre = options-incpre ).
+      IF test_set( comparators = <comparators> version = semver loose = options-loose incpre = options-incpre ).
         result = abap_true.
         RETURN.
       ENDIF.
@@ -876,7 +901,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
     CHECK semver IS BOUND.
 
     LOOP AT comparators ASSIGNING FIELD-SYMBOL(<comparator>).
-      IF <comparator>->test( version ) = abap_false.
+      IF <comparator>->test( semver ) = abap_false.
         result = abap_false.
         RETURN.
       ENDIF.
