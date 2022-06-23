@@ -1,5 +1,7 @@
 INTERFACE zif_semver_constants PUBLIC.
 
+  CONSTANTS version TYPE string VALUE '1.0.0' ##NEEDED.
+
   " Note: this is the semver.org version of the spec that it implements
   " Not necessarily the package version of this code.
   CONSTANTS semver_spec_version TYPE string VALUE '2.0.0'.
