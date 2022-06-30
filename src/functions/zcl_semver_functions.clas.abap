@@ -30,6 +30,8 @@ CLASS zcl_semver_functions DEFINITION
       IMPORTING
         version       TYPE string
         rtl           TYPE abap_bool DEFAULT abap_false
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE REF TO zcl_semver
       RAISING
@@ -300,37 +302,34 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD coerce.
 
+    IF rtl = abap_true.
+      " Find the right-most coercible string that does not share
+      " a terminus with a more left-ward coercible string.
+      " Eg, '1.2.3.4' wants to coerce '2.3.4', not '3.4' or '4'
+
+      " Walk through the string checking with a /g regexp
+      " Manually set the index so as to pick up overlapping matches.
+      " Stop when we get a match that ends at the string end, since no
+      " coercible string can be more right-ward without the same terminus.
+
+      " TODO: Is global regex!
+*      zcx_semver_error=>raise( 'Not implemented' ).
+    ENDIF.
+
+    " cl_abap_matcher has a problem with '1.2.3.4.5.6' so we use FIND REGEX
+
     DATA(r) = COND #(
       WHEN rtl = abap_true
-      THEN zcl_semver_re=>token-coercertl-regex
-      ELSE zcl_semver_re=>token-coerce-regex ).
+      THEN zcl_semver_re=>token-coercertl-src
+      ELSE zcl_semver_re=>token-coerce-src ).
 
-    TRY.
-        DATA(m) = r->create_matcher( text = version ).
-
-        IF NOT m->match( ).
-          RETURN.
-        ENDIF.
-      CATCH cx_sy_matcher.
-        zcx_semver_error=>raise( |Error evaluating regex for { version }| ).
-    ENDTRY.
-
-    IF rtl IS INITIAL.
-      TRY.
-          DATA(major) = m->get_submatch( 2 ).
-        CATCH cx_sy_matcher ##NO_HANDLER.
-      ENDTRY.
-      TRY.
-          DATA(minor) = m->get_submatch( 3 ).
-        CATCH cx_sy_matcher ##NO_HANDLER.
-      ENDTRY.
-      TRY.
-          DATA(patch) = m->get_submatch( 4 ).
-        CATCH cx_sy_matcher ##NO_HANDLER.
-      ENDTRY.
+    IF rtl = abap_true.
+      FIND REGEX r IN version SUBMATCHES DATA(rest) DATA(major) DATA(minor) DATA(patch).
     ELSE.
-      " TODO: Is global regex!
-      zcx_semver_error=>raise( 'Not implemented' ).
+      FIND ALL OCCURRENCES OF REGEX r IN version SUBMATCHES DATA(submatches).
+    ENDIF.
+    IF sy-subrc <> 0.
+      RETURN.
     ENDIF.
 
     IF minor IS INITIAL.
@@ -341,7 +340,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       patch = '0'.
     ENDIF.
 
-    result = parse( |{ major }.{ minor }.{ patch }| ).
+    result = parse( version = |{ major }.{ minor }.{ patch }| loose = loose incpre = incpre ).
 
   ENDMETHOD.
 
@@ -587,14 +586,12 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD satisfies.
 
-    zcx_semver_error=>raise( 'Not implemented' ).     " TODO
-
-*        DATA(semrange) = zcl_semver=>create_range( range = range opt = opt ).
-
-*    check semrange IS BOUND.
-
     TRY.
-*        result = semrange->test( version ).
+        DATA(semrange) = zcl_semver_range=>create( range = range loose = loose incpre = incpre ).
+
+        IF semrange IS BOUND.
+          result = semrange->test( version ).
+        ENDIF.
       CATCH zcx_semver_error.
         result = abap_false.
     ENDTRY.

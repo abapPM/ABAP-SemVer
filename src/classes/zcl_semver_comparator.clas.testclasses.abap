@@ -1,21 +1,21 @@
-CLASS ltcl_tests DEFINITION FOR TESTING RISK LEVEL HARMLESS
+CLASS ltcl_semver_comparator DEFINITION FOR TESTING RISK LEVEL HARMLESS
   DURATION SHORT FINAL.
 
   PRIVATE SECTION.
 
     METHODS:
-      test_comparator FOR TESTING RAISING zcx_semver_error,
-      test_to_string FOR TESTING RAISING zcx_semver_error,
-      test_intersect FOR TESTING RAISING zcx_semver_error,
-      test_any FOR TESTING RAISING zcx_semver_error,
-      test_invalid FOR TESTING RAISING zcx_semver_error,
-      test_ignore_equal FOR TESTING RAISING zcx_semver_error.
+      comparator FOR TESTING RAISING zcx_semver_error,
+      to_string FOR TESTING RAISING zcx_semver_error,
+      intersect FOR TESTING RAISING zcx_semver_error,
+      any FOR TESTING RAISING zcx_semver_error,
+      invalid FOR TESTING RAISING zcx_semver_error,
+      ignore_equal FOR TESTING RAISING zcx_semver_error.
 
 ENDCLASS.
 
-CLASS ltcl_tests IMPLEMENTATION.
+CLASS ltcl_semver_comparator IMPLEMENTATION.
 
-  METHOD test_comparator.
+  METHOD comparator.
 
     DATA(c) = zcl_semver_comparator=>create( '>=1.2.3' ).
 
@@ -44,7 +44,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_to_string.
+  METHOD to_string.
 
     cl_abap_unit_assert=>assert_equals(
       act = zcl_semver_comparator=>create( '>= 1.2.3' )->to_string( )
@@ -52,7 +52,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_intersect.
+  METHOD intersect.
 
     LOOP AT zcl_semver_fixtures=>comparator_intersection( ) INTO DATA(intersection).
       DATA(msg) = |{ intersection-c0 } { intersection-c1 }|.
@@ -67,7 +67,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_any.
+  METHOD any.
     " ANY matches anything
 
     DATA(c) = zcl_semver_comparator=>create( '' ).
@@ -86,7 +86,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_invalid.
+  METHOD invalid.
 
     TRY.
         DATA(c) = zcl_semver_comparator=>create( 'foo bar baz' ).
@@ -97,7 +97,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_ignore_equal.
+  METHOD ignore_equal.
     " equal sign is ignored
 
     cl_abap_unit_assert=>assert_equals(

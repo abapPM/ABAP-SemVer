@@ -46,7 +46,7 @@ CLASS zcl_semver_utils IMPLEMENTATION.
 
 
   METHOD trim.
-    " Trim tab, cr, lf and spaces Like JavaScript trim
+    " Remove leading and trailing tab, cr, lf and spaces Like JavaScript trim
     result = condense( val = data del = | \t\n\r| ).
   ENDMETHOD.
 

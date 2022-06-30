@@ -100,7 +100,7 @@ CLASS zcl_semver_fixtures DEFINITION
     TYPES:
       BEGIN OF ty_range_parse,
         range  TYPE string,
-        res    TYPE abap_bool,
+        res    TYPE string,
         loose  TYPE abap_bool,
         incpre TYPE abap_bool,
       END OF ty_range_parse,
@@ -382,9 +382,10 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( value = '1.2' reason = 'no patch' )
       ( value = '1' reason = 'no minor' )
       ( value = '' reason = 'no data' ) ).
-*      ( value = /a regexp/ reason = 'regexp is not a string' )
-*      ( value = /1.2.3/ reason = 'semver-ish regexp is not a string' )
-*      ( value = { toString: () => '1.2.3' } reason = 'obj with a tostring is not a string' )
+    " The following test cases can't happen in ABAP due to type system
+    " ( value = /a regexp/ reason = 'regexp is not a string' )
+    " ( value = /1.2.3/ reason = 'semver-ish regexp is not a string' )
+    " ( value = { toString: () => '1.2.3' } reason = 'obj with a tostring is not a string' )
 
   ENDMETHOD.
 
@@ -519,6 +520,7 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( range = '>=*' version = '0.2.4' )
       ( range = '' version = '1.0.0' )
       ( range = '*' version = '1.2.3' )
+      " The following test cases can't happen in ABAP due to type system
       "( range = '*' version = 'v1.2.3', { loose: 123 } )
       "( range = '>=1.0.0' version = '1.0.0', /asdf/ )
       "( range = '>=1.0.0' version = '1.0.1', { loose: null } )
@@ -647,8 +649,10 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( r0 = '<1.0.0 >=2.0.0' r1 = '>1.4.0 <1.6.0 || 2.0.0' res = abap_false )
       ( r0 = '1.5.x' r1 = '<1.5.0 || >=1.6.0' res = abap_false )
       ( r0 = '<1.5.0 || >=1.6.0' r1 = '1.5.x' res = abap_false )
-      ( r0 = '<1.6.16 || >=1.7.0 <1.7.11 || >=1.8.0 <1.8.2' r1 = '>=1.6.16 <1.7.0 || >=1.7.11 <1.8.0 || >=1.8.2' res = abap_false )
-      ( r0 = '<=1.6.16 || >=1.7.0 <1.7.11 || >=1.8.0 <1.8.2' r1 = '>=1.6.16 <1.7.0 || >=1.7.11 <1.8.0 || >=1.8.2' res = abap_true )
+      ( r0 = '<1.6.16 || >=1.7.0 <1.7.11 || >=1.8.0 <1.8.2'
+        r1 = '>=1.6.16 <1.7.0 || >=1.7.11 <1.8.0 || >=1.8.2' res = abap_false )
+      ( r0 = '<=1.6.16 || >=1.7.0 <1.7.11 || >=1.8.0 <1.8.2'
+        r1 = '>=1.6.16 <1.7.0 || >=1.7.11 <1.8.0 || >=1.8.2' res = abap_true )
       ( r0 = '>=1.0.0' r1 = '<=1.0.0' res = abap_true )
       ( r0 = '>1.0.0 <1.0.0' r1 = '<=0.0.0' res = abap_false )
       ( r0 = '*' r1 = '0.0.1' res = abap_true )
@@ -698,10 +702,17 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
   METHOD range_parse.
     " [range, canonical result, options]
 
-    " null result means it's not a valid range
+    " '' result means it's not a valid range
     " '*' is the return value from functions.validRange(), but
     " new Range().range will be '' in those cases
     result = VALUE #(
+      ( range = |^{ zif_semver_constants=>max_safe_integer }.0.0| res = '' )
+      ( range = |={ zif_semver_constants=>max_safe_integer }.0.0|
+          res = |{ zif_semver_constants=>max_safe_integer }.0.0| )
+      ( range = |^{ zif_semver_constants=>max_safe_integer - 1 }.0.0|
+          res = |>={ zif_semver_constants=>max_safe_integer - 1 }.0.0 | &&
+                |<{ zif_semver_constants=>max_safe_integer }.0.0-0| )
+
       ( range = '1.0.0 - 2.0.0' res = '>=1.0.0 <=2.0.0' )
       ( range = '1.0.0 - 2.0.0' res = '>=1.0.0-0 <2.0.1-0' incpre = abap_true )
       ( range = '1 - 2' res = '>=1.0.0 <3.0.0-0' )
@@ -796,7 +807,8 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( range = |={ zif_semver_constants=>max_safe_integer }.0.0|
           res = |{ zif_semver_constants=>max_safe_integer }.0.0| )
       ( range = |^{ zif_semver_constants=>max_safe_integer - 1 }.0.0|
-          res = |>={ zif_semver_constants=>max_safe_integer - 1 }.0.0 <{ zif_semver_constants=>max_safe_integer }.0.0-0| ) ).
+          res = |>={ zif_semver_constants=>max_safe_integer - 1 }.0.0 | &&
+                |<{ zif_semver_constants=>max_safe_integer }.0.0-0| ) ).
 
   ENDMETHOD.
 

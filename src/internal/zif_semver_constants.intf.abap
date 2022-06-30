@@ -10,6 +10,6 @@ INTERFACE zif_semver_constants PUBLIC.
   CONSTANTS max_safe_integer TYPE i VALUE cl_abap_math=>max_int4.
 
   " Max safe segment length for coercion.
-  CONSTANTS max_safe_component_length TYPE i VALUE 16.
+  CONSTANTS max_safe_component_length TYPE i VALUE 10. " 16 for int8
 
 ENDINTERFACE.

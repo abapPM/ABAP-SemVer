@@ -190,6 +190,12 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
 
   METHOD parse.
 
+    " initial comparator means anything is allowed
+    IF comp IS INITIAL.
+      semver = any_semver.
+      RETURN.
+    ENDIF.
+
     DATA(r) = COND #(
       WHEN options-loose = abap_true
       THEN zcl_semver_re=>token-comparatorloose-regex

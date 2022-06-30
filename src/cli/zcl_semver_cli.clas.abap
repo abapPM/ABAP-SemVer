@@ -48,7 +48,7 @@ CLASS zcl_semver_cli IMPLEMENTATION.
   METHOD help.
 
     result = VALUE #(
-      ( |SemVer { zif_semver_definitions=>version }| )
+      ( |SemVer { zif_semver_constants=>version }| )
       ( `` )
       ( `ABAP implementation of the https://semver.org/ specification` )
       ( `Original JavaScript Copyright Isaac Z. Schlueter` )
@@ -172,6 +172,7 @@ CLASS zcl_semver_cli IMPLEMENTATION.
           <version> = semver->version.
         ELSE.
           DELETE versions.
+          CONTINUE.
         ENDIF.
       ENDIF.
 

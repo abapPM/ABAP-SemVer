@@ -1,7 +1,6 @@
-CLASS ltcl_tests DEFINITION FOR TESTING RISK LEVEL HARMLESS
+CLASS ltcl_semver_functions DEFINITION FOR TESTING RISK LEVEL HARMLESS
   DURATION SHORT FINAL.
 
-* https://github.com/npm/node-semver/tree/main/test/functions
   PRIVATE SECTION.
 
     TYPES:
@@ -13,39 +12,40 @@ CLASS ltcl_tests DEFINITION FOR TESTING RISK LEVEL HARMLESS
       ty_tests TYPE STANDARD TABLE OF ty_test WITH DEFAULT KEY.
 
     METHODS:
-      test_clean FOR TESTING RAISING zcx_semver_error,
-      test_cmp_invalid FOR TESTING RAISING zcx_semver_error,
-      test_cmp_comparison FOR TESTING RAISING zcx_semver_error,
-      test_cmp_equality FOR TESTING RAISING zcx_semver_error,
-      test_coerce_to_null FOR TESTING RAISING zcx_semver_error,
-      test_coerce_to_valid FOR TESTING RAISING zcx_semver_error,
-      test_compare FOR TESTING RAISING zcx_semver_error,
-      test_compare_build FOR TESTING RAISING zcx_semver_error,
-      test_compare_loose FOR TESTING RAISING zcx_semver_error,
-      test_diff FOR TESTING RAISING zcx_semver_error,
-      test_eq FOR TESTING RAISING zcx_semver_error,
-      test_gt FOR TESTING RAISING zcx_semver_error,
-      test_gte FOR TESTING RAISING zcx_semver_error,
-      test_inc FOR TESTING RAISING zcx_semver_error,
-      test_lt FOR TESTING RAISING zcx_semver_error,
-      test_lte FOR TESTING RAISING zcx_semver_error,
-      test_major FOR TESTING RAISING zcx_semver_error,
-      test_minor FOR TESTING RAISING zcx_semver_error,
-      test_neq FOR TESTING RAISING zcx_semver_error,
-      test_parse FOR TESTING RAISING zcx_semver_error,
-      test_patch FOR TESTING RAISING zcx_semver_error,
-      test_prerelease FOR TESTING RAISING zcx_semver_error,
-      test_rcompare FOR TESTING RAISING zcx_semver_error,
-      test_rsort FOR TESTING RAISING zcx_semver_error,
-      test_satisfies FOR TESTING RAISING zcx_semver_error,
-      test_sort FOR TESTING RAISING zcx_semver_error,
-      test_valid FOR TESTING RAISING zcx_semver_error.
+      clean FOR TESTING RAISING zcx_semver_error,
+      cmp_invalid FOR TESTING RAISING zcx_semver_error,
+      cmp_comparison FOR TESTING RAISING zcx_semver_error,
+      cmp_equality FOR TESTING RAISING zcx_semver_error,
+      coerce_to_null FOR TESTING RAISING zcx_semver_error,
+      coerce_to_valid FOR TESTING RAISING zcx_semver_error,
+      coerce_rtl FOR TESTING RAISING zcx_semver_error,
+      compare FOR TESTING RAISING zcx_semver_error,
+      compare_build FOR TESTING RAISING zcx_semver_error,
+      compare_loose FOR TESTING RAISING zcx_semver_error,
+      diff FOR TESTING RAISING zcx_semver_error,
+      eq FOR TESTING RAISING zcx_semver_error,
+      gt FOR TESTING RAISING zcx_semver_error,
+      gte FOR TESTING RAISING zcx_semver_error,
+      inc FOR TESTING RAISING zcx_semver_error,
+      lt FOR TESTING RAISING zcx_semver_error,
+      lte FOR TESTING RAISING zcx_semver_error,
+      major FOR TESTING RAISING zcx_semver_error,
+      minor FOR TESTING RAISING zcx_semver_error,
+      neq FOR TESTING RAISING zcx_semver_error,
+      parse FOR TESTING RAISING zcx_semver_error,
+      patch FOR TESTING RAISING zcx_semver_error,
+      prerelease FOR TESTING RAISING zcx_semver_error,
+      rcompare FOR TESTING RAISING zcx_semver_error,
+      rsort FOR TESTING RAISING zcx_semver_error,
+      satisfies FOR TESTING RAISING zcx_semver_error,
+      sort FOR TESTING RAISING zcx_semver_error,
+      valid FOR TESTING RAISING zcx_semver_error.
 
 ENDCLASS.
 
-CLASS ltcl_tests IMPLEMENTATION.
+CLASS ltcl_semver_functions IMPLEMENTATION.
 
-  METHOD test_clean.
+  METHOD clean.
     " Version should be detectable despite extra characters
 
     DATA(tests) = VALUE ty_tests(
@@ -71,7 +71,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_cmp_invalid.
+  METHOD cmp_invalid.
 
     TRY.
         zcl_semver_functions=>cmp( a = '1.2.3' op = 'a frog' b = '4.5.6' ).
@@ -81,7 +81,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_cmp_comparison.
+  METHOD cmp_comparison.
 
     LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
@@ -122,7 +122,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_cmp_equality.
+  METHOD cmp_equality.
 
     LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       DATA(msg) = |{ equality-v0 } { equality-v1 } { equality-loose } |.
@@ -161,46 +161,54 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_coerce_to_null.
+  METHOD coerce_to_null.
+
+    DATA(mx) = zif_semver_constants=>max_safe_component_length.
+    DATA(my) = mx + 1. " make it too long
 
     DATA(tests) = VALUE string_table(
       ( `` )
       ( `.` )
       ( `version one` )
-      ( |{ repeat( val = '9' occ = 16 ) }| )
-      ( |{ repeat( val = '1' occ = 17 ) }| )
-      ( |a{ repeat( val = '9' occ = 16 ) }| )
-      ( |a{ repeat( val = '1' occ = 17 ) }| )
-      ( |{ repeat( val = '9' occ = 16 ) }a| )
-      ( |{ repeat( val = '1' occ = 17 ) }a| )
-      ( |{ repeat( val = '9' occ = 16 ) }.4.7.4| )
-      ( |{ repeat( val = '9' occ = 16 ) }.{ repeat( val = '2' occ = 16 ) }.{ repeat( val = '3' occ = 16 ) }| )
-      ( |{ repeat( val = '1' occ = 16 ) }.{ repeat( val = '9' occ = 16 ) }.{ repeat( val = '3' occ = 16 ) }| )
-      ( |{ repeat( val = '1' occ = 16 ) }.{ repeat( val = '2' occ = 16 ) }.{ repeat( val = '9' occ = 16 ) }| ) ).
+      ( |{ repeat( val = '9' occ = mx ) }| )
+      ( |{ repeat( val = '1' occ = my ) }| )
+      ( |a{ repeat( val = '9' occ = mx ) }| )
+      ( |a{ repeat( val = '1' occ = my ) }| )
+      ( |{ repeat( val = '9' occ = mx ) }a| )
+      ( |{ repeat( val = '1' occ = my ) }a| )
+      ( |{ repeat( val = '9' occ = mx ) }.4.7.4| )
+      ( |{ repeat( val = '9' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| )
+      ( |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '9' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| )
+      ( |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '9' occ = mx ) }| ) ).
 
     LOOP AT tests INTO DATA(test).
+      DATA(semver) = zcl_semver_functions=>coerce( test ).
+
       cl_abap_unit_assert=>assert_not_bound(
-        act = zcl_semver_functions=>coerce( test )
+        act = semver
         msg = |{ test }| ).
     ENDLOOP.
 
   ENDMETHOD.
 
-  METHOD test_coerce_to_valid.
+  METHOD coerce_to_valid.
 
     TYPES:
       BEGIN OF ty_test,
         version TYPE string,
         res     TYPE string,
-        rtl     TYPE abap_bool,
       END OF ty_test.
 
     DATA tests TYPE TABLE OF ty_test.
 
+    DATA(mx) = zif_semver_constants=>max_safe_component_length.
+    DATA(my) = mx + 1. " make it too long
+
     tests = VALUE #(
+      ( version = '1.2.3.4.5.6' res = '1.2.3' )
       ( version = '.1' res = '1.0.0' )
       ( version = '.1.' res = '1.0.0' )
-*      ( version = '..1' res = '1.0.0' )
+      ( version = '..1' res = '1.0.0' )
       ( version = '.1.1' res = '1.1.0' )
       ( version = '1.' res = '1.0.0' )
       ( version = '1.0' res = '1.0.0' )
@@ -214,80 +222,108 @@ CLASS ltcl_tests IMPLEMENTATION.
       ( version = '1' res = '1.0.0' )
       ( version = '1.2' res = '1.2.0' )
       ( version = '1.2.3' res = '1.2.3' )
-*      ( version = '1.2.3.4' res = '1.2.3' )
+      ( version = '1.2.3.4' res = '1.2.3' )
       ( version = '13' res = '13.0.0' )
       ( version = '35.12' res = '35.12.0' )
       ( version = '35.12.18' res = '35.12.18' )
-*      ( version = '35.12.18.24' res = '35.12.18' )
+      ( version = '35.12.18.24' res = '35.12.18' )
       ( version = 'v1' res = '1.0.0' )
       ( version = 'v1.2' res = '1.2.0' )
       ( version = 'v1.2.3' res = '1.2.3' )
-*      ( version = 'v1.2.3.4' res = '1.2.3' )
+      ( version = 'v1.2.3.4' res = '1.2.3' )
       ( version = ' 1' res = '1.0.0' )
       ( version = '1 ' res = '1.0.0' )
-*      ( version = '1 0' res = '1.0.0' )
-*      ( version = '1 1' res = '1.0.0' )
-*      ( version = '1.1 1' res = '1.1.0' )
-*      ( version = '1.1-1' res = '1.1.0' )
-*      ( version = '1.1-1' res = '1.1.0' )
+      ( version = '1 0' res = '1.0.0' )
+      ( version = '1 1' res = '1.0.0' )
+      ( version = '1.1 1' res = '1.1.0' )
+      ( version = '1.1-1' res = '1.1.0' )
+      ( version = '1.1-1' res = '1.1.0' )
       ( version = 'a1' res = '1.0.0' )
       ( version = 'a1a' res = '1.0.0' )
       ( version = '1a' res = '1.0.0' )
-*      ( version = 'version 1' res = '1.0.0' )
-*      ( version = 'version1' res = '1.0.0' )
-*      ( version = 'version1.0' res = '1.0.0' )
-*      ( version = 'version1.1' res = '1.1.0' )
-*      ( version = '42.6.7.9.3-alpha' res = '42.6.7' )
+      ( version = 'version 1' res = '1.0.0' )
+      ( version = 'version1' res = '1.0.0' )
+      ( version = 'version1.0' res = '1.0.0' )
+      ( version = 'version1.1' res = '1.1.0' )
+      ( version = '42.6.7.9.3-alpha' res = '42.6.7' )
       ( version = 'v2' res = '2.0.0' )
-*      ( version = 'v3.4 replaces v3.3.1' res = '3.4.0' )
-*      ( version = '4.6.3.9.2-alpha2' res = '4.6.3' )
-*      ( version = |{ repeat( val = '1' occ = 17 ) }.2| res = '2.0.0' )
-*      ( version = |{ repeat( val = '1' occ = 17 ) }.2.3| res = '2.3.0' )
-*      ( version = |1.{ repeat( val = '2' occ = 17 ) }.3| res = '1.0.0' )
-*      ( version = |1.2.{ repeat( val = '3' occ = 17 ) }| res = '1.2.0' )
-*      ( version = |{ repeat( val = '1' occ = 17 ) }.2.3.4| res = '2.3.4' )
-*      ( version = |1.{ repeat( val = '2' occ = 17 ) }.3.4| res = '1.0.0' )
-*      ( version = |1.2.{ repeat( val = '3' occ = 17 ) }.4| res = '1.2.0' )
-*      ( version = |{ repeat( val = '1' occ = 17 ) }.{ repeat( val = '2' occ = 16 ) }.{ repeat( val = '3' occ = 16 ) }| res = |{ repeat( val = '2' occ = 16 ) }.{ repeat( val = '3' occ = 16 ) }.0| )
-*      ( version = |{ repeat( val = '1' occ = 16 ) }.{ repeat( val = '2' occ = 17 ) }.{ repeat( val = '3' occ = 16 ) }| res = |{ repeat( val = '1' occ = 16 ) }.0.0| )
-*      ( version = |{ repeat( val = '1' occ = 16 ) }.{ repeat( val = '2' occ = 16 ) }.{ repeat( val = '3' occ = 17 ) }| res = |{ repeat( val = '1' occ = 16 ) }.{ repeat( val = '2' occ = 16 ) }.0| )
-*      ( version = |11{ repeat( val = '.1' occ = 126 ) }| res = '11.1.1' )
-*      ( version = repeat( val = '1' occ = 16 ) res = |{ repeat( val = '1' occ = 16 ) }.0.0| )
-*      ( version = |a{ repeat( val = '1' occ = 16 ) }| res = |{ repeat( val = '1' occ = 16 ) }.0.0| )
-*      ( version = |{ repeat( val = '1' occ = 16 ) }.2.3.4| res = |{ repeat( val = '1' occ = 16 ) }.2.3| )
-*      ( version = |1.{ repeat( val = '2' occ = 16 ) }.3.4| res = |1.{ repeat( val = '2' occ = 16 ) }.3| )
-*      ( version = |1.2.{ repeat( val = '3' occ = 16 ) }.4| res = |1.2.{ repeat( val = '3' occ = 16 ) }| )
-*      ( version = |{ repeat( val = '1' occ = 16 ) }.{ repeat( val = '2' occ = 16 ) }.{ repeat( val = '3' occ = 16 ) }| res = |{ repeat( val = '1' occ = 16 ) }.{ repeat( val = '2' occ = 16 ) }.{ repeat( val = '3' occ = 16 ) }| )
-*      ( version = |1.2.3.{ repeat( val = '4' occ = 252 ) }.5| res = '1.2.3' )
-*      ( version = |1.2.3.{ repeat( val = '4' occ = 1024 ) }| res = '1.2.3' )
-*      ( version = |{ repeat( val = '1' occ = 17 ) }.4.7.4| res = '4.7.4' )
+      ( version = 'v3.4 replaces v3.3.1' res = '3.4.0' )
+      ( version = '4.6.3.9.2-alpha2' res = '4.6.3' )
+      ( version = |{ repeat( val = '1' occ = my ) }.2| res = '2.0.0' )
+      ( version = |{ repeat( val = '1' occ = my ) }.2.3| res = '2.3.0' )
+      ( version = |1.{ repeat( val = '2' occ = my ) }.3| res = '1.0.0' )
+      ( version = |1.2.{ repeat( val = '3' occ = my ) }| res = '1.2.0' )
+      ( version = |{ repeat( val = '1' occ = my ) }.2.3.4| res = '2.3.4' )
+      ( version = |1.{ repeat( val = '2' occ = my ) }.3.4| res = '1.0.0' )
+      ( version = |1.2.{ repeat( val = '3' occ = my ) }.4| res = '1.2.0' )
+      ( version = |{ repeat( val = '1' occ = my ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| res = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.0| )
+      ( version = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '2' occ = my ) }.{ repeat( val = '1' occ = mx ) }| res = |{ repeat( val = '1' occ = mx ) }.0.0| )
+      ( version = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '3' occ = my ) }| res = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.0| )
+      ( version = |11{ repeat( val = '.1' occ = 126 ) }| res = '11.1.1' )
+      ( version = repeat( val = '1' occ = mx ) res = |{ repeat( val = '1' occ = mx ) }.0.0| )
+      ( version = |A{ repeat( val = '1' occ = mx ) }| res = |{ repeat( val = '1' occ = mx ) }.0.0| )
+      ( version = |{ repeat( val = '1' occ = mx ) }.2.3.4| res = |{ repeat( val = '1' occ = mx ) }.2.3| )
+      ( version = |1.{ repeat( val = '1' occ = mx ) }.3.4| res = |1.{ repeat( val = '1' occ = mx ) }.3| )
+      ( version = |1.2.{ repeat( val = '1' occ = mx ) }.4| res = |1.2.{ repeat( val = '1' occ = mx ) }| )
+      ( version = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| res = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| )
+      ( version = |1.2.3.{ repeat( val = '4' occ = 252 ) }.5| res = '1.2.3' )
+      ( version = |1.2.3.{ repeat( val = '4' occ = 1024 ) }| res = '1.2.3' )
+      ( version = |{ repeat( val = '1' occ = my ) }.4.7.4| res = '4.7.4' )
       ( version = 10 res = '10.0.0' ) ).
-*      ( version = '1.2.3/a/b/c/2.3.4' res = '2.3.4' rtl = abap_true )
-*      ( version = '1.2.3.4.5.6' res = '4.5.6' rtl = abap_true )
-*      ( version = '1.2.3.4.5/6' res = '6.0.0' rtl = abap_true )
-*      ( version = '1.2.3.4./6' res = '6.0.0' rtl = abap_true )
-*      ( version = '1.2.3.4/6' res = '6.0.0' rtl = abap_true )
-*      ( version = '1.2.3./6' res = '6.0.0' rtl = abap_true )
-*      ( version = '1.2.3/6' res = '6.0.0' rtl = abap_true )
-*      ( version = '1.2.3.4' res = '2.3.4' rtl = abap_true )
-*      ( version = '1.2.3.4xyz' res = '2.3.4' rtl = abap_true ) ).
 
     LOOP AT tests INTO DATA(test).
-      DATA(semver) = zcl_semver_functions=>coerce( version = test-version rtl = test-rtl ).
+      DATA(semver) = zcl_semver_functions=>coerce( test-version ).
 
       cl_abap_unit_assert=>assert_bound(
         act = semver
-        msg = |{ test-version } { test-res } { test-rtl }| ).
+        msg = |{ test-version } { test-res }| ).
 
       cl_abap_unit_assert=>assert_equals(
         act = semver->version
         exp = test-res
-        msg = |{ test-version } { test-res } { test-rtl }| ).
+        msg = |{ test-version } { test-res }| ).
     ENDLOOP.
 
   ENDMETHOD.
 
-  METHOD test_compare.
+  METHOD coerce_rtl.
+
+    TYPES:
+      BEGIN OF ty_test,
+        version TYPE string,
+        res     TYPE string,
+      END OF ty_test.
+
+    DATA tests TYPE TABLE OF ty_test.
+
+   " TODO: rtl not implemented
+    tests = VALUE #(
+      ( version = '1.2.3.4.5.6' res = '4.5.6' ) ).
+    " ( version = '1.2.3/a/b/c/2.3.4' res = '2.3.4' )
+    " ( version = '1.2.3.4.5/6' res = '6.0.0' )
+    " ( version = '1.2.3.4./6' res = '6.0.0' )
+    " ( version = '1.2.3.4/6' res = '6.0.0' )
+    " ( version = '1.2.3./6' res = '6.0.0' )
+    " ( version = '1.2.3/6' res = '6.0.0' )
+    " ( version = '1.2.3.4' res = '2.3.4' )
+    " ( version = '1.2.3.4xyz' res = '2.3.4' ) ).
+
+    LOOP AT tests INTO DATA(test).
+      DATA(semver) = zcl_semver_functions=>coerce( version = test-version rtl = abap_true ).
+
+      cl_abap_unit_assert=>assert_bound(
+        act = semver
+        msg = |{ test-version } { test-res }| ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = semver->version
+        exp = test-res
+        msg = |{ test-version } { test-res }| ).
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD compare.
 
     LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
@@ -342,7 +378,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_compare_build.
+  METHOD compare_build.
 
     DATA(nobuild) = '1.0.0'.
     DATA(build0) = '1.0.0+0'.
@@ -374,7 +410,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_compare_loose.
+  METHOD compare_loose.
     " strict vs loose version numbers
 
     TYPES:
@@ -434,7 +470,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_diff.
+  METHOD diff.
 
     TYPES:
       BEGIN OF ty_test,
@@ -469,7 +505,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_eq.
+  METHOD eq.
 
     LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
@@ -515,7 +551,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_gt.
+  METHOD gt.
 
     LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
@@ -553,7 +589,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_gte.
+  METHOD gte.
 
     LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
@@ -591,7 +627,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_inc.
+  METHOD inc.
 
     LOOP AT zcl_semver_fixtures=>increments( ) INTO DATA(increments).
       DATA(msg) = |{ increments-version } { increments-release } { increments-identifier } { increments-res } |.
@@ -664,7 +700,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_lt.
+  METHOD lt.
 
     LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
@@ -702,7 +738,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_lte.
+  METHOD lte.
 
     LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
@@ -740,7 +776,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_major.
+  METHOD major.
     " Version should be detectable despite extra characters
 
     DATA(tests) = VALUE ty_tests(
@@ -765,7 +801,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_minor.
+  METHOD minor.
     " Version should be detectable despite extra characters
 
     DATA(tests) = VALUE ty_tests(
@@ -790,7 +826,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_neq.
+  METHOD neq.
 
     LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
@@ -836,7 +872,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_parse.
+  METHOD parse.
     " returns null instead of throwing when presented with garbage
 
     LOOP AT zcl_semver_fixtures=>invalid_versions( ) INTO DATA(invalid_version).
@@ -867,7 +903,7 @@ CLASS ltcl_tests IMPLEMENTATION.
       msg = 'looseness as an option' ).
   ENDMETHOD.
 
-  METHOD test_patch.
+  METHOD patch.
     " Version should be detectable despite extra characters
 
     DATA(tests) = VALUE ty_tests(
@@ -892,7 +928,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_prerelease.
+  METHOD prerelease.
 
     TYPES:
       BEGIN OF ty_test,
@@ -925,7 +961,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_rcompare.
+  METHOD rcompare.
 
     cl_abap_unit_assert=>assert_equals(
       act = zcl_semver_functions=>rcompare( a = '1.0.0' b = '1.0.1' )
@@ -942,7 +978,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_rsort.
+  METHOD rsort.
 
     DATA(list) = VALUE string_table(
       ( `1.2.3+1` )
@@ -964,7 +1000,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_satisfies.
+  METHOD satisfies.
 
     DATA tests TYPE zcl_semver_fixtures=>ty_ranges.
 
@@ -1013,7 +1049,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_sort.
+  METHOD sort.
 
     DATA(list) = VALUE string_table(
       ( `1.2.3+1` )
@@ -1035,7 +1071,7 @@ CLASS ltcl_tests IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_valid.
+  METHOD valid.
     " returns null instead of throwing when presented with garbage
 
     LOOP AT zcl_semver_fixtures=>invalid_versions( ) INTO DATA(invalid_version).

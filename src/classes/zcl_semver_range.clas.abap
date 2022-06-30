@@ -126,7 +126,9 @@ CLASS zcl_semver_range DEFINITION
         !loose        TYPE abap_bool
         !incpre       TYPE abap_bool
       RETURNING
-        VALUE(result) TYPE string.
+        VALUE(result) TYPE string
+      RAISING
+        zcx_semver_error.
 
     CLASS-METHODS replace_tilde
       IMPORTING
@@ -134,7 +136,9 @@ CLASS zcl_semver_range DEFINITION
         !loose        TYPE abap_bool
         !incpre       TYPE abap_bool
       RETURNING
-        VALUE(result) TYPE string.
+        VALUE(result) TYPE string
+      RAISING
+        zcx_semver_error.
 
     CLASS-METHODS replace_carets
       IMPORTING
@@ -142,7 +146,9 @@ CLASS zcl_semver_range DEFINITION
         !loose        TYPE abap_bool
         !incpre       TYPE abap_bool
       RETURNING
-        VALUE(result) TYPE string.
+        VALUE(result) TYPE string
+      RAISING
+        zcx_semver_error.
 
     CLASS-METHODS replace_caret
       IMPORTING
@@ -150,7 +156,9 @@ CLASS zcl_semver_range DEFINITION
         !loose        TYPE abap_bool
         !incpre       TYPE abap_bool
       RETURNING
-        VALUE(result) TYPE string.
+        VALUE(result) TYPE string
+      RAISING
+        zcx_semver_error.
 
     CLASS-METHODS replace_xranges
       IMPORTING
@@ -158,7 +166,9 @@ CLASS zcl_semver_range DEFINITION
         !loose        TYPE abap_bool
         !incpre       TYPE abap_bool
       RETURNING
-        VALUE(result) TYPE string.
+        VALUE(result) TYPE string
+      RAISING
+        zcx_semver_error.
 
     CLASS-METHODS replace_xrange
       IMPORTING
@@ -166,7 +176,9 @@ CLASS zcl_semver_range DEFINITION
         !loose        TYPE abap_bool
         !incpre       TYPE abap_bool
       RETURNING
-        VALUE(result) TYPE string.
+        VALUE(result) TYPE string
+      RAISING
+        zcx_semver_error.
 
     CLASS-METHODS replace_stars
       IMPORTING
@@ -190,7 +202,9 @@ CLASS zcl_semver_range DEFINITION
         !loose        TYPE abap_bool
         !incpre       TYPE abap_bool
       RETURNING
-        VALUE(result) TYPE string.
+        VALUE(result) TYPE string
+      RAISING
+        zcx_semver_error.
 
     CLASS-METHODS test_set
       IMPORTING
@@ -202,6 +216,12 @@ CLASS zcl_semver_range DEFINITION
         VALUE(result) TYPE string
       RAISING
         zcx_semver_error.
+
+    CLASS-METHODS str
+      IMPORTING
+        !value        TYPE i
+      RETURNING
+        VALUE(result) TYPE string.
 
 ENDCLASS.
 
@@ -217,7 +237,11 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     raw = range.
 
-    SPLIT range AT '||' INTO TABLE DATA(ranges).
+    IF range IS NOT INITIAL.
+      SPLIT range AT '||' INTO TABLE DATA(ranges).
+    ELSE.
+      INSERT INITIAL LINE INTO TABLE ranges.
+    ENDIF.
 
     " map the range to a 2d array of comparators
     LOOP AT ranges ASSIGNING FIELD-SYMBOL(<range>).
@@ -419,6 +443,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     DATA:
       cache_entry TYPE LINE OF ty_cache,
+      comp_values TYPE string_table,
       comparators TYPE ty_comparators.
 
     DATA(range) = zcl_semver_utils=>version_trim( range_string ).
@@ -475,11 +500,26 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     range = condense( concat_lines_of( table = comps sep = ` ` ) ).
 
+    IF range IS INITIAL.
+      range = ` `.
+    ENDIF.
+
     SPLIT range AT ` ` INTO TABLE comps.
 
     LOOP AT comps ASSIGNING <comp>.
       <comp> = replace_gte0( comp = <comp> loose = options-loose incpre = options-incpre ).
     ENDLOOP.
+
+    IF options-loose = abap_true.
+      " in loose mode, throw out any that are not valid comparators
+      DATA(r) = zcl_semver_re=>token-comparatorloose-regex.
+      LOOP AT comps ASSIGNING <comp>.
+        DATA(m) = r->create_matcher( text = <comp> ).
+        IF NOT m->match( ).
+          DELETE comps.
+        ENDIF.
+      ENDLOOP.
+    ENDIF.
 
     " if any comparators are the null set, then replace with JUST null set
     " if more than one comparator, remove any * comparators
@@ -495,7 +535,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
         result = VALUE #( ( <semcomp> ) ).
         EXIT.
       ENDIF.
-      IF <semcomp>->value IS NOT INITIAL.
+      IF <semcomp>->semver IS NOT INITIAL AND NOT line_exists( comp_values[ table_line = <semcomp>->value ] ).
+        INSERT <semcomp>->value INTO TABLE comp_values.
         INSERT <semcomp> INTO TABLE result.
       ENDIF.
     ENDLOOP.
@@ -539,32 +580,32 @@ CLASS zcl_semver_range IMPLEMENTATION.
           IF is_x( ma ).
             with = ''.
           ELSEIF is_x( mi ).
-            with = |>={ ma }.0.0{ z } <{ ma + 1 }.0.0-0|.
+            with = |>={ ma }.0.0{ z } <{ str( ma + 1 ) }.0.0-0|.
           ELSEIF is_x( pa ).
             IF ma = '0'.
-              with = |>={ ma }.{ mi }.0{ z } <{ ma }.${ mi + 1 }.0-0|.
+              with = |>={ ma }.{ mi }.0{ z } <{ ma }.{ str( mi + 1 ) }.0-0|.
             ELSE.
-              with = |>={ ma }.{ mi }.0{ z } <{ ma + 1 }.0.0-0|.
+              with = |>={ ma }.{ mi }.0{ z } <{ str( ma + 1 ) }.0.0-0|.
             ENDIF.
           ELSEIF pr IS NOT INITIAL.
             IF ma = '0'.
               IF mi = '0'.
-                with = |>={ ma }.{ mi }.{ pa }-{ pr } <{ ma }.{ mi }.${ pa + 1 }-0|.
+                with = |>={ ma }.{ mi }.{ pa }-{ pr } <{ ma }.{ mi }.{ str( pa + 1 ) }-0|.
               ELSE.
-                with = |>={ ma }.{ mi }.{ pa }-{ pr } <{ ma }.${ mi + 1 }.0-0|.
+                with = |>={ ma }.{ mi }.{ pa }-{ pr } <{ ma }.{ str( mi + 1 ) }.0-0|.
               ENDIF.
             ELSE.
-              with = |>={ ma }.{ mi }.{ pa }-{ pr } <{ ma + 1 }.0.0-0|.
+              with = |>={ ma }.{ mi }.{ pa }-{ pr } <{ str( ma + 1 ) }.0.0-0|.
             ENDIF.
           ELSE.
             IF ma = '0'.
               IF mi = '0'.
-                with = |>={ ma }.{ mi }.{ pa }{ z } <{ ma }.{ mi }.${ pa + 1 }-0|.
+                with = |>={ ma }.{ mi }.{ pa }{ z } <{ ma }.{ mi }.{ str( pa + 1 )  }-0|.
               ELSE.
-                with = |>={ ma }.{ mi }.{ pa }{ z } <{ ma }.${ mi + 1 }.0-0|.
+                with = |>={ ma }.{ mi }.{ pa }{ z } <{ ma }.{ str( mi + 1 ) }.0-0|.
               ENDIF.
             ELSE.
-              with = |>={ ma }.{ mi }.{ pa } <{ ma + 1 }.0.0-0|.
+              with = |>={ ma }.{ mi }.{ pa } <{ str( ma + 1 ) }.0.0-0|.
             ENDIF.
           ENDIF.
 
@@ -574,6 +615,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
           result = m->text.
         ENDWHILE.
+      CATCH cx_sy_arithmetic_overflow.
+        zcx_semver_error=>raise( 'Overflow' ).
       CATCH cx_sy_regex cx_sy_matcher INTO DATA(error).
         BREAK-POINT.
         " zcx_semver_error=>raise_with_text( error )
@@ -658,13 +701,13 @@ CLASS zcl_semver_range IMPLEMENTATION.
           IF is_x( tma ).
             to = ''.
           ELSEIF is_x( tmi ).
-            to = |<{ tma + 1 }.0.0-0|.
+            to = |<{ str( tma + 1 ) }.0.0-0|.
           ELSEIF is_x( tpa ).
-            to = |<{ tma }.{ tmi + 1 }.0-0|.
+            to = |<{ tma }.{ str( tmi + 1 ) }.0-0|.
           ELSEIF tpr IS NOT INITIAL.
             to = |<={ tma }.{ tmi }.{ tpa }-{ tpr }|.
           ELSEIF z IS NOT INITIAL.
-            to = |<{ tma }.{ tmi }.{ tpa + 1 }-0|.
+            to = |<{ tma }.{ tmi }.{ str( tpa + 1 ) }-0|.
           ELSE.
             to = |<={ to }|.
           ENDIF.
@@ -675,6 +718,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
           result = m->text.
         ENDIF.
+      CATCH cx_sy_arithmetic_overflow.
+        zcx_semver_error=>raise( 'Overflow' ).
       CATCH cx_sy_regex cx_sy_matcher INTO DATA(error).
         BREAK-POINT.
         " zcx_semver_error=>raise_with_text( error )
@@ -726,15 +771,15 @@ CLASS zcl_semver_range IMPLEMENTATION.
           IF is_x( ma ).
             with = ''.
           ELSEIF is_x( mi ).
-            with = |>={ ma }.0.0 <{ ma + 1 }.0.0-0|.
+            with = |>={ ma }.0.0 <{ str( ma + 1 ) }.0.0-0|.
           ELSEIF is_x( pa ).
             " ~1.2 == >=1.2.0 <1.3.0-0
-            with = |>={ ma }.{ mi }.0 <{ ma }.{ mi + 1 }.0-0|.
+            with = |>={ ma }.{ mi }.0 <{ ma }.{ str( mi + 1 ) }.0-0|.
           ELSEIF pr IS NOT INITIAL.
-            with = |>={ ma }.{ mi }.{ pa }-{ pr } <{ ma }.{ mi + 1 }.0-0|.
+            with = |>={ ma }.{ mi }.{ pa }-{ pr } <{ ma }.{ str( mi + 1 ) }.0-0|.
           ELSE.
             " ~1.2.3 == >=1.2.3 <1.3.0-0
-            with = |>={ ma }.{ mi }.{ pa } <{ ma }.{ mi + 1 }.0-0|.
+            with = |>={ ma }.{ mi }.{ pa } <{ ma }.{ str( mi + 1 ) }.0-0|.
           ENDIF.
 
           IF with <> no_replace.
@@ -743,6 +788,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
           result = m->text.
         ENDWHILE.
+      CATCH cx_sy_arithmetic_overflow.
+        zcx_semver_error=>raise( 'Overflow' ).
       CATCH cx_sy_regex cx_sy_matcher INTO DATA(error).
         BREAK-POINT.
         " zcx_semver_error=>raise_with_text( error )
@@ -811,30 +858,30 @@ CLASS zcl_semver_range IMPLEMENTATION.
             " we know patch is an x, because we have any x at all.
             " replace X with 0.
             IF xmi = abap_true.
-              mi = 0.
+              mi = `0`.
             ENDIF.
-            pa = 0.
+            pa = `0`.
 
             IF gtlt = '>'.
               " >1 => >=2.0.0.
               " >1.2 => >=1.3.0.
               gtlt = '>='.
               IF xmi = abap_true.
-                ma = ma + 1.
-                mi = 0.
-                pa = 0.
+                ma = str( ma + 1 ).
+                mi = `0`.
+                pa = `0`.
               ELSE.
-                mi = mi + 1.
-                pa = 0.
+                mi = str( mi + 1 ).
+                pa = `0`.
               ENDIF.
             ELSEIF gtlt = '<='.
               " <=0.7.x is actually <0.8.0, since any 0.7.x should.
               " pass.  Similarly, <=7.x is actually <8.0.0, etc.
               gtlt = '<'.
               IF xmi = abap_true.
-                ma = ma + 1.
+                ma = str( ma + 1 ).
               ELSE.
-                mi = mi + 1.
+                mi = str( mi + 1 ).
               ENDIF.
             ENDIF.
 
@@ -842,11 +889,11 @@ CLASS zcl_semver_range IMPLEMENTATION.
               pr = '-0'.
             ENDIF.
 
-            with = |{ gtlt + ma }.{ mi }.{ pa }{ pr }|.
+            with = |{ gtlt }{ ma }.{ mi }.{ pa }{ pr }|.
           ELSEIF xmi = abap_true.
-            with = |>={ ma }.0.0{ pr } <{ ma + 1 }.0.0-0|.
+            with = |>={ ma }.0.0{ pr } <{ str( ma + 1 ) }.0.0-0|.
           ELSEIF xpa = abap_true.
-            with = |>={ ma }.{ mi }.0{ pr } <{ ma }.{ mi + 1 }.0-0|.
+            with = |>={ ma }.{ mi }.0{ pr } <{ ma }.{ str( mi + 1 ) }.0-0|.
           ENDIF.
 
           IF with <> no_replace.
@@ -855,6 +902,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
           result = m->text.
         ENDWHILE.
+      CATCH cx_sy_arithmetic_overflow.
+        zcx_semver_error=>raise( 'Overflow' ).
       CATCH cx_sy_regex cx_sy_matcher INTO DATA(error).
         BREAK-POINT.
         " zcx_semver_error=>raise_with_text( error )
@@ -876,9 +925,20 @@ CLASS zcl_semver_range IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD str.
+    " strip trailing space from integer
+    result = condense( |{ value }| ).
+  ENDMETHOD.
+
+
   METHOD test.
 
-    DATA(semver) = zcl_semver=>create( version = version loose = options-loose incpre = options-incpre ).
+    TRY.
+        DATA(semver) = zcl_semver=>create( version = version loose = options-loose incpre = options-incpre ).
+      CATCH zcx_semver_error.
+        result = abap_false.
+        RETURN.
+    ENDTRY.
 
     CHECK semver IS BOUND.
 
@@ -907,7 +967,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
       ENDIF.
     ENDLOOP.
 
-    IF semver->prerelease IS NOT INITIAL AND incpre = abap_true.
+    IF semver->prerelease IS NOT INITIAL AND incpre = abap_false.
       " Find the set of versions that are allowed to have prereleases
       " For example, ^1.2.3-pr.1 desugars to >=1.2.3-pr.1 <2.0.0
       " That should allow `1.2.3-pr.2` to pass.
