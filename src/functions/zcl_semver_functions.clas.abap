@@ -302,19 +302,17 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD coerce.
 
-    IF rtl = abap_true.
-      " Find the right-most coercible string that does not share
-      " a terminus with a more left-ward coercible string.
-      " Eg, '1.2.3.4' wants to coerce '2.3.4', not '3.4' or '4'
+    TYPES:
+      BEGIN OF ty_match,
+        major  TYPE string,
+        minor  TYPE string,
+        patch  TYPE string,
+        offset TYPE i,
+        length TYPE i,
+        endpos TYPE i,
+      END OF ty_match.
 
-      " Walk through the string checking with a /g regexp
-      " Manually set the index so as to pick up overlapping matches.
-      " Stop when we get a match that ends at the string end, since no
-      " coercible string can be more right-ward without the same terminus.
-
-      " TODO: Is global regex!
-*      zcx_semver_error=>raise( 'Not implemented' ).
-    ENDIF.
+    DATA matches TYPE STANDARD TABLE OF ty_match.
 
     " cl_abap_matcher has a problem with '1.2.3.4.5.6' so we use FIND REGEX
 
@@ -323,13 +321,42 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       THEN zcl_semver_re=>token-coercertl-src
       ELSE zcl_semver_re=>token-coerce-src ).
 
-    IF rtl = abap_true.
+    IF rtl = abap_false.
       FIND REGEX r IN version SUBMATCHES DATA(rest) DATA(major) DATA(minor) DATA(patch).
+      IF sy-subrc <> 0.
+        RETURN.
+      ENDIF.
     ELSE.
-      FIND ALL OCCURRENCES OF REGEX r IN version SUBMATCHES DATA(submatches).
-    ENDIF.
-    IF sy-subrc <> 0.
-      RETURN.
+      " Find the right-most coercible string that does not share
+      " a terminus with a more left-ward coercible string.
+      " Eg, '1.2.3.4' wants to coerce '2.3.4', not '3.4' or '4'
+      DATA(offset) = 0.
+      DO.
+        FIND REGEX r IN version+offset(*) SUBMATCHES rest major minor patch.
+        IF sy-subrc <> 0.
+          EXIT.
+        ENDIF.
+        INSERT INITIAL LINE INTO TABLE matches ASSIGNING FIELD-SYMBOL(<match>).
+        <match>-major  = major.
+        <match>-minor  = minor.
+        <match>-patch  = patch.
+        <match>-offset = offset.
+        <match>-length = strlen( |{ major }{ COND #( WHEN minor IS NOT INITIAL THEN '.' && minor ) }{ COND #( WHEN patch IS NOT INITIAL THEN '.' && patch ) }| ).
+        <match>-endpos = <match>-offset + <match>-length.
+        FIND '.' IN version+offset(*) MATCH OFFSET DATA(next_offset).
+        offset += next_offset + 1.
+        IF offset >= strlen( version ).
+          EXIT.
+        ENDIF.
+      ENDDO.
+      SORT matches BY endpos DESCENDING length DESCENDING.
+      READ TABLE matches ASSIGNING <match> INDEX 1.
+      IF sy-subrc <> 0.
+        EXIT.
+      ENDIF.
+      major = <match>-major.
+      minor = <match>-minor.
+      patch = <match>-patch.
     ENDIF.
 
     IF minor IS INITIAL.

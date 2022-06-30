@@ -296,17 +296,16 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
     DATA tests TYPE TABLE OF ty_test.
 
-   " TODO: rtl not implemented
     tests = VALUE #(
-      ( version = '1.2.3.4.5.6' res = '4.5.6' ) ).
-    " ( version = '1.2.3/a/b/c/2.3.4' res = '2.3.4' )
-    " ( version = '1.2.3.4.5/6' res = '6.0.0' )
-    " ( version = '1.2.3.4./6' res = '6.0.0' )
-    " ( version = '1.2.3.4/6' res = '6.0.0' )
-    " ( version = '1.2.3./6' res = '6.0.0' )
-    " ( version = '1.2.3/6' res = '6.0.0' )
-    " ( version = '1.2.3.4' res = '2.3.4' )
-    " ( version = '1.2.3.4xyz' res = '2.3.4' ) ).
+      ( version = '1.2.3.4.5.6' res = '4.5.6' )
+      " TODO: ( version = '1.2.3/a/b/c/2.3.4' res = '2.3.4' )
+      ( version = '1.2.3.4.5/6' res = '6.0.0' )
+      ( version = '1.2.3.4./6' res = '6.0.0' )
+      ( version = '1.2.3.4/6' res = '6.0.0' )
+      ( version = '1.2.3./6' res = '6.0.0' )
+      ( version = '1.2.3/6' res = '6.0.0' )
+      ( version = '1.2.3.4' res = '2.3.4' )
+      ( version = '1.2.3.4xyz' res = '2.3.4' ) ).
 
     LOOP AT tests INTO DATA(test).
       DATA(semver) = zcl_semver_functions=>coerce( version = test-version rtl = abap_true ).
