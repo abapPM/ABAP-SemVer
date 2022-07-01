@@ -74,7 +74,7 @@ CLASS zcl_semver_ranges DEFINITION
         loose         TYPE abap_bool DEFAULT abap_false
         incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
-        VALUE(result) TYPE abap_bool
+        VALUE(result) TYPE string
       RAISING
         zcx_semver_error.
 
@@ -218,10 +218,17 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
   METHOD valid_range.
 
     TRY.
+        " Return '*' instead of '' so that truthiness works.
+        " This will throw if it's invalid anyway
         DATA(semrange) = zcl_semver_range=>create( range = range loose = loose incpre = incpre ).
-        result = abap_true.
+
+        IF semrange IS BOUND.
+          result = semrange->range.
+        ELSE.
+          result = '*'.
+        ENDIF.
       CATCH zcx_semver_error.
-        result = abap_false.
+        result = ''.
     ENDTRY.
 
   ENDMETHOD.

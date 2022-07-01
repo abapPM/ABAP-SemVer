@@ -201,12 +201,12 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     LOOP AT tests INTO DATA(test).
       DATA(comparators) = zcl_semver_ranges=>to_comparators( test-range ).
 
-      CLEAR test_act.
+      clear test_act.
       LOOP AT comparators ASSIGNING FIELD-SYMBOL(<comparator>).
         IF test_act IS INITIAL.
           test_act = <comparator>->value.
         ELSE.
-          test_act = test_act && ' , ' && <comparator>->to_string( ).
+          test_act = test_act && ` ` && <comparator>->value.
         ENDIF.
       ENDLOOP.
 
