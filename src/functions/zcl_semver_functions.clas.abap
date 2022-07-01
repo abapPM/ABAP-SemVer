@@ -1,8 +1,14 @@
 CLASS zcl_semver_functions DEFINITION
   PUBLIC
-  FINAL
   CREATE PUBLIC.
 
+************************************************************************
+* SemVer Functions
+*
+* Copyright (c) Isaac Z. Schlueter and Contributors
+* ABAP Port by Marc Bernard <https://marcbernardtools.com/>
+* SPDX-License-Identifier: ISC
+************************************************************************
   PUBLIC SECTION.
 
     CLASS-METHODS clean

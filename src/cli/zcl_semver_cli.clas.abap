@@ -2,6 +2,13 @@ CLASS zcl_semver_cli DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
+************************************************************************
+* SemVer CLI
+*
+* Copyright (c) Isaac Z. Schlueter and Contributors
+* ABAP Port by Marc Bernard <https://marcbernardtools.com/>
+* SPDX-License-Identifier: ISC
+************************************************************************
   PUBLIC SECTION.
 
     CLASS-METHODS main

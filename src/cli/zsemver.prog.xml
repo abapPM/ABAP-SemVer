@@ -15,6 +15,12 @@
      <ENTRY>Semantic Version</ENTRY>
      <LENGTH>16</LENGTH>
     </item>
+    <item>
+     <ID>S</ID>
+     <KEY>P_CMD</KEY>
+     <ENTRY>Command</ENTRY>
+     <LENGTH>15</LENGTH>
+    </item>
    </TPOOL>
   </asx:values>
  </asx:abap>

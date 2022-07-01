@@ -2,10 +2,16 @@ CLASS zcl_semver_re DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
+************************************************************************
+* SemVer Regex
+*
+* Copyright (c) Isaac Z. Schlueter and Contributors
+* ABAP Port by Marc Bernard <https://marcbernardtools.com/>
+* SPDX-License-Identifier: ISC
+************************************************************************
+  PUBLIC SECTION.
 * TODO: Migrate POSIX to PCRE
 * https://help.sap.com/doc/abapdocu_latest_index_htm/latest/en-US/index.htm?file=abenregex_posix_pcre_incompat.htm
-
-  PUBLIC SECTION.
 
     TYPES:
       BEGIN OF ty_token,

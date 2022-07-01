@@ -3,6 +3,13 @@ CLASS zcl_semver_fixtures DEFINITION
   FINAL
   CREATE PUBLIC .
 
+************************************************************************
+* SemVer Fixtures
+*
+* Copyright (c) Isaac Z. Schlueter and Contributors
+* ABAP Port by Marc Bernard <https://marcbernardtools.com/>
+* SPDX-License-Identifier: ISC
+************************************************************************
   PUBLIC SECTION.
 
     TYPES:

@@ -2,6 +2,13 @@ CLASS zcl_semver_comparator DEFINITION
   PUBLIC
   CREATE PRIVATE.
 
+************************************************************************
+* SemVer Comparator
+*
+* Copyright (c) Isaac Z. Schlueter and Contributors
+* ABAP Port by Marc Bernard <https://marcbernardtools.com/>
+* SPDX-License-Identifier: ISC
+************************************************************************
   PUBLIC SECTION.
 
     CLASS-DATA any_semver TYPE REF TO zcl_semver.

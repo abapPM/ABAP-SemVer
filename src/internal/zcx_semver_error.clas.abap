@@ -3,6 +3,13 @@ CLASS zcx_semver_error DEFINITION
   INHERITING FROM cx_static_check
   CREATE PUBLIC.
 
+************************************************************************
+* SemVer Error
+*
+* Copyright (c) Isaac Z. Schlueter and Contributors
+* ABAP Port by Marc Bernard <https://marcbernardtools.com/>
+* SPDX-License-Identifier: ISC
+************************************************************************
   PUBLIC SECTION.
 
     INTERFACES if_t100_dyn_msg.

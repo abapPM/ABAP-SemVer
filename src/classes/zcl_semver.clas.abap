@@ -2,6 +2,13 @@ CLASS zcl_semver DEFINITION
   PUBLIC
   CREATE PRIVATE.
 
+************************************************************************
+* SemVer
+*
+* Copyright (c) Isaac Z. Schlueter and Contributors
+* ABAP Port by Marc Bernard <https://marcbernardtools.com/>
+* SPDX-License-Identifier: ISC
+************************************************************************
   PUBLIC SECTION.
 
     DATA:

@@ -177,9 +177,9 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( |{ repeat( val = '9' occ = mx ) }a| )
       ( |{ repeat( val = '1' occ = my ) }a| )
       ( |{ repeat( val = '9' occ = mx ) }.4.7.4| )
-      ( |{ repeat( val = '9' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| )
-      ( |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '9' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| )
-      ( |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '9' occ = mx ) }| ) ).
+      ( |{ repeat( val = '9' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| )    " JS: 9.2.3
+      ( |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '9' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| )    " JS: 1.9.3
+      ( |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '9' occ = mx ) }| ) ). " JS: 1.2.9
 
     LOOP AT tests INTO DATA(test).
       DATA(semver) = zcl_semver_functions=>coerce( test ).
@@ -256,16 +256,20 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( version = |{ repeat( val = '1' occ = my ) }.2.3.4| res = '2.3.4' )
       ( version = |1.{ repeat( val = '2' occ = my ) }.3.4| res = '1.0.0' )
       ( version = |1.2.{ repeat( val = '3' occ = my ) }.4| res = '1.2.0' )
-      ( version = |{ repeat( val = '1' occ = my ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| res = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.0| )
-      ( version = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '2' occ = my ) }.{ repeat( val = '1' occ = mx ) }| res = |{ repeat( val = '1' occ = mx ) }.0.0| )
-      ( version = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '3' occ = my ) }| res = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.0| )
+      ( version = |{ repeat( val = '1' occ = my ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }|
+        res = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.0| ) " JS: 1.2.3 2.3.0
+      ( version = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '2' occ = my ) }.{ repeat( val = '1' occ = mx ) }|
+        res = |{ repeat( val = '1' occ = mx ) }.0.0| ) " JS: 1.2.3 1.0.0
+      ( version = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '3' occ = my ) }|
+        res = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.0| )  " JS: 1.2.3 1.2.0
       ( version = |11{ repeat( val = '.1' occ = 126 ) }| res = '11.1.1' )
       ( version = repeat( val = '1' occ = mx ) res = |{ repeat( val = '1' occ = mx ) }.0.0| )
-      ( version = |A{ repeat( val = '1' occ = mx ) }| res = |{ repeat( val = '1' occ = mx ) }.0.0| )
+      ( version = |a{ repeat( val = '1' occ = mx ) }| res = |{ repeat( val = '1' occ = mx ) }.0.0| )
       ( version = |{ repeat( val = '1' occ = mx ) }.2.3.4| res = |{ repeat( val = '1' occ = mx ) }.2.3| )
-      ( version = |1.{ repeat( val = '1' occ = mx ) }.3.4| res = |1.{ repeat( val = '1' occ = mx ) }.3| )
-      ( version = |1.2.{ repeat( val = '1' occ = mx ) }.4| res = |1.2.{ repeat( val = '1' occ = mx ) }| )
-      ( version = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| res = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| )
+      ( version = |1.{ repeat( val = '1' occ = mx ) }.3.4| res = |1.{ repeat( val = '1' occ = mx ) }.3| ) " JS 1.2.3.4 1.2.3
+      ( version = |1.2.{ repeat( val = '1' occ = mx ) }.4| res = |1.2.{ repeat( val = '1' occ = mx ) }| ) " JS 1.2.3.4 1.2.3
+      ( version = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }|
+        res = |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }| ) " JS 1.2.3 1.2.3
       ( version = |1.2.3.{ repeat( val = '4' occ = 252 ) }.5| res = '1.2.3' )
       ( version = |1.2.3.{ repeat( val = '4' occ = 1024 ) }| res = '1.2.3' )
       ( version = |{ repeat( val = '1' occ = my ) }.4.7.4| res = '4.7.4' )

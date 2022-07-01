@@ -2,7 +2,13 @@ CLASS zcl_semver_range DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
-* https://github.com/npm/node-semver/blob/main/classes/range.js
+************************************************************************
+* SemVer Range
+*
+* Copyright (c) Isaac Z. Schlueter and Contributors
+* ABAP Port by Marc Bernard <https://marcbernardtools.com/>
+* SPDX-License-Identifier: ISC
+************************************************************************
   PUBLIC SECTION.
 
     TYPES:
