@@ -80,7 +80,7 @@ CLASS zcl_semver_range DEFINITION
     DATA:
       raw     TYPE string,
       cache   TYPE ty_cache,
-      options TYPE zif_semver_definitions=>ty_options.
+      options TYPE zif_semver_options=>ty_options.
 
     CLASS-METHODS is_any
       IMPORTING

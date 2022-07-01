@@ -84,7 +84,7 @@ CLASS zcl_semver DEFINITION
 
     DATA:
       raw     TYPE string,
-      options TYPE zif_semver_definitions=>ty_options.
+      options TYPE zif_semver_options=>ty_options.
 
 ENDCLASS.
 

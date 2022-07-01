@@ -59,7 +59,7 @@ CLASS zcl_semver_comparator DEFINITION
 
   PRIVATE SECTION.
 
-    DATA options TYPE zif_semver_definitions=>ty_options.
+    DATA options TYPE zif_semver_options=>ty_options.
 
 ENDCLASS.
 

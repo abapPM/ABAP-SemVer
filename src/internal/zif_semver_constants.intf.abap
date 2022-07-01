@@ -7,9 +7,9 @@ INTERFACE zif_semver_constants PUBLIC.
   CONSTANTS semver_spec_version TYPE string VALUE '2.0.0'.
 
   CONSTANTS max_length TYPE i VALUE 256.
-  CONSTANTS max_safe_integer TYPE i VALUE cl_abap_math=>max_int4.
+  CONSTANTS max_safe_integer TYPE i VALUE cl_abap_math=>max_int4. " JS: int8
 
   " Max safe segment length for coercion.
-  CONSTANTS max_safe_component_length TYPE i VALUE 10. " 16 for int8
+  CONSTANTS max_safe_component_length TYPE i VALUE 10. " JS: 16 for int8
 
 ENDINTERFACE.

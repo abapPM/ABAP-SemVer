@@ -1,4 +1,4 @@
-INTERFACE zif_semver_definitions PUBLIC.
+INTERFACE zif_semver_options PUBLIC.
 
   TYPES:
     BEGIN OF ty_options,
