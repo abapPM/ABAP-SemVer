@@ -131,6 +131,10 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
 
   METHOD intersects.
 
+    IF comp IS INITIAL.
+      zcx_semver_error=>raise( 'A comparator is required' ).
+    ENDIF.
+
     DATA(semcomp) = zcl_semver_comparator=>create( comp ).
 
     CHECK semcomp IS BOUND.

@@ -80,7 +80,7 @@ CLASS zcl_semver DEFINITION
     METHODS inc
       IMPORTING
         release       TYPE string
-        identifier    TYPE string
+        identifier    TYPE string OPTIONAL
       RETURNING
         VALUE(result) TYPE REF TO zcl_semver
       RAISING

@@ -27,6 +27,7 @@ CLASS zcl_semver_functions DEFINITION
         op            TYPE string
         b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -48,6 +49,7 @@ CLASS zcl_semver_functions DEFINITION
         a             TYPE any
         b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -58,6 +60,7 @@ CLASS zcl_semver_functions DEFINITION
         a             TYPE any
         b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -67,6 +70,7 @@ CLASS zcl_semver_functions DEFINITION
       IMPORTING
         a             TYPE any
         b             TYPE any
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -86,6 +90,7 @@ CLASS zcl_semver_functions DEFINITION
         a             TYPE any
         b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -96,6 +101,7 @@ CLASS zcl_semver_functions DEFINITION
         a             TYPE any
         b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -106,6 +112,7 @@ CLASS zcl_semver_functions DEFINITION
         a             TYPE any
         b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -126,6 +133,7 @@ CLASS zcl_semver_functions DEFINITION
         a             TYPE any
         b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -136,6 +144,7 @@ CLASS zcl_semver_functions DEFINITION
         a             TYPE any
         b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -164,6 +173,7 @@ CLASS zcl_semver_functions DEFINITION
         a             TYPE any
         b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -203,6 +213,7 @@ CLASS zcl_semver_functions DEFINITION
         a             TYPE any
         b             TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -212,6 +223,7 @@ CLASS zcl_semver_functions DEFINITION
       IMPORTING
         list          TYPE string_table
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string_table
       RAISING
@@ -221,6 +233,7 @@ CLASS zcl_semver_functions DEFINITION
       IMPORTING
         list          TYPE string_table
         loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string_table
       RAISING
@@ -288,17 +301,17 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       WHEN '!=='.
         result = xsdbool( NOT equality( a = a b = b ) ).
       WHEN '' OR '=' OR '=='.
-        result = eq( a = a b = b loose = loose ).
+        result = eq( a = a b = b loose = loose incpre = incpre ).
       WHEN '!=' OR '<>'.
-        result = neq( a = a b = b loose = loose ).
+        result = neq( a = a b = b loose = loose incpre = incpre ).
       WHEN '>'.
-        result = gt( a = a b = b loose = loose ).
+        result = gt( a = a b = b loose = loose incpre = incpre ).
       WHEN '>='.
-        result = gte( a = a b = b loose = loose ).
+        result = gte( a = a b = b loose = loose incpre = incpre ).
       WHEN '<'.
-        result = lt( a = a b = b loose = loose ).
+        result = lt( a = a b = b loose = loose incpre = incpre ).
       WHEN '<='.
-        result = lte( a = a b = b loose = loose ).
+        result = lte( a = a b = b loose = loose incpre = incpre ).
       WHEN OTHERS.
         zcx_semver_error=>raise( |Invalid operator: { op }| ).
     ENDCASE.
@@ -380,8 +393,8 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD compare.
 
-    DATA(semver_a) = zcl_semver=>create( version = a loose = loose ).
-    DATA(semver_b) = zcl_semver=>create( version = b loose = loose ).
+    DATA(semver_a) = zcl_semver=>create( version = a loose = loose incpre = incpre ).
+    DATA(semver_b) = zcl_semver=>create( version = b loose = loose incpre = incpre ).
 
     CHECK semver_a IS BOUND AND semver_b IS BOUND.
 
@@ -392,8 +405,8 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD compare_build.
 
-    DATA(semver_a) = zcl_semver=>create( version = a loose = loose ).
-    DATA(semver_b) = zcl_semver=>create( version = b loose = loose ).
+    DATA(semver_a) = zcl_semver=>create( version = a loose = loose incpre = incpre ).
+    DATA(semver_b) = zcl_semver=>create( version = b loose = loose incpre = incpre ).
 
     CHECK semver_a IS BOUND AND semver_b IS BOUND.
 
@@ -406,7 +419,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
 
   METHOD compare_loose.
-    result = compare( a = a b = b loose = abap_true ).
+    result = compare( a = a b = b loose = abap_true incpre = incpre ).
   ENDMETHOD.
 
 
@@ -440,7 +453,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
 
   METHOD eq.
-    result = xsdbool( compare( a = a b = b loose = loose ) = 0 ).
+    result = xsdbool( compare( a = a b = b loose = loose incpre = incpre ) = 0 ).
   ENDMETHOD.
 
 
@@ -461,12 +474,12 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
 
   METHOD gt.
-    result = xsdbool( compare( a = a b = b loose = loose ) > 0 ).
+    result = xsdbool( compare( a = a b = b loose = loose incpre = incpre ) > 0 ).
   ENDMETHOD.
 
 
   METHOD gte.
-    result = xsdbool( compare( a = a b = b loose = loose ) >= 0 ).
+    result = xsdbool( compare( a = a b = b loose = loose incpre = incpre ) >= 0 ).
   ENDMETHOD.
 
 
@@ -496,12 +509,12 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
 
   METHOD lt.
-    result = xsdbool( compare( a = a b = b loose = loose ) < 0 ).
+    result = xsdbool( compare( a = a b = b loose = loose incpre = incpre ) < 0 ).
   ENDMETHOD.
 
 
   METHOD lte.
-    result = xsdbool( compare( a = a b = b loose = loose ) <= 0 ).
+    result = xsdbool( compare( a = a b = b loose = loose incpre = incpre ) <= 0 ).
   ENDMETHOD.
 
 
@@ -528,7 +541,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
 
   METHOD neq.
-    result = xsdbool( compare( a = a b = b loose = loose ) <> 0 ).
+    result = xsdbool( compare( a = a b = b loose = loose incpre = incpre ) <> 0 ).
   ENDMETHOD.
 
 
@@ -592,7 +605,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
 
   METHOD rcompare.
-    result = compare( a = b b = a loose = loose ).
+    result = compare( a = b b = a loose = loose incpre = incpre ).
   ENDMETHOD.
 
 
@@ -604,7 +617,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
     WHILE i < lines( result ).
       DATA(j) = 1.
       WHILE j <= lines( result ) - i.
-        IF compare_build( b = result[ j ] a = result[ j + 1 ] loose = loose ) > 0.
+        IF compare_build( b = result[ j ] a = result[ j + 1 ] loose = loose incpre = incpre ) > 0.
           DATA(temp)      = result[ j ].
           result[ j ]     = result[ j + 1 ].
           result[ j + 1 ] = temp.
@@ -640,7 +653,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
     WHILE i < lines( result ).
       DATA(j) = 1.
       WHILE j <= lines( result ) - i.
-        IF compare_build( a = result[ j ] b = result[ j + 1 ] loose = loose ) > 0.
+        IF compare_build( a = result[ j ] b = result[ j + 1 ] loose = loose incpre = incpre ) > 0.
           DATA(temp)      = result[ j ].
           result[ j ]     = result[ j + 1 ].
           result[ j + 1 ] = temp.
