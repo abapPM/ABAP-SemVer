@@ -498,6 +498,7 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
     " - Else return true
 
 * https://github.com/npm/node-semver/blob/main/ranges/subset.js
+    zcx_semver_error=>raise( 'TODO' ).
 
   ENDMETHOD.
 
