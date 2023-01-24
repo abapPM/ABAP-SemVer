@@ -1,7 +1,6 @@
 CLASS zcl_semver_fixtures DEFINITION
   PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
 ************************************************************************
 * SemVer Fixtures
@@ -141,6 +140,7 @@ CLASS zcl_semver_fixtures DEFINITION
     CLASS-METHODS version_not_lt_range
       RETURNING
         VALUE(result) TYPE ty_version_ranges.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.

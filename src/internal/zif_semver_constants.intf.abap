@@ -1,7 +1,7 @@
 INTERFACE zif_semver_constants PUBLIC.
 
 ************************************************************************
-* SemVer
+* SemVer Constants
 *
 * Copyright (c) Isaac Z. Schlueter and Contributors
 * ABAP Port by Marc Bernard <https://marcbernardtools.com/>

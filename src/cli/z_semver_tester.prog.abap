@@ -1,11 +1,11 @@
 ************************************************************************
-* SemVer
+* SemVer Tester
 *
 * Copyright (c) Isaac Z. Schlueter and Contributors
 * ABAP Port by Marc Bernard <https://marcbernardtools.com/>
 * SPDX-License-Identifier: ISC
 ************************************************************************
-REPORT zsemver.
+REPORT z_semver_tester.
 
 CONSTANTS c_cmd TYPE string VALUE 'semver --help'.
 
