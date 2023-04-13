@@ -60,7 +60,12 @@ CLASS ltcl_semver_comparator IMPLEMENTATION.
       DATA(comp1) = zcl_semver_comparator=>create( intersection-c1 ).
 
       cl_abap_unit_assert=>assert_equals(
-        act = comp0->intersects( comp1 )
+        act = comp0->intersects( comp = comp1 incpre = intersection-incpre )
+        exp = intersection-res
+        msg = msg ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = comp1->intersects( comp = comp0 incpre = intersection-incpre )
         exp = intersection-res
         msg = msg ).
     ENDLOOP.

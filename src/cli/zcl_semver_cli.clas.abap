@@ -34,16 +34,17 @@ CLASS zcl_semver_cli DEFINITION
   PRIVATE SECTION.
 
     CLASS-DATA:
-      argv       TYPE string_table,
-      versions   TYPE string_table,
-      ranges     TYPE string_table,
-      inc        TYPE string,
-      identifier TYPE string,
-      loose      TYPE abap_bool,
-      incpre     TYPE abap_bool,
-      coerce     TYPE abap_bool,
-      rtl        TYPE abap_bool,
-      reverse    TYPE abap_bool.
+      argv            TYPE string_table,
+      versions        TYPE string_table,
+      ranges          TYPE string_table,
+      inc             TYPE string,
+      identifier      TYPE string,
+      identifier_base TYPE i,
+      loose           TYPE abap_bool,
+      incpre          TYPE abap_bool,
+      coerce          TYPE abap_bool,
+      rtl             TYPE abap_bool,
+      reverse         TYPE abap_bool.
 
 ENDCLASS.
 
@@ -83,6 +84,9 @@ CLASS zcl_semver_cli IMPLEMENTATION.
       ( `-l --loose` )
       ( `        Interpret versions and ranges loosely` )
       ( `` )
+      ( `-n <0|1>` )
+      ( `        This is the base to be used for the prerelease identifier.` )
+      ( `` )
       ( `-p --include-prerelease` )
       ( `        Always include prerelease versions in range matching` )
       ( `` )
@@ -107,7 +111,9 @@ CLASS zcl_semver_cli IMPLEMENTATION.
 
   METHOD main.
 
-    CLEAR: argv, versions, ranges, inc, identifier, loose, incpre, coerce, rtl, reverse.
+    CLEAR:
+      argv, versions, ranges, inc, identifier, identifier_base,
+      loose, incpre, coerce, rtl, reverse.
 
     IF args IS INITIAL.
       result = help( ).
@@ -153,6 +159,12 @@ CLASS zcl_semver_cli IMPLEMENTATION.
           idx += 1.
           val = VALUE #( argv[ idx ] OPTIONAL ).
           INSERT val INTO TABLE ranges.
+        WHEN '-n'.
+          idx += 1.
+          TRY.
+              identifier_base = VALUE #( argv[ idx ] OPTIONAL ).
+            CATCH cx_root.
+          ENDTRY.
         WHEN '-c' OR '--coerce'.
           coerce = abap_true.
         WHEN '--rtl'.
@@ -230,8 +242,13 @@ CLASS zcl_semver_cli IMPLEMENTATION.
 
     IF inc IS NOT INITIAL.
       LOOP AT versions ASSIGNING <version>.
-        DATA(semver) = zcl_semver_functions=>inc( version = <version> release = inc identifier = identifier
-                                                  loose = loose incpre = incpre ).
+        DATA(semver) = zcl_semver_functions=>inc(
+          version         = <version>
+          release         = inc
+          identifier      = identifier
+          identifier_base = identifier_base
+          loose           = loose
+          incpre          = incpre ).
 
         IF semver IS BOUND.
           <version> = semver->version.

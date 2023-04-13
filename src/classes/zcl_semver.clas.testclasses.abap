@@ -118,7 +118,10 @@ CLASS ltcl_semver IMPLEMENTATION.
         TRY.
             DATA(s) = zcl_semver=>create( version = increments-version loose = increments-loose ).
 
-            s->inc( release = increments-release identifier = increments-identifier ).
+            s->inc(
+              release         = increments-release
+              identifier      = increments-identifier
+              identifier_base = increments-identifier_base ).
             cl_abap_unit_assert=>fail( msg = msg ).
           CATCH zcx_semver_error ##NO_HANDLER.
             " throws when presented with garbage
@@ -127,7 +130,10 @@ CLASS ltcl_semver IMPLEMENTATION.
         s = zcl_semver=>create( version = increments-version loose = increments-loose ).
 
         cl_abap_unit_assert=>assert_equals(
-          act = s->inc( release = increments-release identifier = increments-identifier )->version
+          act = s->inc(
+            release         = increments-release
+            identifier      = increments-identifier
+            identifier_base = increments-identifier_base )->version
           exp = increments-res
           msg = msg ).
       ENDIF.

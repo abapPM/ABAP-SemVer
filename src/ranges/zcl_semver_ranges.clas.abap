@@ -156,7 +156,7 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
 
     DATA(semrange2) = zcl_semver_range=>create( range = r2 loose = loose incpre = incpre ).
 
-    result = semrange1->intersects( semrange2 ).
+    result = semrange1->intersects( range = semrange2 loose = loose incpre = incpre ).
 
   ENDMETHOD.
 

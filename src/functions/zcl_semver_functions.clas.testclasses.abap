@@ -486,24 +486,31 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
     tests = VALUE #(
       ( v1 = '1.2.3' v2 = '0.2.3' res = 'major' )
+      ( v1 = '0.2.3' v2 = '1.2.3' res = 'major' )
       ( v1 = '1.4.5' v2 = '0.2.3' res = 'major' )
       ( v1 = '1.2.3' v2 = '2.0.0-pre' res = 'premajor' )
+      ( v1 = '2.0.0-pre' v2 = '1.2.3' res = 'premajor' )
       ( v1 = '1.2.3' v2 = '1.3.3' res = 'minor' )
       ( v1 = '1.0.1' v2 = '1.1.0-pre' res = 'preminor' )
       ( v1 = '1.2.3' v2 = '1.2.4' res = 'patch' )
       ( v1 = '1.2.3' v2 = '1.2.4-pre' res = 'prepatch' )
-      ( v1 = '0.0.1' v2 = '0.0.1-pre' res = 'prerelease' )
-      ( v1 = '0.0.1' v2 = '0.0.1-pre-2' res = 'prerelease' )
-      ( v1 = '1.1.0' v2 = '1.1.0-pre' res = 'prerelease' )
+      ( v1 = '0.0.1' v2 = '0.0.1-pre' res = 'patch' )
+      ( v1 = '0.0.1' v2 = '0.0.1-pre-2' res = 'patch' )
+      ( v1 = '1.1.0' v2 = '1.1.0-pre' res = 'minor' )
       ( v1 = '1.1.0-pre-1' v2 = '1.1.0-pre-2' res = 'prerelease' )
-      ( v1 = '1.0.0' v2 = '1.0.0' res = '' ) ).
+      ( v1 = '1.0.0' v2 = '1.0.0' res = '' )
+      ( v1 = '0.0.2-1' v2 = '0.0.2' res = 'patch' )
+      ( v1 = '0.1.0-1' v2 = '0.1.0' res = 'minor' )
+      ( v1 = '1.0.0-1' v2 = '1.0.0' res = 'major' )
+      ( v1 = '0.0.0-1' v2 = '0.0.0' res = 'prerelease' ) ).
 
     LOOP AT tests INTO DATA(test).
       DATA(msg) = |{ test-v1 } { test-v2 } { test-res } |.
 
       cl_abap_unit_assert=>assert_equals(
         act = zcl_semver_functions=>diff( version_1 = test-v1 version_2 = test-v2 )
-        exp = test-res ).
+        exp = test-res
+        msg = msg ).
     ENDLOOP.
 
   ENDMETHOD.
@@ -633,14 +640,16 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
   METHOD inc.
 
     LOOP AT zcl_semver_fixtures=>increments( ) INTO DATA(increments).
-      DATA(msg) = |{ increments-version } { increments-release } { increments-identifier } { increments-res } |.
+      DATA(msg) = |{ increments-version } { increments-release } { increments-identifier }|
+        && | { increments-identifier_base } { increments-res } |.
 
       DATA(s) = zcl_semver_functions=>inc(
-                  version    = increments-version
-                  release    = increments-release
-                  identifier = increments-identifier
-                  loose      = increments-loose
-                  incpre     = increments-incpre ).
+                  version         = increments-version
+                  release         = increments-release
+                  identifier      = increments-identifier
+                  identifier_base = increments-identifier_base
+                  loose           = increments-loose
+                  incpre          = increments-incpre ).
 
       IF s IS BOUND.
         cl_abap_unit_assert=>assert_equals(
@@ -666,7 +675,10 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
       IF increments-res IS NOT INITIAL.
 
-        parsed->inc( release = increments-release identifier = increments-identifier ).
+        parsed->inc(
+          release         = increments-release
+          identifier      = increments-identifier
+          identifier_base = increments-identifier_base ).
 
         cl_abap_unit_assert=>assert_equals(
           act = parsed->version
@@ -676,11 +688,12 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         DATA(pre_inc) = parsed_input->version.
 
         zcl_semver_functions=>inc(
-          version    = parsed_input
-          release    = increments-release
-          identifier = increments-identifier
-          loose      = increments-loose
-          incpre     = increments-incpre ).
+          version         = parsed_input
+          release         = increments-release
+          identifier      = increments-identifier
+          identifier_base = increments-identifier_base
+          loose           = increments-loose
+          incpre          = increments-incpre ).
 
         DATA(post_inc) = parsed_input->version.
 
@@ -692,7 +705,11 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ELSEIF parsed IS NOT INITIAL.
 
         TRY.
-            parsed->inc( release = increments-release identifier = increments-identifier ).
+            parsed->inc(
+              release         = increments-release
+              identifier      = increments-identifier
+              identifier_base = increments-identifier_base ).
+
             cl_abap_unit_assert=>fail( ).
           CATCH zcx_semver_error ##NO_HANDLER.
         ENDTRY.

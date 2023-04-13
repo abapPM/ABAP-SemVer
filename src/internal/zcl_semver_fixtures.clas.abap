@@ -13,9 +13,10 @@ CLASS zcl_semver_fixtures DEFINITION
 
     TYPES:
       BEGIN OF ty_comparator_intersection,
-        c0  TYPE string,
-        c1  TYPE string,
-        res TYPE abap_bool,
+        c0     TYPE string,
+        c1     TYPE string,
+        res    TYPE abap_bool,
+        incpre TYPE abap_bool,
       END OF ty_comparator_intersection,
       ty_comparator_intersections TYPE STANDARD TABLE OF ty_comparator_intersection WITH DEFAULT KEY.
 
@@ -49,12 +50,13 @@ CLASS zcl_semver_fixtures DEFINITION
 
     TYPES:
       BEGIN OF ty_increment,
-        version    TYPE string,
-        release    TYPE string,
-        res        TYPE string,
-        loose      TYPE abap_bool,
-        incpre     TYPE abap_bool,
-        identifier TYPE string,
+        version         TYPE string,
+        release         TYPE string,
+        res             TYPE string,
+        loose           TYPE abap_bool,
+        incpre          TYPE abap_bool,
+        identifier      TYPE string,
+        identifier_base TYPE i,
       END OF ty_increment,
       ty_increments TYPE STANDARD TABLE OF ty_increment WITH DEFAULT KEY.
 
@@ -140,7 +142,6 @@ CLASS zcl_semver_fixtures DEFINITION
     CLASS-METHODS version_not_lt_range
       RETURNING
         VALUE(result) TYPE ty_version_ranges.
-
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -151,7 +152,7 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
 
 
   METHOD comparator_intersection.
-    " [c0, c1, expected intersection]
+    " [c0, c1, expected intersection, includePrerelease]
 
     result = VALUE #(
       " One is a Version
@@ -186,7 +187,14 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( c0 = '<=1.0.0' c1 = '>=2.0.0' res = abap_false )
       ( c0 = '' c1 = '' res = abap_true )
       ( c0 = '' c1 = '>1.0.0' res = abap_true )
-      ( c0 = '<=2.0.0' c1 = '' res = abap_true ) ).
+      ( c0 = '<=2.0.0' c1 = '' res = abap_true )
+      ( c0 = '<0.0.0' c1 = '<0.1.0' res = abap_false )
+      ( c0 = '<0.1.0' c1 = '<0.0.0' res = abap_false )
+      ( c0 = '<0.0.0-0' c1 = '<0.1.0' res = abap_false )
+      ( c0 = '<0.1.0' c1 = '<0.0.0-0' res = abap_false )
+      ( c0 = '<0.0.0-0' c1 = '<0.1.0' res = abap_false incpre = abap_true )
+      ( c0 = '<0.1.0' c1 = '<0.0.0-0' res = abap_false incpre = abap_true ) ).
+
   ENDMETHOD.
 
 
@@ -278,9 +286,9 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
 
 
   METHOD increments.
-    " [version, inc, result, options, identifier]
+    " [version, inc, result, options, identifier, identifier_base]
 
-    " inc(version, re) -> result
+    " inc(version, re, options, identifier, identifier_base) -> result
     result = VALUE #(
       ( version = '1.2.3' release = 'major' res = '2.0.0' )
       ( version = '1.2.3' release = 'minor' res = '1.3.0' )
@@ -367,7 +375,21 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( version = '1.2.3-0' release = 'prerelease' res = '1.2.3-1.0' identifier = '1' )
       ( version = '1.2.3-1.0' release = 'prerelease' res = '1.2.3-1.1' identifier = '1' )
       ( version = '1.2.3-1.1' release = 'prerelease' res = '1.2.3-1.2' identifier = '1' )
-      ( version = '1.2.3-1.1' release = 'prerelease' res = '1.2.3-2.0' identifier = '2' ) ).
+      ( version = '1.2.3-1.1' release = 'prerelease' res = '1.2.3-2.0' identifier = '2' )
+
+      ( version = '1.2.0-1' release = 'prerelease' res = '1.2.0-alpha.0' identifier = 'alpha' identifier_base = 0 )
+      ( version = '1.2.1' release = 'prerelease' res = '1.2.2-alpha.0' identifier = 'alpha' identifier_base = 0 )
+      ( version = '0.2.0' release = 'prerelease' res = '0.2.1-alpha.0' identifier = 'alpha' identifier_base = 0 )
+      ( version = '1.2.2' release = 'prerelease' res = '1.2.3-alpha.1' identifier = 'alpha' identifier_base = 1 )
+      ( version = '1.2.3' release = 'prerelease' res = '1.2.4-alpha.1' identifier = 'alpha' identifier_base = 1 )
+      ( version = '1.2.4' release = 'prerelease' res = '1.2.5-alpha.1' identifier = 'alpha' identifier_base = 1 )
+      ( version = '1.2.0' release = 'prepatch' res = '1.2.1-dev.1' identifier = 'dev' identifier_base = 1 )
+      ( version = '1.2.0-1' release = 'prepatch' res = '1.2.1-dev.1' identifier = 'dev' identifier_base = 1 )
+      ( version = '1.2.0' release = 'premajor' res = '2.0.0-dev.0' identifier = 'dev' identifier_base = 0 )
+      ( version = '1.2.3-1' release = 'premajor' res = '2.0.0-dev.0' identifier = 'dev' identifier_base = 0 )
+      ( version = '1.2.3-dev.bar' release = 'prerelease' res = '1.2.3-dev.0' identifier = 'dev' identifier_base = 0 )
+      ( version = '1.2.0' release = 'preminor' res = '1.3.0-dev.1' identifier = 'dev' identifier_base = 1 )
+      ( version = '1.2.3-1' release = 'preminor' res = '1.3.0-dev.0' identifier = 'dev' ) ).
 
   ENDMETHOD.
 

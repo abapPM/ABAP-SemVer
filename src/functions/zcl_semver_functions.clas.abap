@@ -120,13 +120,14 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS inc
       IMPORTING
-        version       TYPE any
-        release       TYPE string
-        identifier    TYPE string OPTIONAL
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        version         TYPE any
+        release         TYPE string
+        identifier      TYPE string OPTIONAL
+        identifier_base TYPE i DEFAULT 0
+        loose           TYPE abap_bool DEFAULT abap_false
+        incpre          TYPE abap_bool DEFAULT abap_false
       RETURNING
-        VALUE(result) TYPE REF TO zcl_semver.
+        VALUE(result)   TYPE REF TO zcl_semver.
 
     CLASS-METHODS lt
       IMPORTING
@@ -445,6 +446,16 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       result = prefix && 'minor'.
     ELSEIF semver_1->patch <> semver_2->patch.
       result = prefix && 'patch'.
+    ELSEIF semver_1->prerelease IS INITIAL OR semver_2->prerelease IS INITIAL.
+      IF semver_1->patch IS NOT INITIAL.
+        result = 'patch'.
+      ELSEIF semver_1->minor IS NOT INITIAL.
+        result = 'minor'.
+      ELSEIF semver_1->major IS NOT INITIAL.
+        result = 'major'.
+      ELSE.
+        result = default_result. " may be undefined
+      ENDIF.
     ELSE.
       result = default_result. " may be undefined
     ENDIF.
@@ -500,7 +511,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
         CHECK result IS BOUND.
 
-        result->inc( release = release identifier = identifier ).
+        result->inc( release = release identifier = identifier identifier_base = identifier_base ).
       CATCH zcx_semver_error.
         CLEAR result.
     ENDTRY.
@@ -558,25 +569,9 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
     CHECK strlen( version ) <= zif_semver_constants=>max_length.
 
-    DATA(r) = COND #(
-      WHEN loose = abap_true
-      THEN zcl_semver_re=>token-loose-regex
-      ELSE zcl_semver_re=>token-full-regex ).
-
     TRY.
-        DATA(m) = r->create_matcher( text = version ).
-
-        IF m->match( ).
-
-          TRY.
-              result = zcl_semver=>create( version = version loose = loose incpre = incpre ).
-            CATCH zcx_semver_error ##NO_HANDLER.
-          ENDTRY.
-
-        ENDIF.
-
-      CATCH cx_sy_matcher.
-        zcx_semver_error=>raise( |Error evaluating regex for { version }| ).
+        result = zcl_semver=>create( version = version loose = loose incpre = incpre ).
+      CATCH zcx_semver_error ##NO_HANDLER.
     ENDTRY.
 
   ENDMETHOD.

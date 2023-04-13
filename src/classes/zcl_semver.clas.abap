@@ -79,10 +79,11 @@ CLASS zcl_semver DEFINITION
 
     METHODS inc
       IMPORTING
-        release       TYPE string
-        identifier    TYPE string OPTIONAL
+        release         TYPE string
+        identifier      TYPE string OPTIONAL
+        identifier_base TYPE i DEFAULT 0
       RETURNING
-        VALUE(result) TYPE REF TO zcl_semver
+        VALUE(result)   TYPE REF TO zcl_semver
       RAISING
         zcx_semver_error.
 
@@ -320,26 +321,26 @@ CLASS zcl_semver IMPLEMENTATION.
         patch = 0.
         minor = 0.
         major += 1.
-        inc( release = 'pre' identifier = identifier ).
+        inc( release = 'pre' identifier = identifier identifier_base = identifier_base ).
       WHEN 'preminor'.
         CLEAR prerelease.
         patch = 0.
         minor += 1.
-        inc( release = 'pre' identifier = identifier ).
+        inc( release = 'pre' identifier = identifier identifier_base = identifier_base ).
       WHEN 'prepatch'.
         " If this is already a prerelease, it will bump to the next version
         " drop any prereleases that might already exist, since they are not
         " relevant at this point.
         CLEAR prerelease.
-        inc( release = 'patch' identifier = identifier ).
-        inc( release = 'pre' identifier = identifier ).
+        inc( release = 'patch' identifier = identifier identifier_base = identifier_base ).
+        inc( release = 'pre' identifier = identifier identifier_base = identifier_base ).
       WHEN 'prerelease'.
         " If the input is a non-prerelease version, this acts the same as
         " prepatch.
         IF prerelease IS INITIAL.
-          inc( release = 'patch' identifier = identifier ).
+          inc( release = 'patch' identifier = identifier identifier_base = identifier_base ).
         ENDIF.
-        inc( release = 'pre' identifier = identifier ).
+        inc( release = 'pre' identifier = identifier identifier_base = identifier_base ).
       WHEN 'major'.
         " If this is a pre-major version, bump up to the same major version.
         " Otherwise increment major.
@@ -391,14 +392,15 @@ CLASS zcl_semver IMPLEMENTATION.
           ENDIF.
         ENDIF.
         IF identifier IS NOT INITIAL.
+          DATA(base) = COND #( WHEN identifier_base <> 0 THEN `1` ELSE `0` ).
           " 1.2.0-beta.1 bumps to 1.2.0-beta.2,
           " 1.2.0-beta.fooblz or 1.2.0-beta bumps to 1.2.0-beta.0
           IF zcl_semver_identifiers=>compare_identifiers( a = prerelease[ 1 ] b = identifier ) = 0.
             IF NOT zcl_semver_utils=>is_numeric( VALUE #( prerelease[ 2 ] DEFAULT `-` ) ).
-              prerelease = VALUE #( ( identifier ) ( `0` ) ).
+              prerelease = VALUE #( ( identifier ) ( base ) ).
             ENDIF.
           ELSE.
-            prerelease = VALUE #( ( identifier ) ( `0` ) ).
+            prerelease = VALUE #( ( identifier ) ( base ) ).
           ENDIF.
         ENDIF.
 

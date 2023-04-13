@@ -87,6 +87,10 @@ CLASS ltcl_semver_cli IMPLEMENTATION.
       out  = |2.0.0-beta.0\n| ).
 
     test(
+      args = '-i premajor 1.0.0 --preid=beta -n 1'
+      out  = |2.0.0-beta.1\n| ).
+
+    test(
       args = '-i 1.2.3'
       out  = |1.2.4\n| ).
 

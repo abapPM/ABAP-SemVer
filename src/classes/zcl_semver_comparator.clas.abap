@@ -160,40 +160,90 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
         result = semrange->test( semcomp->semver ).
       ENDIF.
     ELSE.
-      DATA(same_direction_increasing) = xsdbool(
-        ( operator = '>=' OR operator = '>' ) AND
-        ( semcomp->operator = '>=' OR semcomp->operator = '>' ) ).
-      DATA(same_direction_decreasing) = xsdbool(
-        ( operator = '<=' OR operator = '<' ) AND
-        ( semcomp->operator = '<=' OR semcomp->operator = '<' ) ).
-      DATA(same_semver) = xsdbool(
-        semver->version = semcomp->semver->version ).
-      DATA(different_directions_inclusive) = xsdbool(
-        ( operator = '>=' OR operator = '<=' ) AND
-        ( semcomp->operator = '>=' OR semcomp->operator = '<=' ) ).
-      DATA(opposite_directions_less) = xsdbool(
-        zcl_semver_functions=>cmp(
-          a     = semver->version
-          op    = '<'
-          b     = semcomp->semver->version
-          loose = loose ) AND
-        ( operator = '>=' OR operator = '>' ) AND
-        ( semcomp->operator = '<=' OR semcomp->operator = '<' ) ).
-      DATA(opposite_directions_greater) = xsdbool(
-        zcl_semver_functions=>cmp(
-          a     = semver->version
-          op    = '>'
-          b     = semcomp->semver->version
-          loose = loose ) AND
-        ( operator = '<=' OR operator = '<' ) AND
-        ( semcomp->operator = '>=' OR semcomp->operator = '>' ) ).
+      " Special cases where nothing can possibly be lower
+      IF incpre = abap_true AND value = '<0.0.0-0' OR semcomp->value = '<0.0.0-0'.
+        result = abap_false.
+        RETURN.
+      ENDIF.
+      IF incpre = abap_false AND value CP '<0.0.0*' OR semcomp->value CP '<0.0.0*'.
+        result = abap_false.
+        RETURN.
+      ENDIF.
 
-      result = xsdbool(
-        same_direction_increasing = abap_true OR
-        same_direction_decreasing = abap_true OR
-        ( same_semver = abap_true AND different_directions_inclusive = abap_true ) OR
-        opposite_directions_less = abap_true OR
-        opposite_directions_greater = abap_true ).
+      " Same direction increasing (> or >=)
+      IF operator CP '>*' AND semcomp->operator CP '>*'.
+        result = abap_true.
+        RETURN.
+      ENDIF.
+      " Same direction decreasing (< or <=)
+      IF operator CP '<*' AND semcomp->operator CP '<*'.
+        result = abap_true.
+        RETURN.
+      ENDIF.
+
+      " same SemVer and both sides are inclusive (<= or >=)
+      IF semver->version = semcomp->semver->version AND operator CA '=' AND semcomp->operator CA '='.
+        result = abap_true.
+        RETURN.
+      ENDIF.
+
+      " opposite directions less than
+      IF zcl_semver_functions=>cmp(
+        a      = semver->version
+        op     = '<'
+        b      = semcomp->semver->version
+        loose  = loose
+        incpre = incpre ) AND operator CP '>*' AND semcomp->operator CP '<*'.
+        result = abap_true.
+        RETURN.
+      ENDIF.
+      " opposite directions greater than
+      IF zcl_semver_functions=>cmp(
+        a      = semver->version
+        op     = '>'
+        b      = semcomp->semver->version
+        loose  = loose
+        incpre = incpre ) AND operator CP '<*' AND semcomp->operator CP '>*'.
+        result = abap_true.
+        RETURN.
+      ENDIF.
+      result = abap_false.
+
+
+*      DATA(same_direction_increasing) = xsdbool(
+*      ( operator = '>=' OR operator = '>' ) AND
+*      ( semcomp->operator = '>=' OR semcomp->operator = '>' ) ).
+*      DATA(same_direction_decreasing) = xsdbool(
+*      ( operator = '<=' OR operator = '<' ) AND
+*      ( semcomp->operator = '<=' OR semcomp->operator = '<' ) ).
+*      DATA(same_semver) = xsdbool(
+*      semver->version = semcomp->semver->version ).
+*      DATA(different_directions_inclusive) = xsdbool(
+*      ( operator = '>=' OR operator = '<=' ) AND
+*      ( semcomp->operator = '>=' OR semcomp->operator = '<=' ) ).
+*      DATA(opposite_directions_less) = xsdbool(
+*      zcl_semver_functions=>cmp(
+*      a     = semver->version
+*      op    = '<'
+*      b     = semcomp->semver->version
+*      loose = loose ) AND
+*      ( operator = '>=' OR operator = '>' ) AND
+*      ( semcomp->operator = '<=' OR semcomp->operator = '<' ) ).
+*      DATA(opposite_directions_greater) = xsdbool(
+*      zcl_semver_functions=>cmp(
+*      a     = semver->version
+*      op    = '>'
+*      b     = semcomp->semver->version
+*      loose = loose ) AND
+*      ( operator = '<=' OR operator = '<' ) AND
+*      ( semcomp->operator = '>=' OR semcomp->operator = '>' ) ).
+*
+*      result = xsdbool(
+*      same_direction_increasing = abap_true OR
+*      same_direction_decreasing = abap_true OR
+*      ( same_semver = abap_true AND different_directions_inclusive = abap_true ) OR
+*      opposite_directions_less = abap_true OR
+*      opposite_directions_greater = abap_true ).
     ENDIF.
 
   ENDMETHOD.
