@@ -123,7 +123,7 @@ CLASS zcl_semver_functions DEFINITION
         version         TYPE any
         release         TYPE string
         identifier      TYPE string OPTIONAL
-        identifier_base TYPE i DEFAULT 0
+        identifier_base TYPE string OPTIONAL
         loose           TYPE abap_bool DEFAULT abap_false
         incpre          TYPE abap_bool DEFAULT abap_false
       RETURNING
@@ -185,6 +185,7 @@ CLASS zcl_semver_functions DEFINITION
         version       TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
         incpre        TYPE abap_bool DEFAULT abap_false
+        throw_errors  TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE REF TO zcl_semver
       RAISING
@@ -426,39 +427,61 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
   METHOD diff.
 
-    CHECK NOT eq( a = version_1 b = version_2 ).
+    DATA(v1) = parse( version = version_1 throw_errors = abap_true ).
+    DATA(v2) = parse( version = version_2 throw_errors = abap_true ).
 
-    DATA(semver_1) = parse( version_1 ).
-    DATA(semver_2) = parse( version_2 ).
+    DATA(comparison) = v1->compare( v2 ).
 
-    CHECK semver_1 IS BOUND AND semver_2 IS BOUND.
-
-    DATA(has_pre) = xsdbool( semver_1->prerelease IS NOT INITIAL OR semver_2->prerelease IS NOT INITIAL ).
-
-    IF has_pre = abap_true.
-      DATA(prefix) = 'pre'.
-      DATA(default_result) = 'prerelease'.
+    IF comparison = 0.
+      RETURN.
     ENDIF.
 
-    IF semver_1->major <> semver_2->major.
+    DATA(v1_higher)    = xsdbool( comparison > 0 ).
+    DATA(high_version) = COND #( WHEN v1_higher = abap_true THEN v1 ELSE v2 ).
+    DATA(low_version)  = COND #( WHEN v1_higher = abap_true THEN v2 ELSE v1 ).
+    DATA(high_has_pre) = xsdbool( high_version->prerelease IS NOT INITIAL ).
+
+    " add the `pre` prefix if we are going to a prerelease version
+    DATA(prefix) = COND #( WHEN high_has_pre = abap_true THEN 'pre' ELSE '' ).
+
+    IF v1->major <> v2->major.
       result = prefix && 'major'.
-    ELSEIF semver_1->minor <> semver_2->minor.
-      result = prefix && 'minor'.
-    ELSEIF semver_1->patch <> semver_2->patch.
-      result = prefix && 'patch'.
-    ELSEIF semver_1->prerelease IS INITIAL OR semver_2->prerelease IS INITIAL.
-      IF semver_1->patch IS NOT INITIAL.
-        result = 'patch'.
-      ELSEIF semver_1->minor IS NOT INITIAL.
-        result = 'minor'.
-      ELSEIF semver_1->major IS NOT INITIAL.
-        result = 'major'.
-      ELSE.
-        result = default_result. " may be undefined
-      ENDIF.
-    ELSE.
-      result = default_result. " may be undefined
+      RETURN.
     ENDIF.
+
+    IF v1->minor <> v2->minor.
+      result = prefix && 'minor'.
+      RETURN.
+    ENDIF.
+
+    IF v1->patch <> v2->patch.
+      result = prefix && 'patch'.
+      RETURN.
+    ENDIF.
+
+    " at this point we know stable versions match but overall versions are not equal,
+    " so either they are both prereleases, or the lower version is a prerelease
+
+    IF high_has_pre = abap_true.
+      " high and low are preleases
+      result = 'prerelease'.
+      RETURN.
+    ENDIF.
+
+    IF low_version->patch IS NOT INITIAL.
+      " anything higher than a patch bump would result in the wrong version
+      result = 'patch'.
+      RETURN.
+    ENDIF.
+
+    IF low_version->minor IS NOT INITIAL.
+      " anything higher than a minor bump would result in the wrong version
+      result = 'minor'.
+      RETURN.
+    ENDIF.
+
+    " bumping major/minor/patch all have same result
+    result = 'major'.
 
   ENDMETHOD.
 
@@ -565,13 +588,14 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    CHECK kind = cl_abap_typedescr=>typekind_char OR kind = cl_abap_typedescr=>typekind_string.
-
-    CHECK strlen( version ) <= zif_semver_constants=>max_length.
-
     TRY.
         result = zcl_semver=>create( version = version loose = loose incpre = incpre ).
-      CATCH zcx_semver_error ##NO_HANDLER.
+      CATCH zcx_semver_error INTO DATA(error).
+        IF throw_errors = abap_false.
+          RETURN.
+        ENDIF.
+
+        RAISE EXCEPTION error.
     ENDTRY.
 
   ENDMETHOD.

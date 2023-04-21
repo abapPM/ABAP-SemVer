@@ -56,7 +56,7 @@ CLASS zcl_semver_fixtures DEFINITION
         loose           TYPE abap_bool,
         incpre          TYPE abap_bool,
         identifier      TYPE string,
-        identifier_base TYPE i,
+        identifier_base TYPE string,
       END OF ty_increment,
       ty_increments TYPE STANDARD TABLE OF ty_increment WITH DEFAULT KEY.
 
@@ -368,6 +368,7 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( version = '1.2.3-1' release = 'preminor' res = '1.3.0-dev.0' identifier = 'dev' )
       ( version = '1.2.0' release = 'premajor' res = '2.0.0-dev.0' identifier = 'dev' )
       ( version = '1.2.3-1' release = 'premajor' res = '2.0.0-dev.0' identifier = 'dev' )
+      ( version = '1.2.3-1' release = 'premajor' res = '2.0.0-dev.1' identifier = 'dev' identifier_base = '1' )
       ( version = '1.2.0-1' release = 'minor' res = '1.2.0' identifier = 'dev' )
       ( version = '1.0.0-1' release = 'major' res = '1.0.0' identifier = 'dev' )
       ( version = '1.2.3-dev.bar' release = 'prerelease' res = '1.2.3-dev.0' identifier = 'dev' )
@@ -377,19 +378,40 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( version = '1.2.3-1.1' release = 'prerelease' res = '1.2.3-1.2' identifier = '1' )
       ( version = '1.2.3-1.1' release = 'prerelease' res = '1.2.3-2.0' identifier = '2' )
 
-      ( version = '1.2.0-1' release = 'prerelease' res = '1.2.0-alpha.0' identifier = 'alpha' identifier_base = 0 )
-      ( version = '1.2.1' release = 'prerelease' res = '1.2.2-alpha.0' identifier = 'alpha' identifier_base = 0 )
-      ( version = '0.2.0' release = 'prerelease' res = '0.2.1-alpha.0' identifier = 'alpha' identifier_base = 0 )
-      ( version = '1.2.2' release = 'prerelease' res = '1.2.3-alpha.1' identifier = 'alpha' identifier_base = 1 )
-      ( version = '1.2.3' release = 'prerelease' res = '1.2.4-alpha.1' identifier = 'alpha' identifier_base = 1 )
-      ( version = '1.2.4' release = 'prerelease' res = '1.2.5-alpha.1' identifier = 'alpha' identifier_base = 1 )
-      ( version = '1.2.0' release = 'prepatch' res = '1.2.1-dev.1' identifier = 'dev' identifier_base = 1 )
-      ( version = '1.2.0-1' release = 'prepatch' res = '1.2.1-dev.1' identifier = 'dev' identifier_base = 1 )
-      ( version = '1.2.0' release = 'premajor' res = '2.0.0-dev.0' identifier = 'dev' identifier_base = 0 )
-      ( version = '1.2.3-1' release = 'premajor' res = '2.0.0-dev.0' identifier = 'dev' identifier_base = 0 )
-      ( version = '1.2.3-dev.bar' release = 'prerelease' res = '1.2.3-dev.0' identifier = 'dev' identifier_base = 0 )
-      ( version = '1.2.0' release = 'preminor' res = '1.3.0-dev.1' identifier = 'dev' identifier_base = 1 )
-      ( version = '1.2.3-1' release = 'preminor' res = '1.3.0-dev.0' identifier = 'dev' ) ).
+      ( version = '1.2.0-1' release = 'prerelease' res = '1.2.0-alpha.0' identifier = 'alpha' identifier_base = '0' )
+      ( version = '1.2.1' release = 'prerelease' res = '1.2.2-alpha.0' identifier = 'alpha' identifier_base = '0' )
+      ( version = '0.2.0' release = 'prerelease' res = '0.2.1-alpha.0' identifier = 'alpha' identifier_base = '0' )
+      ( version = '1.2.2' release = 'prerelease' res = '1.2.3-alpha.1' identifier = 'alpha' identifier_base = '1' )
+      ( version = '1.2.3' release = 'prerelease' res = '1.2.4-alpha.1' identifier = 'alpha' identifier_base = '1' )
+      ( version = '1.2.4' release = 'prerelease' res = '1.2.5-alpha.1' identifier = 'alpha' identifier_base = '1' )
+      ( version = '1.2.0' release = 'prepatch' res = '1.2.1-dev.1' identifier = 'dev' identifier_base = '1' )
+      ( version = '1.2.0-1' release = 'prepatch' res = '1.2.1-dev.1' identifier = 'dev' identifier_base = '1' )
+      ( version = '1.2.0' release = 'premajor' res = '2.0.0-dev.0' identifier = 'dev' identifier_base = '0' )
+      ( version = '1.2.3-1' release = 'premajor' res = '2.0.0-dev.0' identifier = 'dev' identifier_base = '0' )
+      ( version = '1.2.3-dev.bar' release = 'prerelease' res = '1.2.3-dev.0' identifier = 'dev' identifier_base = '0' )
+      ( version = '1.2.3-dev.bar' release = 'prerelease' res = '1.2.3-dev.1' identifier = 'dev' identifier_base = '1' )
+      ( version = '1.2.3-dev.bar' release = 'prerelease' res = '1.2.3-dev.bar.0' identifier = '' identifier_base = '0' )
+      ( version = '1.2.3-dev.bar' release = 'prerelease' res = '1.2.3-dev.bar.1' identifier = '' identifier_base = '1' )
+      ( version = '1.2.0' release = 'preminor' res = '1.3.0-dev.1' identifier = 'dev' identifier_base = '1' )
+      ( version = '1.2.3-1' release = 'preminor' res = '1.3.0-dev.0' identifier = 'dev' )
+      ( version = '1.2.0' release = 'prerelease' res = '1.2.1-1' identifier = '' identifier_base = '1' )
+
+      ( version = '1.2.0-1' release = 'prerelease' res = '1.2.0-alpha' identifier = 'alpha' identifier_base = 'false' )
+      ( version = '1.2.1' release = 'prerelease' res = '1.2.2-alpha' identifier = 'alpha' identifier_base = 'false' )
+      ( version = '1.2.2' release = 'prerelease' res = '1.2.3-alpha' identifier = 'alpha' identifier_base = 'false' )
+      ( version = '1.2.0' release = 'prepatch' res = '1.2.1-dev' identifier = 'dev' identifier_base = 'false' )
+      ( version = '1.2.0-1' release = 'prepatch' res = '1.2.1-dev' identifier = 'dev' identifier_base = 'false' )
+      ( version = '1.2.0' release = 'premajor' res = '2.0.0-dev' identifier = 'dev' identifier_base = 'false' )
+      ( version = '1.2.3-1' release = 'premajor' res = '2.0.0-dev' identifier = 'dev' identifier_base = 'false' )
+      ( version = '1.2.3-dev.bar' release = 'prerelease' res = '1.2.3-dev' identifier = 'dev' identifier_base = 'false' )
+      ( version = '1.2.3-dev.bar' release = 'prerelease' res = '1.2.3-dev.baz' identifier = 'dev.baz' identifier_base = 'false' )
+      ( version = '1.2.0' release = 'preminor' res = '1.3.0-dev' identifier = 'dev' identifier_base = 'false' )
+      ( version = '1.2.3-1' release = 'preminor' res = '1.3.0-dev' identifier = 'dev' identifier_base = 'false' )
+      ( version = '1.2.3-dev' release = 'prerelease' res = '' identifier = 'dev' identifier_base = 'false' )
+      ( version = '1.2.0-dev' release = 'premajor' res = '2.0.0-dev' identifier = 'dev' identifier_base = 'false' )
+      ( version = '1.2.0-dev' release = 'preminor' res = '1.3.0-beta' identifier = 'beta' identifier_base = 'false' )
+      ( version = '1.2.0-dev' release = 'prepatch' res = '1.2.1-dev' identifier = 'dev' identifier_base = 'false' )
+      ( version = '1.2.0' release = 'prerelease' res = '' identifier = '' identifier_base = 'false' ) ).
 
   ENDMETHOD.
 

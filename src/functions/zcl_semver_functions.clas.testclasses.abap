@@ -499,10 +499,19 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( v1 = '1.1.0' v2 = '1.1.0-pre' res = 'minor' )
       ( v1 = '1.1.0-pre-1' v2 = '1.1.0-pre-2' res = 'prerelease' )
       ( v1 = '1.0.0' v2 = '1.0.0' res = '' )
+      ( v1 = '1.0.0-1' v2 = '1.0.0-1' res = '' )
       ( v1 = '0.0.2-1' v2 = '0.0.2' res = 'patch' )
+      ( v1 = '0.0.2-1' v2 = '0.0.3' res = 'patch' )
+      ( v1 = '0.0.2-1' v2 = '0.1.0' res = 'minor' )
+      ( v1 = '0.0.2-1' v2 = '1.0.0' res = 'major' )
       ( v1 = '0.1.0-1' v2 = '0.1.0' res = 'minor' )
       ( v1 = '1.0.0-1' v2 = '1.0.0' res = 'major' )
-      ( v1 = '0.0.0-1' v2 = '0.0.0' res = 'prerelease' ) ).
+      ( v1 = '1.0.1-1' v2 = '1.0.1' res = 'patch' )
+      ( v1 = '0.0.0-1' v2 = '0.0.0' res = 'major' )
+      ( v1 = '1.0.0-1' v2 = '2.0.0' res = 'major' )
+      ( v1 = '1.0.0-1' v2 = '2.0.0-1' res = 'premajor' )
+      ( v1 = '1.0.0-1' v2 = '1.1.0-1' res = 'preminor' )
+      ( v1 = '1.0.0-1' v2 = '1.0.1-1' res = 'prepatch' ) ).
 
     LOOP AT tests INTO DATA(test).
       DATA(msg) = |{ test-v1 } { test-v2 } { test-res } |.
@@ -512,6 +521,18 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         exp = test-res
         msg = msg ).
     ENDLOOP.
+
+    " throws on bad version
+    TRY.
+        zcl_semver_functions=>diff(
+          version_1 = 'bad'
+          version_2 = '1.2.3' ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH zcx_semver_error INTO DATA(error).
+        cl_abap_unit_assert=>assert_equals(
+          act = error->get_text( )
+          exp = 'Invalid version: bad' ).
+    ENDTRY.
 
   ENDMETHOD.
 
@@ -902,6 +923,18 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         act = zcl_semver_functions=>parse( version = invalid_version-value loose = invalid_version-loose )
         msg = msg ).
     ENDLOOP.
+
+    " throw errors if asked to
+    TRY.
+        zcl_semver_functions=>parse(
+          version      = 'bad'
+          throw_errors = abap_true ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH zcx_semver_error INTO DATA(error).
+        cl_abap_unit_assert=>assert_equals(
+          act = error->get_text( )
+          exp = 'Invalid version: bad' ).
+    ENDTRY.
 
     " parse a version into a SemVer object
     cl_abap_unit_assert=>assert_equals(

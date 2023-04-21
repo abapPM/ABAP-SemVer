@@ -81,7 +81,7 @@ CLASS zcl_semver DEFINITION
       IMPORTING
         release         TYPE string
         identifier      TYPE string OPTIONAL
-        identifier_base TYPE i DEFAULT 0
+        identifier_base TYPE string OPTIONAL
       RETURNING
         VALUE(result)   TYPE REF TO zcl_semver
       RAISING
@@ -219,7 +219,7 @@ CLASS zcl_semver IMPLEMENTATION.
         DATA(m) = r->create_matcher( text = zcl_semver_utils=>version_trim( version ) ).
 
         IF NOT m->match( ).
-          zcx_semver_error=>raise( |Invalid version { version }| ).
+          zcx_semver_error=>raise( |Invalid version: { version }| ).
         ENDIF.
 
         raw = version.
@@ -232,19 +232,19 @@ CLASS zcl_semver IMPLEMENTATION.
         IF major_num BETWEEN 0 AND zif_semver_constants=>max_safe_integer.
           major = major_num.
         ELSE.
-          zcx_semver_error=>raise( |Invalid major version { major_num }| ).
+          zcx_semver_error=>raise( |Invalid major version: { major_num }| ).
         ENDIF.
 
         IF minor_num BETWEEN 0 AND zif_semver_constants=>max_safe_integer.
           minor = minor_num.
         ELSE.
-          zcx_semver_error=>raise( |Invalid minor version { minor_num }| ).
+          zcx_semver_error=>raise( |Invalid minor version: { minor_num }| ).
         ENDIF.
 
         IF patch_num BETWEEN 0 AND zif_semver_constants=>max_safe_integer.
           patch = patch_num.
         ELSE.
-          zcx_semver_error=>raise( |Invalid patch version { patch_num }| ).
+          zcx_semver_error=>raise( |Invalid patch version: { patch_num }| ).
         ENDIF.
 
         DATA(m4) = m->get_submatch( 4 ).
@@ -315,6 +315,10 @@ CLASS zcl_semver IMPLEMENTATION.
 
   METHOD inc.
 
+    CONSTANTS false TYPE string VALUE 'false'.
+
+    DATA prerelease_tab LIKE prerelease.
+
     CASE release.
       WHEN 'premajor'.
         CLEAR prerelease.
@@ -374,8 +378,18 @@ CLASS zcl_semver IMPLEMENTATION.
       WHEN 'pre'.
         " This probably shouldn't be used publicly.
         " 1.0.0 'pre' would become 1.0.0-0 which is the wrong direction.
+        IF identifier_base IS INITIAL OR identifier_base = `0`.
+          DATA(base) = `0`.
+        ELSE.
+          base = COND #( WHEN zcl_semver_utils=>is_numeric( identifier_base ) THEN `1` ELSE `0` ).
+        ENDIF.
+
+        IF identifier IS INITIAL AND identifier_base = false.
+          zcx_semver_error=>raise( 'Invalid increment argument: identifier is empty' ).
+        ENDIF.
+
         IF prerelease IS INITIAL.
-          prerelease = VALUE #( ( `0` ) ).
+          prerelease = VALUE #( ( base ) ).
         ELSE.
           DATA(i) = lines( prerelease ).
           WHILE i > 0.
@@ -388,19 +402,28 @@ CLASS zcl_semver IMPLEMENTATION.
           ENDWHILE.
           IF i = 0.
             " didn't increment anything
-            INSERT `0` INTO TABLE prerelease.
+            DATA(prerelease_string) = concat_lines_of( table = prerelease sep = '.' ).
+            IF identifier = prerelease_string AND identifier_base = false.
+              zcx_semver_error=>raise( 'Invalid increment argument: identifier already exists' ).
+            ENDIF.
+
+            INSERT base INTO TABLE prerelease.
           ENDIF.
         ENDIF.
         IF identifier IS NOT INITIAL.
-          DATA(base) = COND #( WHEN identifier_base <> 0 THEN `1` ELSE `0` ).
           " 1.2.0-beta.1 bumps to 1.2.0-beta.2,
           " 1.2.0-beta.fooblz or 1.2.0-beta bumps to 1.2.0-beta.0
+          prerelease_tab = VALUE #( ( identifier ) ( base ) ).
+          IF identifier_base = false.
+            prerelease_tab =  VALUE #( ( identifier ) ).
+          ENDIF.
+
           IF zcl_semver_identifiers=>compare_identifiers( a = prerelease[ 1 ] b = identifier ) = 0.
             IF NOT zcl_semver_utils=>is_numeric( VALUE #( prerelease[ 2 ] DEFAULT `-` ) ).
-              prerelease = VALUE #( ( identifier ) ( base ) ).
+              prerelease = prerelease_tab.
             ENDIF.
           ELSE.
-            prerelease = VALUE #( ( identifier ) ( base ) ).
+            prerelease = prerelease_tab.
           ENDIF.
         ENDIF.
 

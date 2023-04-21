@@ -39,7 +39,7 @@ CLASS zcl_semver_cli DEFINITION
       ranges          TYPE string_table,
       inc             TYPE string,
       identifier      TYPE string,
-      identifier_base TYPE i,
+      identifier_base TYPE string,
       loose           TYPE abap_bool,
       incpre          TYPE abap_bool,
       coerce          TYPE abap_bool,
@@ -84,8 +84,10 @@ CLASS zcl_semver_cli IMPLEMENTATION.
       ( `-l --loose` )
       ( `        Interpret versions and ranges loosely` )
       ( `` )
-      ( `-n <0|1>` )
-      ( `        This is the base to be used for the prerelease identifier.` )
+      ( `-n <base>` )
+      ( `        Base number to be used for the prerelease identifier.` )
+      ( `        Can be either 0 or 1, or false to omit the number altogether.` )
+      ( `        Defaults to 0.` )
       ( `` )
       ( `-p --include-prerelease` )
       ( `        Always include prerelease versions in range matching` )
