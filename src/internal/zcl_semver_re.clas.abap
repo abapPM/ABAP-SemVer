@@ -15,12 +15,15 @@ CLASS zcl_semver_re DEFINITION
 
     TYPES:
       BEGIN OF ty_token,
-        src   TYPE string,
-        regex TYPE REF TO cl_abap_regex,
-        occ   TYPE i, " 0 = global, 1 = once
+        src        TYPE string,
+        regex      TYPE REF TO cl_abap_regex,
+        safe_src   TYPE string,
+        safe_regex TYPE REF TO cl_abap_regex,
+        occ        TYPE i, " 0 = global, 1 = once
       END OF ty_token.
 
     CONSTANTS:
+      letter_dash_number      TYPE string VALUE '[a-zA-Z0-9-]',
       caret_trim_replace      TYPE string VALUE '$1^',
       tilde_trim_replace      TYPE string VALUE '$1~',
       comparator_trim_replace TYPE string VALUE '$1$2$3',
@@ -74,15 +77,21 @@ CLASS zcl_semver_re DEFINITION
         xrangeplain               TYPE ty_token,
         xrangeplainloose          TYPE ty_token,
       END OF token.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    CLASS-METHODS:
-      create_token
-        IMPORTING
-          name      TYPE string
-          value     TYPE string
-          is_global TYPE abap_bool DEFAULT abap_false.
+    CLASS-METHODS create_token
+      IMPORTING
+        name      TYPE string
+        value     TYPE string
+        is_global TYPE abap_bool DEFAULT abap_false.
+
+    CLASS-METHODS make_safe_regex
+      IMPORTING
+        value         TYPE string
+      RETURNING
+        VALUE(result) TYPE string.
 
 ENDCLASS.
 
@@ -101,7 +110,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
     create_token(
       name  = 'V'
       value = |[v=]*| ).
-      " value = |[v=\\s]*| ) " PCRE
+    " value = |[v=\\s]*| ) " PCRE
 
     create_token(
       name  = 'VTRIM'
@@ -124,7 +133,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'NONNUMERICIDENTIFIER'
-      value = |\\d*[a-zA-Z-][a-zA-Z0-9-]*| ).
+      value = |\\d*[a-zA-Z-]{ letter_dash_number }*| ).
 
     " ## Main Version
     " Three dot-separated numeric identifiers.
@@ -173,7 +182,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'BUILDIDENTIFIER'
-      value = |[0-9A-Za-z-]+| ).
+      value = |{ letter_dash_number }+| ).
 
     " ## Build Metadata
     " Plus sign, followed by one or more period-separated build metadata
@@ -367,9 +376,50 @@ CLASS zcl_semver_re IMPLEMENTATION.
     ASSIGN COMPONENT name OF STRUCTURE token TO <token>.
     ASSERT sy-subrc = 0.
 
-    <token>-src   = value.
-    <token>-regex = NEW cl_abap_regex( pattern = value ).
-    <token>-occ   = COND #( WHEN is_global = abap_true THEN 0 ELSE 1 ).
+    <token>-src        = value.
+    <token>-regex      = NEW cl_abap_regex( pattern = value ).
+    <token>-safe_src   = make_safe_regex( value ).
+    <token>-safe_regex = NEW cl_abap_regex( pattern = make_safe_regex( value ) ).
+    <token>-occ        = COND #( WHEN is_global = abap_true THEN 0 ELSE 1 ).
+
+  ENDMETHOD.
+
+
+  METHOD make_safe_regex.
+
+    TYPES:
+      BEGIN OF ty_regex_replacement,
+        token TYPE string,
+        max   TYPE i,
+      END OF ty_regex_replacement,
+      ty_regex_replacements TYPE STANDARD TABLE OF ty_regex_replacement WITH DEFAULT KEY.
+
+    " Replace some greedy regex tokens to prevent regex dos issues. These regex are
+    " used internally via the safeRe object since all inputs in this library get
+    " normalized first to trim and collapse all extra whitespace. The original
+    " regexes are exported for userland consumption and lower level usage. A
+    " future breaking change could export the safer regex only with a note that
+    " all input should have extra whitespace removed.
+
+    DATA(safe_regex_replacements) = VALUE ty_regex_replacements(
+      ( token = `\s`               max = 1 )
+      ( token = `\d`               max = zif_semver_constants=>max_safe_component_length )
+      ( token = letter_dash_number max = zif_semver_constants=>max_safe_build_length ) ).
+
+    result = value.
+
+    LOOP AT safe_regex_replacements INTO DATA(safe_regex_replacement).
+      result = replace(
+        val  = result
+        sub  = |{ safe_regex_replacement-token }*|
+        with = |{ safe_regex_replacement-token }\{0,{ safe_regex_replacement-max }\}|
+        occ  = 0 ).
+      result = replace(
+        val  = result
+        sub  = |{ safe_regex_replacement-token }+|
+        with = |{ safe_regex_replacement-token }\{1,{ safe_regex_replacement-max }\}|
+        occ  = 0 ).
+    ENDLOOP.
 
   ENDMETHOD.
 ENDCLASS.

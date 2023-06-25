@@ -24,6 +24,10 @@ INTERFACE zif_semver_constants PUBLIC.
   " Max safe segment length for coercion.
   CONSTANTS max_safe_component_length TYPE i VALUE 9. " JS: 16 for int8
 
+  " Max safe length for a build identifier. The max length minus 6 characters for
+  " the shortest version with a build 0.0.0+BUILD.
+  CONSTANTS max_safe_build_length TYPE i VALUE 250.
+
   CONSTANTS:
     BEGIN OF release_types,
       major      TYPE string VALUE 'major',

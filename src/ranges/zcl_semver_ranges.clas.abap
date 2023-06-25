@@ -262,12 +262,12 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
               compver->inc( release = 'prerelease' identifier = '0' ).
             ENDIF.
 
-            IF setmin IS NOT INITIAL OR zcl_semver_functions=>gt( a = compver b = setmin ).
+            IF setmin IS NOT INITIAL AND zcl_semver_functions=>gt( a = compver b = setmin ).
               setmin = compver.
             ENDIF.
 
           WHEN '' OR  '>='.
-            IF setmin IS NOT INITIAL OR zcl_semver_functions=>gt( a = compver b = setmin ).
+            IF setmin IS NOT INITIAL AND zcl_semver_functions=>gt( a = compver b = setmin ).
               setmin = compver.
             ENDIF.
 

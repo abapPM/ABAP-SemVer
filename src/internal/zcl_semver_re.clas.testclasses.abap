@@ -32,6 +32,24 @@ CLASS ltcl_semver_re IMPLEMENTATION.
       cl_abap_unit_assert=>assert_not_initial(
         act = <token>-src
         msg = |Regex component #{ i } must not be initial| ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = <token>-src
+        exp = <token>-regex->pattern
+        msg = |Regex component #{ i } does not match source| ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = <token>-safe_src
+        exp = <token>-safe_regex->pattern
+        msg = |Regex component #{ i } does not match source| ).
+
+      IF <token>-safe_src CS '\s+'.
+        cl_abap_unit_assert=>fail( msg = |Regex component #{ i } must not contain greedy whitespace| ).
+      ENDIF.
+
+      IF <token>-safe_src CS '\s*'.
+        cl_abap_unit_assert=>fail( msg = |Regex component #{ i } must not contain greedy whitespace| ).
+      ENDIF.
     ENDDO.
 
   ENDMETHOD.

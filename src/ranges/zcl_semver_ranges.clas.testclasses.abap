@@ -347,15 +347,21 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD outside.
+  METHOD outside ##TODO.
+
+    " https://github.com/npm/node-semver/blob/main/test/ranges/outside.js
 
   ENDMETHOD.
 
-  METHOD simplify.
+  METHOD simplify ##TODO.
+
+    " https://github.com/npm/node-semver/blob/main/test/ranges/simplify.js
 
   ENDMETHOD.
 
   METHOD subset.
+
+    " TODO (method not implemented yet)
 
   ENDMETHOD.
 

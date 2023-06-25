@@ -93,7 +93,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
     options-loose  = loose.
     options-incpre = incpre.
 
-    parse( comp ).
+    parse( zcl_semver_utils=>trim( comp ) ).
 
     IF semver = any_semver.
       value = ''.
@@ -259,8 +259,8 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
 
     DATA(r) = COND #(
       WHEN options-loose = abap_true
-      THEN zcl_semver_re=>token-comparatorloose-regex
-      ELSE zcl_semver_re=>token-comparator-regex ).
+      THEN zcl_semver_re=>token-comparatorloose-safe_regex
+      ELSE zcl_semver_re=>token-comparator-safe_regex ).
 
     TRY.
         DATA(m) = r->create_matcher( text = comp ).

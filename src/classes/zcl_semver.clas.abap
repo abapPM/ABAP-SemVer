@@ -212,8 +212,8 @@ CLASS zcl_semver IMPLEMENTATION.
 
     DATA(r) = COND #(
       WHEN loose = abap_true
-      THEN zcl_semver_re=>token-loose-regex
-      ELSE zcl_semver_re=>token-full-regex ).
+      THEN zcl_semver_re=>token-loose-safe_regex
+      ELSE zcl_semver_re=>token-full-safe_regex ).
 
     TRY.
         DATA(m) = r->create_matcher( text = zcl_semver_utils=>version_trim( version ) ).

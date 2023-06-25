@@ -241,10 +241,14 @@ CLASS zcl_semver_range IMPLEMENTATION.
     options-loose  = loose.
     options-incpre = incpre.
 
-    raw = range.
+    " First reduce all whitespace as much as possible so we do not have to rely
+    " on potentially slow regexes like \s*. This is then stored and used for
+    " future error messages as well.
+    raw = zcl_semver_utils=>trim( range ).
 
-    IF range IS NOT INITIAL.
-      SPLIT range AT '||' INTO TABLE DATA(ranges).
+    " First, split on ||
+    IF raw IS NOT INITIAL.
+      SPLIT raw AT '||' INTO TABLE DATA(ranges).
     ELSE.
       INSERT INITIAL LINE INTO TABLE ranges.
     ENDIF.
@@ -260,7 +264,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
     DELETE set WHERE table_line IS INITIAL.
 
     IF set IS INITIAL.
-      zcx_semver_error=>raise( |Invalid SemVer Range: { range }| ).
+      zcx_semver_error=>raise( |Invalid SemVer Range: { raw }| ).
     ENDIF.
 
     " if we have any that are not the null set, throw out null sets.
@@ -452,7 +456,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
       comp_values TYPE string_table,
       comparators TYPE ty_comparators.
 
-    DATA(range) = zcl_semver_utils=>version_trim( range_string ).
+    DATA(range) = range_string.
 
     " memoize range parsing for performance
     " this is a very hot path, and fully deterministic
@@ -470,30 +474,23 @@ CLASS zcl_semver_range IMPLEMENTATION.
     " `> 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
     range = replace(
       val   = range
-      regex = zcl_semver_re=>token-comparatortrim-src
+      regex = zcl_semver_re=>token-comparatortrim-safe_src
       with  = zcl_semver_re=>comparator_trim_replace
       occ   = zcl_semver_re=>token-comparatortrim-occ ).
 
     " `~ 1.2.3` => `~1.2.3`
     range = replace(
       val   = range
-      regex = zcl_semver_re=>token-tildetrim-src
+      regex = zcl_semver_re=>token-tildetrim-safe_src
       with  = zcl_semver_re=>tilde_trim_replace
       occ   = zcl_semver_re=>token-tildetrim-occ ).
 
     " `^ 1.2.3` => `^1.2.3`
     range = replace(
       val   = range
-      regex = zcl_semver_re=>token-carettrim-src
+      regex = zcl_semver_re=>token-carettrim-safe_src
       with  = zcl_semver_re=>caret_trim_replace
       occ   = zcl_semver_re=>token-carettrim-occ ).
-
-    " normalize spaces
-    range = replace(
-      val   = range
-      regex = '\s+'
-      with  = ` `
-      occ   = 0 ).
 
     " At this point, the range is completely trimmed and
     " ready to be split into comparators.
@@ -518,7 +515,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     IF options-loose = abap_true.
       " in loose mode, throw out any that are not valid comparators
-      DATA(r) = zcl_semver_re=>token-comparatorloose-regex.
+      DATA(r) = zcl_semver_re=>token-comparatorloose-safe_regex.
       LOOP AT comps ASSIGNING <comp>.
         DATA(m) = r->create_matcher( text = <comp> ).
         IF NOT m->match( ).
@@ -567,8 +564,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     DATA(r) = COND #(
       WHEN loose = abap_true
-      THEN zcl_semver_re=>token-caretloose-regex
-      ELSE zcl_semver_re=>token-caret-regex ).
+      THEN zcl_semver_re=>token-caretloose-safe_regex
+      ELSE zcl_semver_re=>token-caret-safe_regex ).
 
     TRY.
         DATA(m) = r->create_matcher( text = result ).
@@ -649,8 +646,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     DATA(regex) = COND #(
       WHEN incpre = abap_true
-      THEN zcl_semver_re=>token-gte0pre-src
-      ELSE zcl_semver_re=>token-gte0-src ).
+      THEN zcl_semver_re=>token-gte0pre-safe_src
+      ELSE zcl_semver_re=>token-gte0-safe_src ).
 
     result = replace(
       val   = zcl_semver_utils=>trim( comp )
@@ -668,8 +665,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     DATA(r) = COND #(
       WHEN loose = abap_true
-      THEN zcl_semver_re=>token-hyphenrangeloose-regex
-      ELSE zcl_semver_re=>token-hyphenrange-regex ).
+      THEN zcl_semver_re=>token-hyphenrangeloose-safe_regex
+      ELSE zcl_semver_re=>token-hyphenrange-safe_regex ).
 
     TRY.
         DATA(m) = r->create_matcher( text = result ).
@@ -741,7 +738,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
     " Looseness is ignored here.  star is always as loose as it gets!
     result = replace(
       val   = zcl_semver_utils=>trim( comp )
-      regex = zcl_semver_re=>token-star-src
+      regex = zcl_semver_re=>token-star-safe_src
       with  = '' ).
 
   ENDMETHOD.
@@ -759,8 +756,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     DATA(r) = COND #(
       WHEN loose = abap_true
-      THEN zcl_semver_re=>token-tildeloose-regex
-      ELSE zcl_semver_re=>token-tilde-regex ).
+      THEN zcl_semver_re=>token-tildeloose-safe_regex
+      ELSE zcl_semver_re=>token-tilde-safe_regex ).
 
     TRY.
         DATA(m) = r->create_matcher( text = result ).
@@ -823,8 +820,8 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     DATA(r) = COND #(
       WHEN loose = abap_true
-      THEN zcl_semver_re=>token-xrangeloose-regex
-      ELSE zcl_semver_re=>token-xrange-regex ).
+      THEN zcl_semver_re=>token-xrangeloose-safe_regex
+      ELSE zcl_semver_re=>token-xrange-safe_regex ).
 
     TRY.
         DATA(m) = r->create_matcher( text = result ).

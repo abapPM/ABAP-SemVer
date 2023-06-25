@@ -46,6 +46,10 @@ CLASS ltcl_semver_utils IMPLEMENTATION.
       act = zcl_semver_utils=>trim( |test| )
       exp = 'test' ).
 
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_utils=>trim( |test test| )
+      exp = 'test test' ).
+
   ENDMETHOD.
 
   METHOD version_trim.

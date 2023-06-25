@@ -4,21 +4,21 @@ CLASS ltcl_semver DEFINITION FOR TESTING RISK LEVEL HARMLESS
   PRIVATE SECTION.
 
     METHODS:
-      test_comparisons FOR TESTING RAISING zcx_semver_error,
-      test_equality FOR TESTING RAISING zcx_semver_error,
-      test_to_string FOR TESTING RAISING zcx_semver_error,
-      test_invalid_versions FOR TESTING RAISING zcx_semver_error,
-      test_options FOR TESTING RAISING zcx_semver_error,
-      test_really_big FOR TESTING RAISING zcx_semver_error,
-      test_incrementing FOR TESTING RAISING zcx_semver_error,
-      test_compare_main_vs_pre FOR TESTING RAISING zcx_semver_error,
-      test_compare_build FOR TESTING RAISING zcx_semver_error.
+      comparisons FOR TESTING RAISING zcx_semver_error,
+      equality FOR TESTING RAISING zcx_semver_error,
+      to_string FOR TESTING RAISING zcx_semver_error,
+      invalid_versions FOR TESTING RAISING zcx_semver_error,
+      options FOR TESTING RAISING zcx_semver_error,
+      really_big FOR TESTING RAISING zcx_semver_error,
+      incrementing FOR TESTING RAISING zcx_semver_error,
+      compare_main_vs_pre FOR TESTING RAISING zcx_semver_error,
+      compare_build FOR TESTING RAISING zcx_semver_error.
 
 ENDCLASS.
 
 CLASS ltcl_semver IMPLEMENTATION.
 
-  METHOD test_comparisons.
+  METHOD comparisons.
 
     LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose }|.
@@ -35,7 +35,7 @@ CLASS ltcl_semver IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_equality.
+  METHOD equality.
 
     LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       DATA(msg) = |{ equality-v0 } { equality-v1 }|.
@@ -53,7 +53,7 @@ CLASS ltcl_semver IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_to_string.
+  METHOD to_string.
 
     DATA(s) = zcl_semver=>create( 'v1.2.3' ).
 
@@ -64,7 +64,7 @@ CLASS ltcl_semver IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_invalid_versions.
+  METHOD invalid_versions.
     " throws when presented with garbage
 
     LOOP AT zcl_semver_fixtures=>invalid_versions( ) INTO DATA(invalid_version).
@@ -79,7 +79,7 @@ CLASS ltcl_semver IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_options.
+  METHOD options.
 
     DATA(s) = zcl_semver=>create( version = '1.2.3' loose = abap_true incpre = abap_true ).
 
@@ -94,7 +94,7 @@ CLASS ltcl_semver IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_really_big.
+  METHOD really_big.
     " test really big numeric prerelease value.
 
     DATA(s) = zcl_semver=>create( |1.2.3-beta.{ zif_semver_constants=>max_safe_integer }0| ).
@@ -109,7 +109,7 @@ CLASS ltcl_semver IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_incrementing.
+  METHOD incrementing.
 
     LOOP AT zcl_semver_fixtures=>increments( ) INTO DATA(increments).
       DATA(msg) = |{ increments-version } { increments-release } { increments-identifier }|.
@@ -141,7 +141,7 @@ CLASS ltcl_semver IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_compare_main_vs_pre.
+  METHOD compare_main_vs_pre.
 
     DATA(s) = zcl_semver=>create( '1.2.3' ).
 
@@ -185,7 +185,7 @@ CLASS ltcl_semver IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD test_compare_build.
+  METHOD compare_build.
 
     DATA(nobuild) = zcl_semver=>create( '1.0.0' ).
     DATA(build0) = zcl_semver=>create( '1.0.0+0' ).

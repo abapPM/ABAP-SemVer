@@ -339,8 +339,8 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
     DATA(r) = COND #(
       WHEN rtl = abap_true
-      THEN zcl_semver_re=>token-coercertl-src
-      ELSE zcl_semver_re=>token-coerce-src ).
+      THEN zcl_semver_re=>token-coercertl-safe_src
+      ELSE zcl_semver_re=>token-coerce-safe_src ).
 
     IF rtl = abap_false.
       FIND REGEX r IN version SUBMATCHES DATA(rest) DATA(major) DATA(minor) DATA(patch).
