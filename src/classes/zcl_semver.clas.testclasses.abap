@@ -16,6 +16,8 @@ CLASS ltcl_semver DEFINITION FOR TESTING RISK LEVEL HARMLESS
 
 ENDCLASS.
 
+CLASS zcl_semver DEFINITION LOCAL FRIENDS ltcl_semver.
+
 CLASS ltcl_semver IMPLEMENTATION.
 
   METHOD comparisons.
@@ -129,13 +131,27 @@ CLASS ltcl_semver IMPLEMENTATION.
       ELSE.
         s = zcl_semver=>create( version = increments-version loose = increments-loose ).
 
+        DATA(inc) = s->inc(
+          release         = increments-release
+          identifier      = increments-identifier
+          identifier_base = increments-identifier_base ).
+
         cl_abap_unit_assert=>assert_equals(
-          act = s->inc(
-            release         = increments-release
-            identifier      = increments-identifier
-            identifier_base = increments-identifier_base )->version
+          act = inc->version
           exp = increments-res
           msg = msg ).
+
+        IF inc->build IS NOT INITIAL.
+          cl_abap_unit_assert=>assert_equals(
+            act = inc->raw
+            exp = |{ increments-res }+{ concat_lines_of( table = inc->build sep = '.' ) }|
+            msg = msg ).
+        ELSE.
+          cl_abap_unit_assert=>assert_equals(
+            act = inc->raw
+            exp = increments-res
+            msg = msg ).
+        ENDIF.
       ENDIF.
     ENDLOOP.
 

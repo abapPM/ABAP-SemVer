@@ -435,6 +435,10 @@ CLASS zcl_semver IMPLEMENTATION.
 
     raw = version.
 
+    IF build IS NOT INITIAL.
+      raw &&= |+{ concat_lines_of( table = build sep = '.' ) }|.
+    ENDIF.
+
     result = me.
 
   ENDMETHOD.

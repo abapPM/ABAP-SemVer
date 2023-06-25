@@ -411,7 +411,8 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( version = '1.2.0-dev' release = 'premajor' res = '2.0.0-dev' identifier = 'dev' identifier_base = 'false' )
       ( version = '1.2.0-dev' release = 'preminor' res = '1.3.0-beta' identifier = 'beta' identifier_base = 'false' )
       ( version = '1.2.0-dev' release = 'prepatch' res = '1.2.1-dev' identifier = 'dev' identifier_base = 'false' )
-      ( version = '1.2.0' release = 'prerelease' res = '' identifier = '' identifier_base = 'false' ) ).
+      ( version = '1.2.0' release = 'prerelease' res = '' identifier = '' identifier_base = 'false' )
+      ( version = '1.0.0-rc.1+build.4' release = 'prerelease' res = '1.0.0-rc.2' identifier = 'rc' identifier_base = 'false' ) ).
 
   ENDMETHOD.
 
