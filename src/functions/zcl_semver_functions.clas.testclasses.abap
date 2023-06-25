@@ -938,6 +938,19 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
           exp = 'Invalid version: bad' ).
     ENDTRY.
 
+    TRY.
+        DATA(wrong_type) = NEW zcl_semver_cli( ).
+
+        zcl_semver_functions=>parse(
+          version      = wrong_type
+          throw_errors = abap_true ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH zcx_semver_error INTO error.
+        cl_abap_unit_assert=>assert_equals(
+          act = substring( val = error->get_text( ) len = 50 )
+          exp = 'Invalid version. Must be a string or a semver. Got' ).
+    ENDTRY.
+
     " parse a version into a SemVer object
     cl_abap_unit_assert=>assert_equals(
       act = zcl_semver_functions=>parse( '1.2.3' )->version

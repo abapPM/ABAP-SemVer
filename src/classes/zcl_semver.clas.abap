@@ -275,7 +275,8 @@ CLASS zcl_semver IMPLEMENTATION.
 
   METHOD create.
 
-    DATA(kind) = cl_abap_typedescr=>describe_by_data( version )->type_kind.
+    DATA(descr) = cl_abap_typedescr=>describe_by_data( version ).
+    DATA(kind) = descr->type_kind.
 
     IF kind = cl_abap_typedescr=>typekind_oref AND version IS INSTANCE OF zcl_semver.
 
@@ -292,7 +293,7 @@ CLASS zcl_semver IMPLEMENTATION.
       result = NEW zcl_semver( version = |{ version }| loose = loose incpre = incpre ).
 
     ELSE.
-      zcx_semver_error=>raise( 'Invalid parameter type' ).
+      zcx_semver_error=>raise( |Invalid version. Must be a string or a semver. Got { descr->absolute_name }| ).
     ENDIF.
 
   ENDMETHOD.
