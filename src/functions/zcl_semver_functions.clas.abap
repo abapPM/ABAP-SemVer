@@ -440,6 +440,39 @@ CLASS zcl_semver_functions IMPLEMENTATION.
     DATA(high_version) = COND #( WHEN v1_higher = abap_true THEN v1 ELSE v2 ).
     DATA(low_version)  = COND #( WHEN v1_higher = abap_true THEN v2 ELSE v1 ).
     DATA(high_has_pre) = xsdbool( high_version->prerelease IS NOT INITIAL ).
+    DATA(low_has_pre)  = xsdbool( low_version->prerelease IS NOT INITIAL ).
+
+    IF low_has_pre = abap_true AND high_has_pre = abap_false.
+      " Going from prerelease -> no prerelease requires some special casing
+
+      " If the low version has only a major, then it will always be a major
+      " Some examples:
+      " 1.0.0-1 -> 1.0.0
+      " 1.0.0-1 -> 1.1.1
+      " 1.0.0-1 -> 2.0.0
+      IF low_version->patch IS INITIAL AND low_version->minor IS INITIAL.
+        result = 'major'.
+        RETURN.
+      ENDIF.
+
+      " Otherwise it can be determined by checking the high version
+
+      IF high_version->patch IS NOT INITIAL.
+        " anything higher than a patch bump would result in the wrong version
+        result = 'patch'.
+        RETURN.
+      ENDIF.
+
+      IF high_version->minor IS NOT INITIAL.
+        " anything higher than a minor bump would result in the wrong version
+        result = 'minor'.
+        RETURN.
+      ENDIF.
+
+      " bumping major/minor/patch all have same result
+      result = 'major'.
+      RETURN.
+    ENDIF.
 
     " add the `pre` prefix if we are going to a prerelease version
     DATA(prefix) = COND #( WHEN high_has_pre = abap_true THEN 'pre' ELSE '' ).
@@ -459,29 +492,8 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    " at this point we know stable versions match but overall versions are not equal,
-    " so either they are both prereleases, or the lower version is a prerelease
-
-    IF high_has_pre = abap_true.
-      " high and low are preleases
-      result = 'prerelease'.
-      RETURN.
-    ENDIF.
-
-    IF low_version->patch IS NOT INITIAL.
-      " anything higher than a patch bump would result in the wrong version
-      result = 'patch'.
-      RETURN.
-    ENDIF.
-
-    IF low_version->minor IS NOT INITIAL.
-      " anything higher than a minor bump would result in the wrong version
-      result = 'minor'.
-      RETURN.
-    ENDIF.
-
-    " bumping major/minor/patch all have same result
-    result = 'major'.
+    " high and low are preleases
+    result = 'prerelease'.
 
   ENDMETHOD.
 
