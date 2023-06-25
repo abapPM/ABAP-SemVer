@@ -125,7 +125,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
       value = |0\|[1-9]\\d*| ).
     create_token(
       name  = 'NUMERICIDENTIFIERLOOSE'
-      value = |[0-9]+| ).
+      value = |\\d+| ).
 
     " ## Non-numeric Identifier
     " Zero or more digits, followed by a letter or hyphen, and then zero or

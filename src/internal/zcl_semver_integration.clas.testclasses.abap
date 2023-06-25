@@ -66,12 +66,61 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD range_with_0.
+
+    DATA(r) = |1.2.3 { zero_large } <1.3.0|.
+
+    TRY.
+        DATA(range) = zcl_semver_range=>create( r ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH zcx_semver_error ##no_handler.
+    ENDTRY.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>valid_range( r )
+      exp = '' ).
+
+    TRY.
+        DATA(min) = zcl_semver_ranges=>min_version( r ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH zcx_semver_error ##no_handler.
+    ENDTRY.
+
+    DATA(t) = VALUE string_table( ( `1.2.3` ) ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>min_satisfying( versions = t range = r )
+      exp = '' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>max_satisfying( versions = t range = r )
+      exp = '' ).
+
   ENDMETHOD.
 
   METHOD semver_version.
+
+    DATA(v) = |{ ws_medium }1.2.3{ ws_medium }|.
+    DATA(too_long) = |{ ws_large }1.2.3{ ws_large }|.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver=>create( v )->version
+      exp = '1.2.3' ).
+
+    TRY.
+        DATA(t) = zcl_semver=>create( too_long ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH zcx_semver_error ##no_handler.
+    ENDTRY.
+
   ENDMETHOD.
 
   METHOD comparator.
+
+    DATA(c) = |{ ws_large }<{ ws_large }1.2.3{ ws_large }|.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_comparator=>create( c )->value
+      exp = '<1.2.3' ).
 
   ENDMETHOD.
 ENDCLASS.
