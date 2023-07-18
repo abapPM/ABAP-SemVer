@@ -403,7 +403,7 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     DATA(safe_regex_replacements) = VALUE ty_regex_replacements(
       ( token = `\s`               max = 1 )
-      ( token = `\d`               max = zif_semver_constants=>max_safe_component_length )
+      ( token = `\d`               max = zif_semver_constants=>max_length )
       ( token = letter_dash_number max = zif_semver_constants=>max_safe_build_length ) ).
 
     result = value.

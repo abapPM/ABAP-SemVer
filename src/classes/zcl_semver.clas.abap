@@ -397,7 +397,7 @@ CLASS zcl_semver IMPLEMENTATION.
             IF zcl_semver_utils=>is_numeric( prerelease[ i ] ).
               prerelease[ i ] += 1.
               prerelease[ i ] = condense( prerelease[ i ] ).
-              i = 0.
+              i = -2.
             ENDIF.
             i -= 1.
           ENDWHILE.
@@ -427,7 +427,9 @@ CLASS zcl_semver IMPLEMENTATION.
             prerelease = prerelease_tab.
           ENDIF.
         ENDIF.
-
+      WHEN 'prepush'.
+        " Used by zcl_semver_ranges->min_version
+        INSERT identifier_base INTO TABLE prerelease.
       WHEN OTHERS.
         zcx_semver_error=>raise( |Invalid increment argument { release }| ).
     ENDCASE.

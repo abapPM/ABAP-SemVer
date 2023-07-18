@@ -255,7 +255,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     " map the range to a 2d array of comparators
     LOOP AT ranges ASSIGNING FIELD-SYMBOL(<range>).
-      INSERT parse_range( <range> ) INTO TABLE set.
+      INSERT parse_range( zcl_semver_utils=>trim( <range> ) ) INTO TABLE set.
     ENDLOOP.
 
     " throw out any comparator lists that are empty
@@ -285,10 +285,13 @@ CLASS zcl_semver_range IMPLEMENTATION.
         " if we have any that are *, then the range is just *
         LOOP AT set ASSIGNING <set>.
           IF lines( <set> ) = 1 AND is_any( <set>[ 1 ] ).
-            set = VALUE #( ( <set> ) ).
+            DATA(star) = <set>.
             EXIT.
           ENDIF.
         ENDLOOP.
+        IF star IS NOT INITIAL.
+          set = VALUE #( ( star ) ).
+        ENDIF.
       ENDIF.
 
     ENDIF.

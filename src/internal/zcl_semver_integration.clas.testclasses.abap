@@ -47,11 +47,9 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
       act = zcl_semver_ranges=>valid_range( r )
       exp = '1.2.3 <1.3.0' ).
 
-
-    " TODO
-*    cl_abap_unit_assert=>assert_equals(
-*      act = zcl_semver_ranges=>min_version( r )->version
-*      exp = '1.2.3' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>min_version( r )->version
+      exp = '1.2.3' ).
 
     DATA(t) = VALUE string_table( ( `1.2.3` ) ).
 

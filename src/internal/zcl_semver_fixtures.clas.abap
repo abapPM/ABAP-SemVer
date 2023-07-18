@@ -547,7 +547,9 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( range = '>=1.0.0 <1.1.0' version = '1.1.0' )
       ( range = '>=1.0.0 <1.1.0' version = '1.1.0' incpre = abap_true )
       ( range = '>=1.0.0 <1.1.0' version = '1.1.0-pre' )
-      ( range = '>=1.0.0 <1.1.0-pre' version = '1.1.0-pre' ) ).
+      ( range = '>=1.0.0 <1.1.0-pre' version = '1.1.0-pre' )
+
+      ( range = '== 1.0.0 || foo' version = '2.0.0' loose = abap_true ) ).
 
   ENDMETHOD.
 

@@ -155,10 +155,9 @@ CLASS ltcl_semver_cli IMPLEMENTATION.
       args = '1.2.3.4.5.6 -c'
       out  = |1.2.3\n| ).
 
-* TODO: rtl
-*    test(
-*      args = '1.2.3.4.5.6 -c --rtl'
-*      out  = |4.5.6\n| ).
+    test(
+      args = '1.2.3.4.5.6 -c --rtl'
+      out  = |4.5.6\n| ).
 
     test(
       args = '1.2.3.4.5.6 -c --rtl --ltr'

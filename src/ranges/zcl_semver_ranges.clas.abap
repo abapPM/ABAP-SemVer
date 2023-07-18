@@ -255,19 +255,17 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
         CASE <comparator>->operator.
           WHEN '>'.
             IF compver->prerelease IS INITIAL.
-              " compver->patch++
               compver->inc( 'patch' ).
             ELSE.
-              " compver.prerelease.push(0)
-              compver->inc( release = 'prerelease' identifier = '0' ).
+              compver->inc( release = 'prepush' identifier_base = '0' ).
             ENDIF.
 
-            IF setmin IS NOT INITIAL AND zcl_semver_functions=>gt( a = compver b = setmin ).
+            IF setmin IS INITIAL OR zcl_semver_functions=>gt( a = compver b = setmin ).
               setmin = compver.
             ENDIF.
 
           WHEN '' OR  '>='.
-            IF setmin IS NOT INITIAL AND zcl_semver_functions=>gt( a = compver b = setmin ).
+            IF setmin IS INITIAL OR zcl_semver_functions=>gt( a = compver b = setmin ).
               setmin = compver.
             ENDIF.
 
@@ -401,6 +399,7 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
     DATA minmax TYPE ty_min_max.
     DATA set TYPE ty_set.
     DATA ranges TYPE string_table.
+    DATA original TYPE string.
 
     IF versions IS INITIAL.
       zcx_semver_error=>raise( 'Empty version list' ).
@@ -449,7 +448,14 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
     ENDLOOP.
 
     DATA(simplified) = concat_lines_of( table = ranges sep = ' || ' ).
-    DATA(original) = semrange->to_string( ).
+
+    DATA(kind) = cl_abap_typedescr=>describe_by_data( range )->type_kind.
+
+    IF kind = cl_abap_typedescr=>typekind_char OR kind = cl_abap_typedescr=>typekind_string.
+      original = range.
+    ELSE.
+      original = semrange->to_string( ).
+    ENDIF.
 
     IF strlen( simplified ) < strlen( original ).
       result = simplified.
@@ -497,7 +503,7 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
     "     - If no C has a prerelease and the LT.semver tuple, return false
     " - Else return true
 
-* https://github.com/npm/node-semver/blob/main/ranges/subset.js
+    " https://github.com/npm/node-semver/blob/main/ranges/subset.js
     zcx_semver_error=>raise( 'TODO' ).
 
   ENDMETHOD.

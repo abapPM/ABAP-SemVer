@@ -364,7 +364,7 @@ CLASS zcl_semver_functions IMPLEMENTATION.
         <match>-offset = offset.
         <match>-length = strlen( |{ major }{ COND #( WHEN minor IS NOT INITIAL THEN '.' && minor ) }{ COND #( WHEN patch IS NOT INITIAL THEN '.' && patch ) }| ).
         <match>-endpos = <match>-offset + <match>-length.
-        FIND '.' IN version+offset(*) MATCH OFFSET DATA(next_offset).
+        FIND REGEX '^\d' IN version+offset(*) MATCH OFFSET DATA(next_offset).
         offset += next_offset + 1.
         IF offset >= strlen( version ).
           EXIT.

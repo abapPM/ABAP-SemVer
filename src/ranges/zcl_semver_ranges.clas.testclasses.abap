@@ -270,98 +270,251 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
     DATA(tests) = VALUE ty_tests(
       " Stars
-      ( range = '*' min = '0.0.0' ) ).
+      ( range = '*' min = '0.0.0' )
+      ( range = '* || >=2' min = '0.0.0' )
+      ( range = '>=2 || *' min = '0.0.0' )
+      ( range = '>2 || *' min = '0.0.0' )
 
-    " TODO
-*      ( range = '* || >=2' min = '0.0.0' )
-*      ( range = '>=2 || *' min = '0.0.0' )
-*      ( range = '>2 || *' min = '0.0.0' )
-*
-*      " equal
-*      ( range = '1.0.0' min = '1.0.0' )
-*      ( range = '1.0' min = '1.0.0' )
-*      ( range = '1.0.x' min = '1.0.0' )
-*      ( range = '1.0.*' min = '1.0.0' )
-*      ( range = '1' min = '1.0.0' )
-*      ( range = '1.x.x' min = '1.0.0' )
-*      ( range = '1.x.x' min = '1.0.0' )
-*      ( range = '1.*.x' min = '1.0.0' )
-*      ( range = '1.x.*' min = '1.0.0' )
-*      ( range = '1.x' min = '1.0.0' )
-*      ( range = '1.*' min = '1.0.0' )
-*      ( range = '=1.0.0' min = '1.0.0' )
-*
-*      " Tilde
-*      ( range = '~1.1.1' min = '1.1.1' )
-*      ( range = '~1.1.1-beta' min = '1.1.1-beta' )
-*      ( range = '~1.1.1 || >=2' min = '1.1.1' )
-*
-*      " Carot
-*      ( range = '^1.1.1' min = '1.1.1' )
-*      ( range = '^1.1.1-beta' min = '1.1.1-beta' )
-*      ( range = '^1.1.1 || >=2' min = '1.1.1' )
-*      ( range = '^2.16.2 ^2.16' min = '2.16.2' )
-*
-*      " '-' operator
-*      ( range = '1.1.1 - 1.8.0' min = '1.1.1' )
-*      ( range = '1.1 - 1.8.0' min = '1.1.0' )
-*
-*      " Less / less or equal
-*      ( range = '<2' min = '0.0.0' )
-*      ( range = '<0.0.0-beta' min = '0.0.0-0' )
-*      ( range = '<0.0.1-beta' min = '0.0.0' )
-*      ( range = '<2 || >4' min = '0.0.0' )
-*      ( range = '>4 || <2' min = '0.0.0' )
-*      ( range = '<=2 || >=4' min = '0.0.0' )
-*      ( range = '>=4 || <=2' min = '0.0.0' )
-*      ( range = '<0.0.0-beta >0.0.0-alpha' min = '0.0.0-alpha.0' )
-*      ( range = '>0.0.0-alpha <0.0.0-beta' min = '0.0.0-alpha.0' )
-*
-*      " Greater than or equal
-*      ( range = '>=1.1.1 <2 || >=2.2.2 <2' min = '1.1.1' )
-*      ( range = '>=2.2.2 <2 || >=1.1.1 <2' min = '1.1.1' )
-*
-*      " Greater than but not equal
-*      ( range = '>1.0.0' min = '1.0.1' )
-*      ( range = '>1.0.0-0' min = '1.0.0-0.0' )
-*      ( range = '>1.0.0-beta' min = '1.0.0-beta.0' )
-*      ( range = '>2 || >1.0.0' min = '1.0.1' )
-*      ( range = '>2 || >1.0.0-0' min = '1.0.0-0.0' )
-*      ( range = '>2 || >1.0.0-beta' min = '1.0.0-beta.0' )
-*
-*      " Impossible range
-*      ( range = '>4 <3' min = '' ) ).
+      " Equal
+      ( range = '1.0.0' min = '1.0.0' )
+      ( range = '1.0' min = '1.0.0' )
+      ( range = '1.0.x' min = '1.0.0' )
+      ( range = '1.0.*' min = '1.0.0' )
+      ( range = '1' min = '1.0.0' )
+      ( range = '1.x.x' min = '1.0.0' )
+      ( range = '1.x.x' min = '1.0.0' )
+      ( range = '1.*.x' min = '1.0.0' )
+      ( range = '1.x.*' min = '1.0.0' )
+      ( range = '1.x' min = '1.0.0' )
+      ( range = '1.*' min = '1.0.0' )
+      ( range = '=1.0.0' min = '1.0.0' )
+
+      " Tilde
+      ( range = '~1.1.1' min = '1.1.1' )
+      ( range = '~1.1.1-beta' min = '1.1.1-beta' )
+      ( range = '~1.1.1 || >=2' min = '1.1.1' )
+
+      " Carot
+      ( range = '^1.1.1' min = '1.1.1' )
+      ( range = '^1.1.1-beta' min = '1.1.1-beta' )
+      ( range = '^1.1.1 || >=2' min = '1.1.1' )
+      ( range = '^2.16.2 ^2.16' min = '2.16.2' )
+
+      " '-' operator
+      ( range = '1.1.1 - 1.8.0' min = '1.1.1' )
+      ( range = '1.1 - 1.8.0' min = '1.1.0' )
+
+      " Less / less or equal
+      ( range = '<2' min = '0.0.0' )
+      ( range = '<0.0.0-beta' min = '0.0.0-0' )
+      ( range = '<0.0.1-beta' min = '0.0.0' )
+      ( range = '<2 || >4' min = '0.0.0' )
+      ( range = '>4 || <2' min = '0.0.0' )
+      ( range = '<=2 || >=4' min = '0.0.0' )
+      ( range = '>=4 || <=2' min = '0.0.0' )
+      ( range = '<0.0.0-beta >0.0.0-alpha' min = '0.0.0-alpha.0' )
+      ( range = '>0.0.0-alpha <0.0.0-beta' min = '0.0.0-alpha.0' )
+
+      " Greater than or equal
+      ( range = '>=1.1.1 <2 || >=2.2.2 <2' min = '1.1.1' )
+      ( range = '>=2.2.2 <2 || >=1.1.1 <2' min = '1.1.1' )
+
+      " Greater than but not equal
+      ( range = '>1.0.0' min = '1.0.1' )
+      ( range = '>1.0.0-0' min = '1.0.0-0.0' )
+      ( range = '>1.0.0-beta' min = '1.0.0-beta.0' )
+      ( range = '>2 || >1.0.0' min = '1.0.1' )
+      ( range = '>2 || >1.0.0-0' min = '1.0.0-0.0' )
+      ( range = '>2 || >1.0.0-beta' min = '1.0.0-beta.0' )
+
+      " Impossible range
+      ( range = '>4 <3' min = '' ) ).
 
     LOOP AT tests INTO DATA(test).
       DATA(act) = zcl_semver_ranges=>min_version( range = test-range loose = test-loose ).
 
-      cl_abap_unit_assert=>assert_bound(
-        act = act
-        msg = |{ test-range } { test-min }| ).
+      IF test-min IS INITIAL.
+        cl_abap_unit_assert=>assert_not_bound(
+          act = act
+          msg = |{ test-range }| ).
+      ELSE.
+        cl_abap_unit_assert=>assert_bound(
+          act = act
+          msg = |{ test-range } { test-min }| ).
 
-      cl_abap_unit_assert=>assert_equals(
-        act = act->version
-        exp = test-min
-        msg = |{ test-range } { test-min }| ).
+        cl_abap_unit_assert=>assert_equals(
+          act = act->version
+          exp = test-min
+          msg = |{ test-range } { test-min }| ).
+      ENDIF.
     ENDLOOP.
 
   ENDMETHOD.
 
-  METHOD outside ##TODO.
+  METHOD outside.
 
-    " https://github.com/npm/node-semver/blob/main/test/ranges/outside.js
+    " Version should be greater than range
+    LOOP AT zcl_semver_fixtures=>version_gt_range( ) INTO DATA(version_gt_range).
+      DATA(msg) = |{ version_gt_range-range } { version_gt_range-version } { version_gt_range-loose }|.
+      DATA(act) = zcl_semver_ranges=>outside(
+        version = version_gt_range-version
+        range   = version_gt_range-range
+        hilo    = '>'
+        loose   = version_gt_range-loose ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = act
+        exp = abap_true
+        msg = msg ).
+    ENDLOOP.
+
+    " Version should be less than range
+    LOOP AT zcl_semver_fixtures=>version_lt_range( ) INTO DATA(version_lt_range).
+      msg = |{ version_lt_range-range } { version_lt_range-version } { version_lt_range-loose }|.
+      act = zcl_semver_ranges=>outside(
+        version = version_lt_range-version
+        range   = version_lt_range-range
+        hilo    = '<'
+        loose   = version_lt_range-loose ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = act
+        exp = abap_true
+        msg = msg ).
+    ENDLOOP.
+
+    " Negative greater than test
+    LOOP AT zcl_semver_fixtures=>version_not_gt_range( ) INTO DATA(version_not_gt_range).
+      msg = |{ version_not_gt_range-range } { version_not_gt_range-version } |
+         && |{ version_not_gt_range-loose } { version_not_gt_range-incpre }|.
+      act = zcl_semver_ranges=>outside(
+        version = version_not_gt_range-version
+        range   = version_not_gt_range-range
+        hilo    = '>'
+        loose   = version_not_gt_range-loose
+        incpre  = version_not_gt_range-incpre ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = act
+        exp = abap_false
+        msg = msg ).
+    ENDLOOP.
+
+    " Negative less than test
+    LOOP AT zcl_semver_fixtures=>version_not_lt_range( ) INTO DATA(version_not_lt_range).
+      msg = |{ version_not_lt_range-range } { version_not_lt_range-version } |
+         && |{ version_not_lt_range-loose } { version_not_lt_range-incpre }|.
+      act = zcl_semver_ranges=>outside(
+        version = version_not_lt_range-version
+        range   = version_not_lt_range-range
+        hilo    = '<'
+        loose   = version_not_lt_range-loose
+        incpre  = version_not_lt_range-incpre ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = act
+        exp = abap_false
+        msg = msg ).
+    ENDLOOP.
+
+    " outside with bad hilo throws
+    TRY.
+        act = zcl_semver_ranges=>outside(
+          version = '1.2.3'
+          range   = '>1.5.0'
+          hilo    = 'x' ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH zcx_semver_error INTO DATA(error).
+        cl_abap_unit_assert=>assert_equals(
+          act = error->get_text( )
+          exp = 'Must provide a hilo val of "<" or ">"' ).
+    ENDTRY.
 
   ENDMETHOD.
 
-  METHOD simplify ##TODO.
+  METHOD simplify.
 
-    " https://github.com/npm/node-semver/blob/main/test/ranges/simplify.js
+    DATA(versions) = VALUE string_table(
+      ( `1.0.0` )
+      ( `1.0.1` )
+      ( `1.0.2` )
+      ( `1.0.3` )
+      ( `1.0.4` )
+      ( `1.1.0` )
+      ( `1.1.1` )
+      ( `1.1.2` )
+      ( `1.2.0` )
+      ( `1.2.1` )
+      ( `1.2.2` )
+      ( `1.2.3` )
+      ( `1.2.4` )
+      ( `1.2.5` )
+      ( `2.0.0` )
+      ( `2.0.1` )
+      ( `2.1.0` )
+      ( `2.1.1` )
+      ( `2.1.2` )
+      ( `2.2.0` )
+      ( `2.2.1` )
+      ( `2.2.2` )
+      ( `2.3.0` )
+      ( `2.3.1` )
+      ( `2.4.0` )
+      ( `3.0.0` )
+      ( `3.1.0` )
+      ( `3.2.0` )
+      ( `3.3.0` ) ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>simplify(
+              versions = versions
+              range    = '1.x' )
+      exp = '1.x' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>simplify(
+              versions = versions
+              range    = '1.0.0 || 1.0.1 || 1.0.2 || 1.0.3 || 1.0.4' )
+      exp = '<=1.0.4' ).
+
+    DATA(range) = zcl_semver_range=>create( '1.0.0 || 1.0.1 || 1.0.2 || 1.0.3 || 1.0.4' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>simplify(
+              versions = versions
+              range    = range )
+      exp = '<=1.0.4' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>simplify(
+              versions = versions
+              range    = '>=3.0.0 <3.1.0' )
+      exp = '3.0.0' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>simplify(
+              versions = versions
+              range    = '3.0.0 || 3.1 || 3.2 || 3.3' )
+      exp = '>=3.0.0' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>simplify(
+              versions = versions
+              range    = '1 || 2 || 3' )
+      exp = '*' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_ranges=>simplify(
+              versions = versions
+              range    = '2.1 || 2.2 || 2.3' )
+      exp = '2.1.0 - 2.3.1' ).
 
   ENDMETHOD.
 
   METHOD subset.
 
-    " TODO (method not implemented yet)
+    " Method is not implemented yet
+    " https://github.com/npm/node-semver/blob/main/test/ranges/subset.js
 
   ENDMETHOD.
 

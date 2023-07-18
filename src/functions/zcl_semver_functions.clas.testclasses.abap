@@ -302,7 +302,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
     tests = VALUE #(
       ( version = '1.2.3.4.5.6' res = '4.5.6' )
-      " TODO: ( version = '1.2.3/a/b/c/2.3.4' res = '2.3.4' )
+      ( version = '1.2.3/a/b/c/2.3.4' res = '2.3.4' )
       ( version = '1.2.3.4.5/6' res = '6.0.0' )
       ( version = '1.2.3.4./6' res = '6.0.0' )
       ( version = '1.2.3.4/6' res = '6.0.0' )
@@ -1166,6 +1166,20 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       act = zcl_semver_functions=>valid( version = '4.2.0foo' loose = abap_true )
       exp = '4.2.0-foo'
       msg = 'looseness as an option' ).
+
+    DATA(mx) = zif_semver_constants=>max_safe_integer.
+
+    DATA(long_build)    = '-928490632884417731e7af463c92b034d6a78268fc993bcb88a57944'.
+    DATA(short_version) = '1.1.1'.
+    DATA(long_version)  = |{ mx }.{ mx }.{ mx }|.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>valid( short_version && long_build )
+      exp = short_version && long_build ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = zcl_semver_functions=>valid( long_version && long_build )
+      exp = long_version && long_build ).
 
   ENDMETHOD.
 
