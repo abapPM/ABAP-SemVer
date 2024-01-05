@@ -60,7 +60,8 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( range = '>1.2.3' version = '' )
       ( range = '~1.2.3' version = '' )
       ( range = '<=1.2.3' version = '' )
-      ( range = '1.2.x' version = '' ) ).
+      ( range = '1.2.x' version = '' )
+      ( range = '0.12.0-dev.1150+3c22cecee' version = '0.12.0-dev.1150' ) ).
 
     LOOP AT tests INTO DATA(test).
       cl_abap_unit_assert=>assert_equals(
