@@ -42,7 +42,10 @@ CLASS zcl_semver_re DEFINITION
         caretloose                TYPE ty_token,
         carettrim                 TYPE ty_token,
         coerce                    TYPE ty_token,
+        coercefull                TYPE ty_token,
+        coerceplain               TYPE ty_token,
         coercertl                 TYPE ty_token,
+        coercertlfull             TYPE ty_token,
         comparator                TYPE ty_token,
         comparatorloose           TYPE ty_token,
         comparatortrim            TYPE ty_token,
@@ -266,14 +269,26 @@ CLASS zcl_semver_re IMPLEMENTATION.
     " Extract anything that could conceivably be a part of a valid semver
 
     create_token(
-      name  = 'COERCE'
+      name  = 'COERCEPLAIN'
       value = |(^\|[^\\d])(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\})| &&
               |(?:\\.(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\}))?| &&
-              |(?:\\.(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\}))?| &&
+              |(?:\\.(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\}))?| ).
+    create_token(
+      name  = 'COERCE'
+      value = |{ token-coerceplain-src }(?:$\|[^\\d])| ).
+    create_token(
+      name  = 'COERCEFULL'
+      value = |{ token-coerceplain-src }| &&
+              |(?:{ token-prerelease-src })?| &&
+              |(?:{ token-build-src })?| &&
               |(?:$\|[^\\d])| ).
     create_token(
       name  = 'COERCERTL'
       value = token-coerce-src
+      is_global = abap_true ).
+    create_token(
+      name  = 'COERCERTLFULL'
+      value = token-coercefull-src
       is_global = abap_true ).
 
     " Tilde ranges.

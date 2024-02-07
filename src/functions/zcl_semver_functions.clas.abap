@@ -325,25 +325,27 @@ CLASS zcl_semver_functions IMPLEMENTATION.
 
     TYPES:
       BEGIN OF ty_match,
-        major  TYPE string,
-        minor  TYPE string,
-        patch  TYPE string,
-        offset TYPE i,
-        length TYPE i,
-        endpos TYPE i,
+        major      TYPE string,
+        minor      TYPE string,
+        patch      TYPE string,
+        prerelease TYPE string,
+        build      TYPE string,
+        offset     TYPE i,
+        length     TYPE i,
+        endpos     TYPE i,
       END OF ty_match.
 
     DATA matches TYPE STANDARD TABLE OF ty_match.
 
     " cl_abap_matcher has a problem with '1.2.3.4.5.6' so we use FIND REGEX
 
-    DATA(r) = COND #(
-      WHEN rtl = abap_true
-      THEN zcl_semver_re=>token-coercertl-safe_src
-      ELSE zcl_semver_re=>token-coerce-safe_src ).
-
     IF rtl = abap_false.
-      FIND REGEX r IN version SUBMATCHES DATA(rest) DATA(major) DATA(minor) DATA(patch).
+      DATA(r) = COND #(
+        WHEN incpre = abap_true
+        THEN zcl_semver_re=>token-coercefull-safe_src
+        ELSE zcl_semver_re=>token-coerce-safe_src ).
+
+      FIND REGEX r IN version SUBMATCHES DATA(rest) DATA(major) DATA(minor) DATA(patch) DATA(prerelease) DATA(build).
       IF sy-subrc <> 0.
         RETURN.
       ENDIF.
@@ -351,18 +353,32 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       " Find the right-most coercible string that does not share
       " a terminus with a more left-ward coercible string.
       " Eg, '1.2.3.4' wants to coerce '2.3.4', not '3.4' or '4'
+      r = COND #(
+        WHEN incpre = abap_true
+        THEN zcl_semver_re=>token-coercertlfull-safe_src
+        ELSE zcl_semver_re=>token-coercertl-safe_src ).
+
       DATA(offset) = 0.
       DO.
-        FIND REGEX r IN version+offset(*) SUBMATCHES rest major minor patch.
+        FIND REGEX r IN version+offset(*) SUBMATCHES rest major minor patch prerelease build.
         IF sy-subrc <> 0.
           EXIT.
         ENDIF.
         INSERT INITIAL LINE INTO TABLE matches ASSIGNING FIELD-SYMBOL(<match>).
-        <match>-major  = major.
-        <match>-minor  = minor.
-        <match>-patch  = patch.
+        <match>-major      = major.
+        <match>-minor      = minor.
+        <match>-patch      = patch.
+        <match>-prerelease = prerelease.
+        <match>-build      = build.
+
+        DATA(match) = |{ major }|
+             && |{ COND #( WHEN minor IS NOT INITIAL THEN '.' && minor ) }|
+             && |{ COND #( WHEN patch IS NOT INITIAL THEN '.' && patch ) }|
+             && |{ COND #( WHEN prerelease IS NOT INITIAL THEN '-' && prerelease ) }|
+             && |{ COND #( WHEN build IS NOT INITIAL THEN '+' && build ) }|.
+
         <match>-offset = offset.
-        <match>-length = strlen( |{ major }{ COND #( WHEN minor IS NOT INITIAL THEN '.' && minor ) }{ COND #( WHEN patch IS NOT INITIAL THEN '.' && patch ) }| ).
+        <match>-length = strlen( match ).
         <match>-endpos = <match>-offset + <match>-length.
         FIND REGEX '^\d' IN version+offset(*) MATCH OFFSET DATA(next_offset).
         offset += next_offset + 1.
@@ -375,9 +391,11 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       IF sy-subrc <> 0.
         EXIT.
       ENDIF.
-      major = <match>-major.
-      minor = <match>-minor.
-      patch = <match>-patch.
+      major      = <match>-major.
+      minor      = <match>-minor.
+      patch      = <match>-patch.
+      prerelease = <match>-prerelease.
+      build      = <match>-build.
     ENDIF.
 
     IF minor IS INITIAL.
@@ -388,7 +406,19 @@ CLASS zcl_semver_functions IMPLEMENTATION.
       patch = '0'.
     ENDIF.
 
-    result = parse( version = |{ major }.{ minor }.{ patch }| loose = loose incpre = incpre ).
+    IF incpre = abap_true AND prerelease IS NOT INITIAL.
+      prerelease = |-{ prerelease }|.
+    ELSE.
+      prerelease = ''.
+    ENDIF.
+
+    IF incpre = abap_true AND build IS NOT INITIAL.
+      build = |+{ build }|.
+    ELSE.
+      build = ''.
+    ENDIF.
+
+    result = parse( version = |{ major }.{ minor }.{ patch }{ prerelease }{ build }| loose = loose incpre = incpre ).
 
   ENDMETHOD.
 

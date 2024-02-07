@@ -7,12 +7,12 @@ INTERFACE zif_semver_constants PUBLIC.
 * ABAP Port by Marc Bernard <https://marcbernardtools.com/>
 * SPDX-License-Identifier: ISC
 ************************************************************************
-* Based on node semver package v7.5.4 (July 2023)
-* https://github.com/npm/node-semver/releases/tag/v7.5.4
+* Based on node semver package v7.6.0 (January 2024)
+* https://github.com/npm/node-semver/releases/tag/v7.6.0
 ************************************************************************
 
   " Package version
-  CONSTANTS version TYPE string VALUE '7.5.4' ##NEEDED.
+  CONSTANTS version TYPE string VALUE '7.6.0' ##NEEDED.
 
   " Note: this is the semver.org version of the spec that it implements
   " Not necessarily the package version of this code.

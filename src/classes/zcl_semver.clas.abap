@@ -110,9 +110,9 @@ CLASS zcl_semver IMPLEMENTATION.
     IF semver->version = version.
       result = 0.
     ELSE.
-      result = compare_main( other ).
+      result = compare_main( semver ).
       IF result = 0.
-        result = compare_pre( other ).
+        result = compare_pre( semver ).
       ENDIF.
     ENDIF.
 

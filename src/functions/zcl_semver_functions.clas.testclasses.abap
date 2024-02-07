@@ -18,7 +18,9 @@ CLASS ltcl_semver_functions DEFINITION FOR TESTING RISK LEVEL HARMLESS
       cmp_equality FOR TESTING RAISING zcx_semver_error,
       coerce_to_null FOR TESTING RAISING zcx_semver_error,
       coerce_to_valid FOR TESTING RAISING zcx_semver_error,
+      coerce_to_valid_incpre FOR TESTING RAISING zcx_semver_error,
       coerce_rtl FOR TESTING RAISING zcx_semver_error,
+      coerce_rtl_incpre FOR TESTING RAISING zcx_semver_error,
       compare FOR TESTING RAISING zcx_semver_error,
       compare_build FOR TESTING RAISING zcx_semver_error,
       compare_loose FOR TESTING RAISING zcx_semver_error,
@@ -60,8 +62,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( range = '>1.2.3' version = '' )
       ( range = '~1.2.3' version = '' )
       ( range = '<=1.2.3' version = '' )
-      ( range = '1.2.x' version = '' )
-      ( range = '0.12.0-dev.1150+3c22cecee' version = '0.12.0-dev.1150' ) ).
+      ( range = '1.2.x' version = '' ) ).
 
     LOOP AT tests INTO DATA(test).
       cl_abap_unit_assert=>assert_equals(
@@ -278,15 +279,70 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
     LOOP AT tests INTO DATA(test).
       DATA(semver) = zcl_semver_functions=>coerce( test-version ).
+      DATA(expected) = zcl_semver_functions=>parse( test-res ).
 
       cl_abap_unit_assert=>assert_bound(
         act = semver
         msg = |{ test-version } { test-res }| ).
 
       cl_abap_unit_assert=>assert_equals(
-        act = semver->version
-        exp = test-res
+        act = expected->compare( semver )
+        exp = 0
+        msg = |{ test-version } should be equal to { test-res }| ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = expected->compare_build( semver )
+        exp = 0
+        msg = |{ test-version } build should be equal to { test-res }| ).
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD coerce_to_valid_incpre.
+
+    TYPES:
+      BEGIN OF ty_test,
+        version TYPE string,
+        res     TYPE string,
+      END OF ty_test.
+
+    DATA tests TYPE TABLE OF ty_test.
+
+    tests = VALUE #(
+      ( version = '1-rc.5' res = '1.0.0-rc.5' )
+      ( version = '1.2-rc.5' res = '1.2.0-rc.5' )
+      ( version = '1.2.3-rc.5' res = '1.2.3-rc.5' )
+      ( version = '1.2.3-rc.5/a' res = '1.2.3-rc.5' )
+      ( version = '1.2.3.4-rc.5' res = '1.2.3' )
+      ( version = '1.2.3.4+rev.6' res = '1.2.3' )
+      ( version = '1+rev.6' res = '1.0.0+rev.6' )
+      ( version = '1.2+rev.6' res = '1.2.0+rev.6' )
+      ( version = '1.2.3+rev.6' res = '1.2.3+rev.6' )
+      ( version = '1.2.3+rev.6/a' res = '1.2.3+rev.6' )
+      ( version = '1.2.3.4-rc.5' res = '1.2.3' )
+      ( version = '1.2.3.4+rev.6' res = '1.2.3' )
+      ( version = '1-rc.5+rev.6' res = '1.0.0-rc.5+rev.6' )
+      ( version = '1.2-rc.5+rev.6' res = '1.2.0-rc.5+rev.6' )
+      ( version = '1.2.3-rc.5+rev.6' res = '1.2.3-rc.5+rev.6' )
+      ( version = '1.2.3-rc.5+rev.6/a' res = '1.2.3-rc.5+rev.6' ) ).
+
+    LOOP AT tests INTO DATA(test).
+      DATA(semver) = zcl_semver_functions=>coerce( version = test-version incpre = abap_true ).
+      DATA(expected) = zcl_semver_functions=>parse( version = test-res incpre = abap_true ).
+
+      cl_abap_unit_assert=>assert_bound(
+        act = semver
         msg = |{ test-version } { test-res }| ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = expected->compare( semver )
+        exp = 0
+        msg = |{ test-version } should be equal to { test-res }| ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = expected->compare_build( semver )
+        exp = 0
+        msg = |{ test-version } build should be equal to { test-res }| ).
     ENDLOOP.
 
   ENDMETHOD.
@@ -314,15 +370,62 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
     LOOP AT tests INTO DATA(test).
       DATA(semver) = zcl_semver_functions=>coerce( version = test-version rtl = abap_true ).
+      DATA(expected) = zcl_semver_functions=>parse( version = test-res ).
 
       cl_abap_unit_assert=>assert_bound(
         act = semver
         msg = |{ test-version } { test-res }| ).
 
       cl_abap_unit_assert=>assert_equals(
-        act = semver->version
-        exp = test-res
+        act = expected->compare( semver )
+        exp = 0
+        msg = |{ test-version } should be equal to { test-res }| ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = expected->compare_build( semver )
+        exp = 0
+        msg = |{ test-version } build should be equal to { test-res }| ).
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD coerce_rtl_incpre.
+
+    TYPES:
+      BEGIN OF ty_test,
+        version TYPE string,
+        res     TYPE string,
+      END OF ty_test.
+
+    DATA tests TYPE TABLE OF ty_test.
+
+    tests = VALUE #(
+      ( version = '1.2-rc.5+rev.6' res = '1.2.0-rc.5+rev.6' )
+      ( version = '1.2.3-rc.5+rev.6' res = '1.2.3-rc.5+rev.6' )
+      ( version = '1.2.3.4-rc.5+rev.6' res = '2.3.4-rc.5+rev.6' )
+      ( version = '1.2.3.4-rc.5' res = '2.3.4-rc.5' )
+      ( version = '1.2.3.4+rev.6' res = '2.3.4+rev.6' )
+      ( version = '1.2.3.4-rc.5+rev.6/7' res = '7.0.0' )
+      ( version = '1.2.3.4-rc/7.5+rev.6' res = '7.5.0+rev.6' )
+      ( version = '1.2.3.4/7-rc.5+rev.6' res = '7.0.0-rc.5+rev.6' ) ).
+
+    LOOP AT tests INTO DATA(test).
+      DATA(semver) = zcl_semver_functions=>coerce( version = test-version rtl = abap_true incpre = abap_true ).
+      DATA(expected) = zcl_semver_functions=>parse( version = test-res incpre = abap_true ).
+
+      cl_abap_unit_assert=>assert_bound(
+        act = semver
         msg = |{ test-version } { test-res }| ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = expected->compare( semver )
+        exp = 0
+        msg = |{ test-version } should be equal to { test-res }| ).
+
+      cl_abap_unit_assert=>assert_equals(
+        act = expected->compare_build( semver )
+        exp = 0
+        msg = |{ test-version } build should be equal to { test-res }| ).
     ENDLOOP.
 
   ENDMETHOD.
