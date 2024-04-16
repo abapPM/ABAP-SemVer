@@ -64,6 +64,7 @@ CLASS zcl_semver_comparator DEFINITION
       RAISING
         zcx_semver_error.
 
+  PROTECTED SECTION.
   PRIVATE SECTION.
 
     DATA options TYPE zif_semver_options=>ty_options.
