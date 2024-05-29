@@ -1,4 +1,4 @@
-CLASS zcl_semver_functions DEFINITION
+CLASS zcl_semver_funct DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
@@ -13,9 +13,9 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS clean
       IMPORTING
-        version       TYPE string
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !version      TYPE string
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string
       RAISING
@@ -23,11 +23,11 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS cmp
       IMPORTING
-        a             TYPE any
-        op            TYPE string
-        b             TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !op           TYPE string
+        !b            TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -35,10 +35,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS coerce
       IMPORTING
-        version       TYPE string
-        rtl           TYPE abap_bool DEFAULT abap_false
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !version      TYPE string
+        !rtl          TYPE abap_bool DEFAULT abap_false
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE REF TO zcl_semver
       RAISING
@@ -46,10 +46,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS compare
       IMPORTING
-        a             TYPE any
-        b             TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !b            TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -57,10 +57,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS compare_build
       IMPORTING
-        a             TYPE any
-        b             TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !b            TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -68,9 +68,9 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS compare_loose
       IMPORTING
-        a             TYPE any
-        b             TYPE any
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !b            TYPE any
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -78,8 +78,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS diff
       IMPORTING
-        version_1     TYPE any
-        version_2     TYPE any
+        !version_1    TYPE any
+        !version_2    TYPE any
       RETURNING
         VALUE(result) TYPE string
       RAISING
@@ -87,10 +87,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS eq
       IMPORTING
-        a             TYPE any
-        b             TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !b            TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -98,10 +98,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS gt
       IMPORTING
-        a             TYPE any
-        b             TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !b            TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -109,10 +109,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS gte
       IMPORTING
-        a             TYPE any
-        b             TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !b            TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -120,21 +120,21 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS inc
       IMPORTING
-        version         TYPE any
-        release         TYPE string
-        identifier      TYPE string OPTIONAL
-        identifier_base TYPE string OPTIONAL
-        loose           TYPE abap_bool DEFAULT abap_false
-        incpre          TYPE abap_bool DEFAULT abap_false
+        !version         TYPE any
+        !release         TYPE string
+        !identifier      TYPE string OPTIONAL
+        !identifier_base TYPE string OPTIONAL
+        !loose           TYPE abap_bool DEFAULT abap_false
+        !incpre          TYPE abap_bool DEFAULT abap_false
       RETURNING
-        VALUE(result)   TYPE REF TO zcl_semver.
+        VALUE(result)    TYPE REF TO zcl_semver.
 
     CLASS-METHODS lt
       IMPORTING
-        a             TYPE any
-        b             TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !b            TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -142,10 +142,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS lte
       IMPORTING
-        a             TYPE any
-        b             TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !b            TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -153,8 +153,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS major
       IMPORTING
-        version       TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
+        !version      TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -162,8 +162,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS minor
       IMPORTING
-        version       TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
+        !version      TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -171,10 +171,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS neq
       IMPORTING
-        a             TYPE any
-        b             TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !b            TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -182,10 +182,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS parse
       IMPORTING
-        version       TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
-        throw_errors  TYPE abap_bool DEFAULT abap_false
+        !version      TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
+        !throw_errors TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE REF TO zcl_semver
       RAISING
@@ -193,8 +193,8 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS patch
       IMPORTING
-        version       TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
+        !version      TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -202,9 +202,9 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS prerelease
       IMPORTING
-        version       TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !version      TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string_table
       RAISING
@@ -212,10 +212,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS rcompare
       IMPORTING
-        a             TYPE any
-        b             TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !a            TYPE any
+        !b            TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE i
       RAISING
@@ -223,9 +223,9 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS rsort
       IMPORTING
-        list          TYPE string_table
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !list         TYPE string_table
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string_table
       RAISING
@@ -233,9 +233,9 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS sort
       IMPORTING
-        list          TYPE string_table
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !list         TYPE string_table
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string_table
       RAISING
@@ -243,10 +243,10 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS satisfies
       IMPORTING
-        version       TYPE any
-        range         TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !version      TYPE any
+        !range        TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -254,9 +254,9 @@ CLASS zcl_semver_functions DEFINITION
 
     CLASS-METHODS valid
       IMPORTING
-        version       TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !version      TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE string.
 
@@ -276,7 +276,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_semver_functions IMPLEMENTATION.
+CLASS zcl_semver_funct IMPLEMENTATION.
 
 
   METHOD clean.

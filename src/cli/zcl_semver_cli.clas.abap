@@ -56,7 +56,7 @@ CLASS zcl_semver_cli IMPLEMENTATION.
   METHOD help.
 
     result = VALUE #(
-      ( |SemVer { zif_semver_constants=>version }| )
+      ( |SemVer { zif_semver_const=>version }| )
       ( `` )
       ( `ABAP implementation of the https://semver.org/ specification` )
       ( `Original JavaScript Copyright Isaac Z. Schlueter` )
@@ -188,7 +188,7 @@ CLASS zcl_semver_cli IMPLEMENTATION.
     LOOP AT versions ASSIGNING FIELD-SYMBOL(<version>).
 
       IF coerce = abap_true.
-        DATA(semver) = zcl_semver_functions=>coerce( version = <version> rtl = rtl ).
+        DATA(semver) = zcl_semver_funct=>coerce( version = <version> rtl = rtl ).
         IF semver IS BOUND.
           <version> = semver->version.
         ELSE.
@@ -197,7 +197,7 @@ CLASS zcl_semver_cli IMPLEMENTATION.
         ENDIF.
       ENDIF.
 
-      IF NOT zcl_semver_functions=>valid( <version> ).
+      IF NOT zcl_semver_funct=>valid( <version> ).
         DELETE versions.
       ENDIF.
 
@@ -214,7 +214,7 @@ CLASS zcl_semver_cli IMPLEMENTATION.
     LOOP AT ranges ASSIGNING FIELD-SYMBOL(<range>).
       LOOP AT versions ASSIGNING <version>.
 
-        IF NOT zcl_semver_functions=>satisfies( version = <version> range = <range> loose = loose incpre = incpre ).
+        IF NOT zcl_semver_funct=>satisfies( version = <version> range = <range> loose = loose incpre = incpre ).
           DELETE versions.
         ENDIF.
 
@@ -233,18 +233,18 @@ CLASS zcl_semver_cli IMPLEMENTATION.
   METHOD success.
 
     IF reverse = abap_true.
-      versions = zcl_semver_functions=>rsort( versions ).
+      versions = zcl_semver_funct=>rsort( versions ).
     ELSE.
-      versions = zcl_semver_functions=>sort( versions ).
+      versions = zcl_semver_funct=>sort( versions ).
     ENDIF.
 
     LOOP AT versions ASSIGNING FIELD-SYMBOL(<version>).
-      <version> = zcl_semver_functions=>clean( version = <version> loose = loose incpre = incpre ).
+      <version> = zcl_semver_funct=>clean( version = <version> loose = loose incpre = incpre ).
     ENDLOOP.
 
     IF inc IS NOT INITIAL.
       LOOP AT versions ASSIGNING <version>.
-        DATA(semver) = zcl_semver_functions=>inc(
+        DATA(semver) = zcl_semver_funct=>inc(
           version         = <version>
           release         = inc
           identifier      = identifier

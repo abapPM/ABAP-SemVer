@@ -1,4 +1,4 @@
-CLASS zcl_semver_fixtures DEFINITION
+CLASS zcl_semver_fixt DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
@@ -20,10 +20,6 @@ CLASS zcl_semver_fixtures DEFINITION
       END OF ty_comparator_intersection,
       ty_comparator_intersections TYPE STANDARD TABLE OF ty_comparator_intersection WITH DEFAULT KEY.
 
-    CLASS-METHODS comparator_intersection
-      RETURNING
-        VALUE(result) TYPE ty_comparator_intersections.
-
     TYPES:
       BEGIN OF ty_comparison,
         v0    TYPE string,
@@ -32,10 +28,6 @@ CLASS zcl_semver_fixtures DEFINITION
       END OF ty_comparison,
       ty_comparisons TYPE STANDARD TABLE OF ty_comparison WITH DEFAULT KEY.
 
-    CLASS-METHODS comparisons
-      RETURNING
-        VALUE(result) TYPE ty_comparisons.
-
     TYPES:
       BEGIN OF ty_equality,
         v0    TYPE string,
@@ -43,10 +35,6 @@ CLASS zcl_semver_fixtures DEFINITION
         loose TYPE abap_bool,
       END OF ty_equality,
       ty_equalitys TYPE STANDARD TABLE OF ty_equality WITH DEFAULT KEY.
-
-    CLASS-METHODS equality
-      RETURNING
-        VALUE(result) TYPE ty_equalitys.
 
     TYPES:
       BEGIN OF ty_increment,
@@ -60,10 +48,6 @@ CLASS zcl_semver_fixtures DEFINITION
       END OF ty_increment,
       ty_increments TYPE STANDARD TABLE OF ty_increment WITH DEFAULT KEY.
 
-    CLASS-METHODS increments
-      RETURNING
-        VALUE(result) TYPE ty_increments.
-
     TYPES:
       BEGIN OF ty_invalid_version,
         value  TYPE string,
@@ -71,10 +55,6 @@ CLASS zcl_semver_fixtures DEFINITION
         loose  TYPE abap_bool,
       END OF ty_invalid_version,
       ty_invalid_versions TYPE STANDARD TABLE OF ty_invalid_version WITH DEFAULT KEY.
-
-    CLASS-METHODS invalid_versions
-      RETURNING
-        VALUE(result) TYPE ty_invalid_versions.
 
     TYPES:
       BEGIN OF ty_range,
@@ -85,14 +65,6 @@ CLASS zcl_semver_fixtures DEFINITION
       END OF ty_range,
       ty_ranges TYPE STANDARD TABLE OF ty_range WITH DEFAULT KEY.
 
-    CLASS-METHODS range_exclude
-      RETURNING
-        VALUE(result) TYPE ty_ranges.
-
-    CLASS-METHODS range_include
-      RETURNING
-        VALUE(result) TYPE ty_ranges.
-
     TYPES:
       BEGIN OF ty_range_intersection,
         r0  TYPE string,
@@ -100,10 +72,6 @@ CLASS zcl_semver_fixtures DEFINITION
         res TYPE abap_bool,
       END OF ty_range_intersection,
       ty_range_intersections TYPE STANDARD TABLE OF ty_range_intersection WITH DEFAULT KEY.
-
-    CLASS-METHODS range_intersection
-      RETURNING
-        VALUE(result) TYPE ty_range_intersections.
 
     TYPES:
       BEGIN OF ty_range_parse,
@@ -114,10 +82,6 @@ CLASS zcl_semver_fixtures DEFINITION
       END OF ty_range_parse,
       ty_range_parses TYPE STANDARD TABLE OF ty_range_parse WITH DEFAULT KEY.
 
-    CLASS-METHODS range_parse
-      RETURNING
-        VALUE(result) TYPE ty_range_parses.
-
     TYPES:
       BEGIN OF ty_version_range,
         range   TYPE string,
@@ -126,6 +90,42 @@ CLASS zcl_semver_fixtures DEFINITION
         incpre  TYPE abap_bool,
       END OF ty_version_range,
       ty_version_ranges TYPE STANDARD TABLE OF ty_version_range WITH DEFAULT KEY.
+
+    CLASS-METHODS comparator_intersection
+      RETURNING
+        VALUE(result) TYPE ty_comparator_intersections.
+
+    CLASS-METHODS comparisons
+      RETURNING
+        VALUE(result) TYPE ty_comparisons.
+
+    CLASS-METHODS equality
+      RETURNING
+        VALUE(result) TYPE ty_equalitys.
+
+    CLASS-METHODS increments
+      RETURNING
+        VALUE(result) TYPE ty_increments.
+
+    CLASS-METHODS invalid_versions
+      RETURNING
+        VALUE(result) TYPE ty_invalid_versions.
+
+    CLASS-METHODS range_exclude
+      RETURNING
+        VALUE(result) TYPE ty_ranges.
+
+    CLASS-METHODS range_include
+      RETURNING
+        VALUE(result) TYPE ty_ranges.
+
+    CLASS-METHODS range_intersection
+      RETURNING
+        VALUE(result) TYPE ty_range_intersections.
+
+    CLASS-METHODS range_parse
+      RETURNING
+        VALUE(result) TYPE ty_range_parses.
 
     CLASS-METHODS version_gt_range
       RETURNING
@@ -142,13 +142,14 @@ CLASS zcl_semver_fixtures DEFINITION
     CLASS-METHODS version_not_lt_range
       RETURNING
         VALUE(result) TYPE ty_version_ranges.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS zcl_semver_fixtures IMPLEMENTATION.
+CLASS zcl_semver_fixt IMPLEMENTATION.
 
 
   METHOD comparator_intersection.
@@ -422,10 +423,10 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
 
     " none of these are semvers
     result = VALUE #(
-      ( value = |{ repeat( val = '1' occ = zif_semver_constants=>max_length ) }.0.0| reason = 'too long' )
-      ( value = |{ zif_semver_constants=>max_safe_integer }0.0.0| reason = 'too big' )
-      ( value = |0.{ zif_semver_constants=>max_safe_integer }0.0| reason = 'too big' )
-      ( value = |0.0.{ zif_semver_constants=>max_safe_integer }0| reason = 'too big' )
+      ( value = |{ repeat( val = '1' occ = zif_semver_const=>max_length ) }.0.0| reason = 'too long' )
+      ( value = |{ zif_semver_const=>max_safe_integer }0.0.0| reason = 'too big' )
+      ( value = |0.{ zif_semver_const=>max_safe_integer }0.0| reason = 'too big' )
+      ( value = |0.0.{ zif_semver_const=>max_safe_integer }0| reason = 'too big' )
       ( value = 'hello, world' reason = 'not a version' )
       ( value = 'hello, world' reason = 'even loose, it''s still junk' loose = abap_true )
       ( value = 'xyz' reason = 'even loose as an opt, same' loose = abap_true )
@@ -837,12 +838,12 @@ CLASS zcl_semver_fixtures IMPLEMENTATION.
       ( range = '>=09090' res = '>=9090.0.0' loose = abap_true )
       ( range = '>=09090-0' res = '' incpre = abap_true )
       ( range = '>=09090-0' res = '' loose = abap_true incpre = abap_true )
-      ( range = |^{ zif_semver_constants=>max_safe_integer }.0.0| res = '' )
-      ( range = |={ zif_semver_constants=>max_safe_integer }.0.0|
-          res = |{ zif_semver_constants=>max_safe_integer }.0.0| )
-      ( range = |^{ zif_semver_constants=>max_safe_integer - 1 }.0.0|
-          res = |>={ zif_semver_constants=>max_safe_integer - 1 }.0.0 | &&
-                |<{ zif_semver_constants=>max_safe_integer }.0.0-0| ) ).
+      ( range = |^{ zif_semver_const=>max_safe_integer }.0.0| res = '' )
+      ( range = |={ zif_semver_const=>max_safe_integer }.0.0|
+          res = |{ zif_semver_const=>max_safe_integer }.0.0| )
+      ( range = |^{ zif_semver_const=>max_safe_integer - 1 }.0.0|
+          res = |>={ zif_semver_const=>max_safe_integer - 1 }.0.0 | &&
+                |<{ zif_semver_const=>max_safe_integer }.0.0-0| ) ).
 
   ENDMETHOD.
 

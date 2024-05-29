@@ -1,4 +1,4 @@
-CLASS ltcl_semver_integration DEFINITION FOR TESTING RISK LEVEL HARMLESS
+CLASS ltcl_semver_integ DEFINITION FOR TESTING RISK LEVEL HARMLESS
   DURATION SHORT FINAL.
 
   PRIVATE SECTION.
@@ -17,7 +17,7 @@ CLASS ltcl_semver_integration DEFINITION FOR TESTING RISK LEVEL HARMLESS
 
 ENDCLASS.
 
-CLASS ltcl_semver_integration IMPLEMENTATION.
+CLASS ltcl_semver_integ IMPLEMENTATION.
 
   METHOD setup.
     ws_medium = repeat(
@@ -117,7 +117,7 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
     DATA(c) = |{ ws_large }<{ ws_large }1.2.3{ ws_large }|.
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_comparator=>create( c )->value
+      act = zcl_semver_compa=>create( c )->value
       exp = '<1.2.3' ).
 
   ENDMETHOD.

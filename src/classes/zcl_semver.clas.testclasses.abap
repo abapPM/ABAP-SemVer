@@ -22,7 +22,7 @@ CLASS ltcl_semver IMPLEMENTATION.
 
   METHOD comparisons.
 
-    LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
+    LOOP AT zcl_semver_fixt=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose }|.
       DATA(s0) = zcl_semver=>create( version = comparison-v0 loose = comparison-loose ).
       DATA(s1) = zcl_semver=>create( version = comparison-v1 loose = comparison-loose ).
@@ -39,7 +39,7 @@ CLASS ltcl_semver IMPLEMENTATION.
 
   METHOD equality.
 
-    LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
+    LOOP AT zcl_semver_fixt=>equality( ) INTO DATA(equality).
       DATA(msg) = |{ equality-v0 } { equality-v1 }|.
       DATA(s0) = zcl_semver=>create( version = equality-v0 loose = equality-loose ).
       DATA(s1) = zcl_semver=>create( version = equality-v1 loose = equality-loose ).
@@ -69,7 +69,7 @@ CLASS ltcl_semver IMPLEMENTATION.
   METHOD invalid_versions.
     " throws when presented with garbage
 
-    LOOP AT zcl_semver_fixtures=>invalid_versions( ) INTO DATA(invalid_version).
+    LOOP AT zcl_semver_fixt=>invalid_versions( ) INTO DATA(invalid_version).
       DATA(msg) = |{ invalid_version-value } { invalid_version-reason }|.
 
       TRY.
@@ -99,7 +99,7 @@ CLASS ltcl_semver IMPLEMENTATION.
   METHOD really_big.
     " test really big numeric prerelease value.
 
-    DATA(s) = zcl_semver=>create( |1.2.3-beta.{ zif_semver_constants=>max_safe_integer }0| ).
+    DATA(s) = zcl_semver=>create( |1.2.3-beta.{ zif_semver_const=>max_safe_integer }0| ).
 
     cl_abap_unit_assert=>assert_equals(
       act = s->prerelease[ 1 ]
@@ -107,13 +107,13 @@ CLASS ltcl_semver IMPLEMENTATION.
 
     cl_abap_unit_assert=>assert_equals(
       act = s->prerelease[ 2 ]
-      exp = |{ zif_semver_constants=>max_safe_integer }0| ).
+      exp = |{ zif_semver_const=>max_safe_integer }0| ).
 
   ENDMETHOD.
 
   METHOD incrementing.
 
-    LOOP AT zcl_semver_fixtures=>increments( ) INTO DATA(increments).
+    LOOP AT zcl_semver_fixt=>increments( ) INTO DATA(increments).
       DATA(msg) = |{ increments-version } { increments-release } { increments-identifier }|.
 
       IF increments-res IS INITIAL.

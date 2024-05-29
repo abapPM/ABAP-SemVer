@@ -23,7 +23,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
   METHOD gtr.
 
     " Version should be greater than range
-    LOOP AT zcl_semver_fixtures=>version_gt_range( ) INTO DATA(version_gt_range).
+    LOOP AT zcl_semver_fixt=>version_gt_range( ) INTO DATA(version_gt_range).
       DATA(msg) = |{ version_gt_range-range } { version_gt_range-version } { version_gt_range-loose }|.
       DATA(act) = zcl_semver_ranges=>gtr(
         range   = version_gt_range-range
@@ -37,7 +37,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     ENDLOOP.
 
     " Version should not be greater than range
-    LOOP AT zcl_semver_fixtures=>version_not_gt_range( ) INTO DATA(version_not_gt_range).
+    LOOP AT zcl_semver_fixt=>version_not_gt_range( ) INTO DATA(version_not_gt_range).
       msg = |{ version_not_gt_range-range } { version_not_gt_range-version } |
          && |{ version_not_gt_range-loose } { version_not_gt_range-incpre }|.
       act = zcl_semver_ranges=>gtr(
@@ -57,11 +57,11 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
   METHOD intersects.
 
     " Intersect comparators
-    LOOP AT zcl_semver_fixtures=>comparator_intersection( ) INTO DATA(comparator_intersection).
+    LOOP AT zcl_semver_fixt=>comparator_intersection( ) INTO DATA(comparator_intersection).
       DATA(msg) = |{ comparator_intersection-c0 } { comparator_intersection-c1 } { comparator_intersection-res }|.
 
-      DATA(comp0) = zcl_semver_comparator=>create( comparator_intersection-c0 ).
-      DATA(comp1) = zcl_semver_comparator=>create( comparator_intersection-c1 ).
+      DATA(comp0) = zcl_semver_compa=>create( comparator_intersection-c0 ).
+      DATA(comp1) = zcl_semver_compa=>create( comparator_intersection-c1 ).
 
       cl_abap_unit_assert=>assert_equals(
         act = zcl_semver_ranges=>intersects( r1 = comp0 r2 = comp1 )
@@ -101,7 +101,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     ENDLOOP.
 
     " Ranges intersect
-    LOOP AT zcl_semver_fixtures=>range_intersection( ) INTO DATA(range_intersection).
+    LOOP AT zcl_semver_fixt=>range_intersection( ) INTO DATA(range_intersection).
       msg = |{ range_intersection-r0 } { range_intersection-r1 } { range_intersection-res }|.
 
       DATA(range0) = zcl_semver_range=>create( range_intersection-r0 ).
@@ -149,7 +149,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
   METHOD ltr.
 
     " Version should be less than range
-    LOOP AT zcl_semver_fixtures=>version_lt_range( ) INTO DATA(version_lt_range).
+    LOOP AT zcl_semver_fixt=>version_lt_range( ) INTO DATA(version_lt_range).
       DATA(msg) = |{ version_lt_range-range } { version_lt_range-version } { version_lt_range-loose }|.
       DATA(act) = zcl_semver_ranges=>ltr(
         range   = version_lt_range-range
@@ -163,7 +163,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     ENDLOOP.
 
     " Version not should be less than range
-    LOOP AT zcl_semver_fixtures=>version_not_lt_range( ) INTO DATA(version_not_lt_range).
+    LOOP AT zcl_semver_fixt=>version_not_lt_range( ) INTO DATA(version_not_lt_range).
       msg = |{ version_not_lt_range-range } { version_not_lt_range-version } |
          && |{ version_not_lt_range-loose } { version_not_lt_range-incpre }|.
       act = zcl_semver_ranges=>ltr(
@@ -354,7 +354,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
   METHOD outside.
 
     " Version should be greater than range
-    LOOP AT zcl_semver_fixtures=>version_gt_range( ) INTO DATA(version_gt_range).
+    LOOP AT zcl_semver_fixt=>version_gt_range( ) INTO DATA(version_gt_range).
       DATA(msg) = |{ version_gt_range-range } { version_gt_range-version } { version_gt_range-loose }|.
       DATA(act) = zcl_semver_ranges=>outside(
         version = version_gt_range-version
@@ -369,7 +369,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     ENDLOOP.
 
     " Version should be less than range
-    LOOP AT zcl_semver_fixtures=>version_lt_range( ) INTO DATA(version_lt_range).
+    LOOP AT zcl_semver_fixt=>version_lt_range( ) INTO DATA(version_lt_range).
       msg = |{ version_lt_range-range } { version_lt_range-version } { version_lt_range-loose }|.
       act = zcl_semver_ranges=>outside(
         version = version_lt_range-version
@@ -384,7 +384,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     ENDLOOP.
 
     " Negative greater than test
-    LOOP AT zcl_semver_fixtures=>version_not_gt_range( ) INTO DATA(version_not_gt_range).
+    LOOP AT zcl_semver_fixt=>version_not_gt_range( ) INTO DATA(version_not_gt_range).
       msg = |{ version_not_gt_range-range } { version_not_gt_range-version } |
          && |{ version_not_gt_range-loose } { version_not_gt_range-incpre }|.
       act = zcl_semver_ranges=>outside(
@@ -401,7 +401,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     ENDLOOP.
 
     " Negative less than test
-    LOOP AT zcl_semver_fixtures=>version_not_lt_range( ) INTO DATA(version_not_lt_range).
+    LOOP AT zcl_semver_fixt=>version_not_lt_range( ) INTO DATA(version_not_lt_range).
       msg = |{ version_not_lt_range-range } { version_not_lt_range-version } |
          && |{ version_not_lt_range-loose } { version_not_lt_range-incpre }|.
       act = zcl_semver_ranges=>outside(
@@ -620,7 +620,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
   METHOD valid_range.
 
     " translate ranges into their canonical form
-    LOOP AT zcl_semver_fixtures=>range_parse( ) INTO DATA(range_parse).
+    LOOP AT zcl_semver_fixt=>range_parse( ) INTO DATA(range_parse).
       DATA(msg) = |{ range_parse-range } { range_parse-res } { range_parse-loose } { range_parse-incpre }|.
       DATA(act) = zcl_semver_ranges=>valid_range(
         range   = range_parse-range

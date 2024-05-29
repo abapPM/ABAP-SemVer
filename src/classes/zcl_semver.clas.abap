@@ -92,7 +92,7 @@ CLASS zcl_semver DEFINITION
 
     DATA:
       raw     TYPE string,
-      options TYPE zif_semver_options=>ty_options.
+      options TYPE zif_semver_opts=>ty_options.
 
 ENDCLASS.
 
@@ -137,7 +137,7 @@ CLASS zcl_semver IMPLEMENTATION.
         result = -1.
         RETURN.
       ELSEIF a <> b.
-        result = zcl_semver_identifiers=>compare_identifiers( a = a b = b ).
+        result = zcl_semver_ident=>compare_identifiers( a = a b = b ).
         RETURN.
       ENDIF.
       i += 1.
@@ -152,11 +152,11 @@ CLASS zcl_semver IMPLEMENTATION.
 
     CHECK semver IS BOUND.
 
-    result = zcl_semver_identifiers=>compare_identifiers( a = major b = semver->major ).
+    result = zcl_semver_ident=>compare_identifiers( a = major b = semver->major ).
     IF result = 0.
-      result = zcl_semver_identifiers=>compare_identifiers( a = minor b = semver->minor ).
+      result = zcl_semver_ident=>compare_identifiers( a = minor b = semver->minor ).
       IF result = 0.
-        result = zcl_semver_identifiers=>compare_identifiers( a = patch b = semver->patch ).
+        result = zcl_semver_ident=>compare_identifiers( a = patch b = semver->patch ).
       ENDIF.
     ENDIF.
 
@@ -191,7 +191,7 @@ CLASS zcl_semver IMPLEMENTATION.
           result = -1.
           RETURN.
         ELSEIF a <> b.
-          result = zcl_semver_identifiers=>compare_identifiers( a = a b = b ).
+          result = zcl_semver_ident=>compare_identifiers( a = a b = b ).
           RETURN.
         ENDIF.
         i += 1.
@@ -203,8 +203,8 @@ CLASS zcl_semver IMPLEMENTATION.
 
   METHOD constructor.
 
-    IF strlen( version ) > zif_semver_constants=>max_length.
-      zcx_semver_error=>raise( |Version is longer than { zif_semver_constants=>max_length } characters| ).
+    IF strlen( version ) > zif_semver_const=>max_length.
+      zcx_semver_error=>raise( |Version is longer than { zif_semver_const=>max_length } characters| ).
     ENDIF.
 
     options-loose  = loose.
@@ -229,19 +229,19 @@ CLASS zcl_semver IMPLEMENTATION.
         DATA(minor_num) = CONV decfloat34( m->get_submatch( 2 ) ).
         DATA(patch_num) = CONV decfloat34( m->get_submatch( 3 ) ).
 
-        IF major_num BETWEEN 0 AND zif_semver_constants=>max_safe_integer.
+        IF major_num BETWEEN 0 AND zif_semver_const=>max_safe_integer.
           major = major_num.
         ELSE.
           zcx_semver_error=>raise( |Invalid major version: { major_num }| ).
         ENDIF.
 
-        IF minor_num BETWEEN 0 AND zif_semver_constants=>max_safe_integer.
+        IF minor_num BETWEEN 0 AND zif_semver_const=>max_safe_integer.
           minor = minor_num.
         ELSE.
           zcx_semver_error=>raise( |Invalid minor version: { minor_num }| ).
         ENDIF.
 
-        IF patch_num BETWEEN 0 AND zif_semver_constants=>max_safe_integer.
+        IF patch_num BETWEEN 0 AND zif_semver_const=>max_safe_integer.
           patch = patch_num.
         ELSE.
           zcx_semver_error=>raise( |Invalid patch version: { patch_num }| ).
@@ -419,7 +419,7 @@ CLASS zcl_semver IMPLEMENTATION.
             prerelease_tab =  VALUE #( ( identifier ) ).
           ENDIF.
 
-          IF zcl_semver_identifiers=>compare_identifiers( a = prerelease[ 1 ] b = identifier ) = 0.
+          IF zcl_semver_ident=>compare_identifiers( a = prerelease[ 1 ] b = identifier ) = 0.
             IF NOT zcl_semver_utils=>is_numeric( VALUE #( prerelease[ 2 ] DEFAULT `-` ) ).
               prerelease = prerelease_tab.
             ENDIF.

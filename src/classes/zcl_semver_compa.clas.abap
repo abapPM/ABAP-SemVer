@@ -1,4 +1,4 @@
-CLASS zcl_semver_comparator DEFINITION
+CLASS zcl_semver_compa DEFINITION
   PUBLIC
   CREATE PRIVATE.
 
@@ -22,25 +22,25 @@ CLASS zcl_semver_comparator DEFINITION
 
     METHODS constructor
       IMPORTING
-        comp   TYPE string
-        loose  TYPE abap_bool DEFAULT abap_false
-        incpre TYPE abap_bool DEFAULT abap_false
+        !comp   TYPE string
+        !loose  TYPE abap_bool DEFAULT abap_false
+        !incpre TYPE abap_bool DEFAULT abap_false
       RAISING
         zcx_semver_error.
 
     CLASS-METHODS create
       IMPORTING
-        comp          TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !comp         TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
-        VALUE(result) TYPE REF TO zcl_semver_comparator
+        VALUE(result) TYPE REF TO zcl_semver_compa
       RAISING
         zcx_semver_error.
 
     METHODS parse
       IMPORTING
-        comp TYPE string
+        !comp TYPE string
       RAISING
         zcx_semver_error.
 
@@ -50,15 +50,15 @@ CLASS zcl_semver_comparator DEFINITION
 
     METHODS test
       IMPORTING
-        version       TYPE any
+        !version      TYPE any
       RETURNING
         VALUE(result) TYPE abap_bool.
 
     METHODS intersects
       IMPORTING
-        comp          TYPE any
-        loose         TYPE abap_bool DEFAULT abap_false
-        incpre        TYPE abap_bool DEFAULT abap_false
+        !comp         TYPE any
+        !loose        TYPE abap_bool DEFAULT abap_false
+        !incpre       TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE abap_bool
       RAISING
@@ -67,13 +67,13 @@ CLASS zcl_semver_comparator DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
 
-    DATA options TYPE zif_semver_options=>ty_options.
+    DATA options TYPE zif_semver_opts=>ty_options.
 
 ENDCLASS.
 
 
 
-CLASS zcl_semver_comparator IMPLEMENTATION.
+CLASS zcl_semver_compa IMPLEMENTATION.
 
 
   METHOD class_constructor.
@@ -109,7 +109,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
 
     DATA(kind) = cl_abap_typedescr=>describe_by_data( comp )->type_kind.
 
-    IF kind = cl_abap_typedescr=>typekind_oref AND comp IS INSTANCE OF zcl_semver_comparator.
+    IF kind = cl_abap_typedescr=>typekind_oref AND comp IS INSTANCE OF zcl_semver_compa.
 
       result = comp.
 
@@ -117,11 +117,11 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
         RETURN.
       ENDIF.
 
-      result = NEW zcl_semver_comparator( comp = |{ result->value }| loose = loose incpre = incpre ).
+      result = NEW zcl_semver_compa( comp = |{ result->value }| loose = loose incpre = incpre ).
 
     ELSEIF kind = cl_abap_typedescr=>typekind_char OR kind = cl_abap_typedescr=>typekind_string.
 
-      result = NEW zcl_semver_comparator( comp = |{ comp }| loose = loose incpre = incpre ).
+      result = NEW zcl_semver_compa( comp = |{ comp }| loose = loose incpre = incpre ).
 
     ELSE.
       zcx_semver_error=>raise( 'Invalid parameter type' ).
@@ -136,7 +136,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
       zcx_semver_error=>raise( 'A comparator is required' ).
     ENDIF.
 
-    DATA(semcomp) = zcl_semver_comparator=>create( comp ).
+    DATA(semcomp) = zcl_semver_compa=>create( comp ).
 
     CHECK semcomp IS BOUND.
 
@@ -189,7 +189,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
       ENDIF.
 
       " opposite directions less than
-      IF zcl_semver_functions=>cmp(
+      IF zcl_semver_funct=>cmp(
         a      = semver->version
         op     = '<'
         b      = semcomp->semver->version
@@ -199,7 +199,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
         RETURN.
       ENDIF.
       " opposite directions greater than
-      IF zcl_semver_functions=>cmp(
+      IF zcl_semver_funct=>cmp(
         a      = semver->version
         op     = '>'
         b      = semcomp->semver->version
@@ -223,7 +223,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
 *      ( operator = '>=' OR operator = '<=' ) AND
 *      ( semcomp->operator = '>=' OR semcomp->operator = '<=' ) ).
 *      DATA(opposite_directions_less) = xsdbool(
-*      zcl_semver_functions=>cmp(
+*      zcl_semver_funct=>cmp(
 *      a     = semver->version
 *      op    = '<'
 *      b     = semcomp->semver->version
@@ -231,7 +231,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
 *      ( operator = '>=' OR operator = '>' ) AND
 *      ( semcomp->operator = '<=' OR semcomp->operator = '<' ) ).
 *      DATA(opposite_directions_greater) = xsdbool(
-*      zcl_semver_functions=>cmp(
+*      zcl_semver_funct=>cmp(
 *      a     = semver->version
 *      op    = '>'
 *      b     = semcomp->semver->version
@@ -298,7 +298,7 @@ CLASS zcl_semver_comparator IMPLEMENTATION.
         IF semver = any_semver OR testver = any_semver.
           result = abap_true.
         ELSE.
-          result = zcl_semver_functions=>cmp(
+          result = zcl_semver_funct=>cmp(
             a     = testver->version
             op    = operator
             b     = semver->version
