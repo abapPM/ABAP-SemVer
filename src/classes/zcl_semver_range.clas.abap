@@ -12,7 +12,7 @@ CLASS zcl_semver_range DEFINITION
   PUBLIC SECTION.
 
     TYPES:
-      ty_comparators TYPE STANDARD TABLE OF REF TO zcl_semver_compa WITH DEFAULT KEY,
+      ty_comparators TYPE STANDARD TABLE OF REF TO zcl_semver_comparator WITH DEFAULT KEY,
       ty_set         TYPE STANDARD TABLE OF ty_comparators WITH DEFAULT KEY.
 
     DATA:
@@ -86,17 +86,17 @@ CLASS zcl_semver_range DEFINITION
     DATA:
       raw     TYPE string,
       cache   TYPE ty_cache,
-      options TYPE zif_semver_opts=>ty_options.
+      options TYPE zif_semver_options=>ty_options.
 
     CLASS-METHODS is_any
       IMPORTING
-        !comp         TYPE REF TO zcl_semver_compa
+        !comp         TYPE REF TO zcl_semver_comparator
       RETURNING
         VALUE(result) TYPE abap_bool.
 
     CLASS-METHODS is_null_set
       IMPORTING
-        !comp         TYPE REF TO zcl_semver_compa
+        !comp         TYPE REF TO zcl_semver_comparator
       RETURNING
         VALUE(result) TYPE abap_bool.
 
@@ -303,7 +303,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
   METHOD create.
 
-    DATA comp TYPE REF TO zcl_semver_compa.
+    DATA comp TYPE REF TO zcl_semver_comparator.
 
     DATA(kind) = cl_abap_typedescr=>describe_by_data( range )->type_kind.
 
@@ -317,7 +317,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
       result = NEW zcl_semver_range( range = |{ result->raw }| loose = loose incpre = incpre ).
 
-    ELSEIF kind = cl_abap_typedescr=>typekind_oref AND range IS INSTANCE OF zcl_semver_compa.
+    ELSEIF kind = cl_abap_typedescr=>typekind_oref AND range IS INSTANCE OF zcl_semver_comparator.
 
       comp ?= range.
 
@@ -418,7 +418,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
       DATA(test_comparator) = remaining_comparators[ i ].
 
       LOOP AT remaining_comparators ASSIGNING FIELD-SYMBOL(<other_comparator>).
-        DATA(semcomp) = zcl_semver_compa=>create( test_comparator ).
+        DATA(semcomp) = zcl_semver_comparator=>create( test_comparator ).
 
         IF semcomp IS BOUND.
           result = semcomp->intersects( comp = <other_comparator> loose = loose incpre = incpre ).
@@ -532,7 +532,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
     " also, don't include the same comparator more than once
 
     LOOP AT comps ASSIGNING <comp>.
-      DATA(semcomp) = zcl_semver_compa=>create( comp = <comp> loose = options-loose incpre = options-incpre ).
+      DATA(semcomp) = zcl_semver_comparator=>create( comp = <comp> loose = options-loose incpre = options-incpre ).
       INSERT semcomp INTO TABLE comparators.
     ENDLOOP.
 
@@ -664,7 +664,6 @@ CLASS zcl_semver_range IMPLEMENTATION.
     " 1.2 - 3.4.5 => >=1.2.0 <=3.4.5
     " 1.2.3 - 3.4 => >=1.2.0 <3.5.0-0 Any 3.4.x will do
     " 1.2 - 3.4 => >=1.2.0 <3.5.0-0
-    " TODO build?
     result = range.
 
     DATA(r) = COND #(
@@ -981,7 +980,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
       " However, `1.2.4-alpha.notready` should NOT be allowed,
       " even though it's within the range set by the comparators.
       LOOP AT comparators ASSIGNING <comparator>.
-        IF <comparator>->semver = zcl_semver_compa=>any_semver.
+        IF <comparator>->semver = zcl_semver_comparator=>any_semver.
           CONTINUE.
         ENDIF.
 

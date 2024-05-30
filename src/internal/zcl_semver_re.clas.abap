@@ -270,9 +270,9 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     create_token(
       name  = 'COERCEPLAIN'
-      value = |(^\|[^\\d])(\\d\{1,{ zif_semver_const=>max_safe_component_length }\})| &&
-              |(?:\\.(\\d\{1,{ zif_semver_const=>max_safe_component_length }\}))?| &&
-              |(?:\\.(\\d\{1,{ zif_semver_const=>max_safe_component_length }\}))?| ).
+      value = |(^\|[^\\d])(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\})| &&
+              |(?:\\.(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\}))?| &&
+              |(?:\\.(\\d\{1,{ zif_semver_constants=>max_safe_component_length }\}))?| ).
     create_token(
       name  = 'COERCE'
       value = |{ token-coerceplain-src }(?:$\|[^\\d])| ).
@@ -418,8 +418,8 @@ CLASS zcl_semver_re IMPLEMENTATION.
 
     DATA(safe_regex_replacements) = VALUE ty_regex_replacements(
       ( token = `\s`               max = 1 )
-      ( token = `\d`               max = zif_semver_const=>max_length )
-      ( token = letter_dash_number max = zif_semver_const=>max_safe_build_length ) ).
+      ( token = `\d`               max = zif_semver_constants=>max_length )
+      ( token = letter_dash_number max = zif_semver_constants=>max_safe_build_length ) ).
 
     result = value.
 

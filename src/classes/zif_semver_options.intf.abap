@@ -1,4 +1,4 @@
-INTERFACE zif_semver_opts PUBLIC.
+INTERFACE zif_semver_options PUBLIC.
 
 ************************************************************************
 * SemVer Options

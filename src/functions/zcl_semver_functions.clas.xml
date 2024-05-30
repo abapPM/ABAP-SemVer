@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <VSEOCLASS>
-    <CLSNAME>ZCL_SEMVER_COMPA</CLSNAME>
+    <CLSNAME>ZCL_SEMVER_FUNCTIONS</CLSNAME>
     <LANGU>E</LANGU>
-    <DESCRIPT>Semantic Version - Comparator</DESCRIPT>
+    <DESCRIPT>Semantic Version - Functions</DESCRIPT>
     <STATE>1</STATE>
     <CLSCCINCL>X</CLSCCINCL>
     <FIXPT>X</FIXPT>

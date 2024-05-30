@@ -1,7 +1,7 @@
-CLASS zcl_semver_integ DEFINITION
+CLASS zcl_semver_integration DEFINITION
   PUBLIC
   FINAL
-  CREATE PUBLIC.
+  CREATE PUBLIC .
 
 ************************************************************************
 * SemVer Integration Tests
@@ -17,5 +17,5 @@ ENDCLASS.
 
 
 
-CLASS zcl_semver_integ IMPLEMENTATION.
+CLASS zcl_semver_integration IMPLEMENTATION.
 ENDCLASS.

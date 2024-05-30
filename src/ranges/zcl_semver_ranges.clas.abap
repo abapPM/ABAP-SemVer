@@ -260,12 +260,12 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
               compver->inc( release = 'prepush' identifier_base = '0' ).
             ENDIF.
 
-            IF setmin IS INITIAL OR zcl_semver_funct=>gt( a = compver b = setmin ).
+            IF setmin IS INITIAL OR zcl_semver_functions=>gt( a = compver b = setmin ).
               setmin = compver.
             ENDIF.
 
           WHEN '' OR  '>='.
-            IF setmin IS INITIAL OR zcl_semver_funct=>gt( a = compver b = setmin ).
+            IF setmin IS INITIAL OR zcl_semver_functions=>gt( a = compver b = setmin ).
               setmin = compver.
             ENDIF.
 
@@ -277,7 +277,7 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
         ENDCASE.
       ENDLOOP.
 
-      IF setmin IS NOT INITIAL AND ( minver IS INITIAL OR zcl_semver_funct=>gt( a = minver b = setmin ) ).
+      IF setmin IS NOT INITIAL AND ( minver IS INITIAL OR zcl_semver_functions=>gt( a = minver b = setmin ) ).
         minver = setmin.
       ENDIF.
     ENDLOOP.
@@ -297,8 +297,8 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
     DATA:
       comp  TYPE string,
       ecomp TYPE string,
-      high  TYPE REF TO zcl_semver_compa,
-      low   TYPE REF TO zcl_semver_compa.
+      high  TYPE REF TO zcl_semver_comparator,
+      low   TYPE REF TO zcl_semver_comparator.
 
     DATA(semver) = zcl_semver=>create( version = version loose = loose incpre = incpre ).
 
@@ -312,7 +312,7 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
     ecomp = comp && '='.
 
     " If it satisfies the range it is not outside
-    IF zcl_semver_funct=>satisfies( version = semver range = semrange loose = loose incpre = incpre ).
+    IF zcl_semver_functions=>satisfies( version = semver range = semrange loose = loose incpre = incpre ).
       result = abap_false.
       RETURN.
     ENDIF.
@@ -323,8 +323,8 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
       CLEAR: high, low.
 
       LOOP AT comparators ASSIGNING FIELD-SYMBOL(<comparator>).
-        IF <comparator> = zcl_semver_compa=>any_semver.
-          <comparator> = zcl_semver_compa=>create( '>=0.0.0' ).
+        IF <comparator> = zcl_semver_comparator=>any_semver.
+          <comparator> = zcl_semver_comparator=>create( '>=0.0.0' ).
         ENDIF.
 
         IF high IS NOT BOUND.
@@ -336,15 +336,15 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
 
         CASE hilo.
           WHEN '>'.
-            IF zcl_semver_funct=>gt( a = <comparator>->semver b = high->semver loose = loose incpre = incpre ).
+            IF zcl_semver_functions=>gt( a = <comparator>->semver b = high->semver loose = loose incpre = incpre ).
               high = <comparator>.
-            ELSEIF zcl_semver_funct=>lt( a = <comparator>->semver b = low->semver loose = loose incpre = incpre ).
+            ELSEIF zcl_semver_functions=>lt( a = <comparator>->semver b = low->semver loose = loose incpre = incpre ).
               low = <comparator>.
             ENDIF.
           WHEN '<'.
-            IF zcl_semver_funct=>lt( a = <comparator>->semver b = high->semver loose = loose incpre = incpre ).
+            IF zcl_semver_functions=>lt( a = <comparator>->semver b = high->semver loose = loose incpre = incpre ).
               high = <comparator>.
-            ELSEIF zcl_semver_funct=>gt( a = <comparator>->semver b = low->semver loose = loose incpre = incpre ).
+            ELSEIF zcl_semver_functions=>gt( a = <comparator>->semver b = low->semver loose = loose incpre = incpre ).
               low = <comparator>.
             ENDIF.
         ENDCASE.
@@ -360,18 +360,18 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
       " is less than it then it isn't higher than the range
       CASE hilo.
         WHEN '>'.
-          IF ( low->operator IS INITIAL OR low->operator = comp ) AND zcl_semver_funct=>lte( a = semver b =  low->semver ).
+          IF ( low->operator IS INITIAL OR low->operator = comp ) AND zcl_semver_functions=>lte( a = semver b =  low->semver ).
             result = abap_false.
             RETURN.
-          ELSEIF low->operator = ecomp AND zcl_semver_funct=>lt( a = semver b = low->semver ).
+          ELSEIF low->operator = ecomp AND zcl_semver_functions=>lt( a = semver b = low->semver ).
             result = abap_false.
             RETURN.
           ENDIF.
         WHEN '<'.
-          IF ( low->operator IS INITIAL OR low->operator = comp ) AND zcl_semver_funct=>gte( a = semver b =  low->semver ).
+          IF ( low->operator IS INITIAL OR low->operator = comp ) AND zcl_semver_functions=>gte( a = semver b =  low->semver ).
             result = abap_false.
             RETURN.
-          ELSEIF low->operator = ecomp AND zcl_semver_funct=>gt( a = semver b = low->semver ).
+          ELSEIF low->operator = ecomp AND zcl_semver_functions=>gt( a = semver b = low->semver ).
             result = abap_false.
             RETURN.
           ENDIF.
@@ -410,10 +410,10 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
     DATA(first) = ``.
     DATA(prev) = ``.
 
-    DATA(v) = zcl_semver_funct=>sort( list = versions loose = loose incpre = incpre ).
+    DATA(v) = zcl_semver_functions=>sort( list = versions loose = loose incpre = incpre ).
 
     LOOP AT v ASSIGNING FIELD-SYMBOL(<version>).
-      IF zcl_semver_funct=>satisfies( version = <version> range = semrange loose = loose incpre = incpre ).
+      IF zcl_semver_functions=>satisfies( version = <version> range = semrange loose = loose incpre = incpre ).
         prev = <version>.
         IF first IS INITIAL.
           first = <version>.

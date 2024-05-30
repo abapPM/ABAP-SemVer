@@ -22,7 +22,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
 
   METHOD range_include.
 
-    LOOP AT zcl_semver_fixt=>range_include( ) INTO DATA(range_include).
+    LOOP AT zcl_semver_fixtures=>range_include( ) INTO DATA(range_include).
       DATA(msg) = |{ range_include-range } { range_include-version } { range_include-loose } { range_include-incpre }|.
       DATA(r) = zcl_semver_range=>create(
         range  = range_include-range
@@ -39,7 +39,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
 
   METHOD range_exclude.
 
-    LOOP AT zcl_semver_fixt=>range_exclude( ) INTO DATA(range_exclude).
+    LOOP AT zcl_semver_fixtures=>range_exclude( ) INTO DATA(range_exclude).
       DATA(msg) = |{ range_exclude-range } { range_exclude-version } { range_exclude-loose } { range_exclude-incpre }|.
       DATA(r) = zcl_semver_range=>create(
         range  = range_exclude-range
@@ -56,7 +56,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
 
   METHOD range_intersect.
 
-    LOOP AT zcl_semver_fixt=>range_intersection( ) INTO DATA(range_intersection).
+    LOOP AT zcl_semver_fixtures=>range_intersection( ) INTO DATA(range_intersection).
       DATA(msg) = |{ range_intersection-r0 } { range_intersection-r1 }|.
       DATA(r0) = zcl_semver_range=>create( range_intersection-r0 ).
       DATA(r1) = zcl_semver_range=>create( range_intersection-r1 ).
@@ -76,7 +76,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
 
   METHOD range_parse.
 
-    LOOP AT zcl_semver_fixt=>range_parse( ) INTO DATA(range_parse).
+    LOOP AT zcl_semver_fixtures=>range_parse( ) INTO DATA(range_parse).
       DATA(msg) = |{ range_parse-range } { range_parse-loose } { range_parse-incpre }|.
 
       IF range_parse-res IS INITIAL.
@@ -129,7 +129,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
 
   METHOD create_from_comparator.
 
-    DATA(c) = zcl_semver_compa=>create( '>=1.2.3' ).
+    DATA(c) = zcl_semver_comparator=>create( '>=1.2.3' ).
 
     DATA(r) = zcl_semver_range=>create( c ).
 

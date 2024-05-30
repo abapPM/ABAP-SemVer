@@ -1,4 +1,4 @@
-CLASS zcl_semver_ident DEFINITION
+CLASS zcl_semver_identifiers DEFINITION
   PUBLIC
   CREATE PUBLIC.
 
@@ -31,7 +31,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_semver_ident IMPLEMENTATION.
+CLASS zcl_semver_identifiers IMPLEMENTATION.
 
 
   METHOD compare_identifiers.

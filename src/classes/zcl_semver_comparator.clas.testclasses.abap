@@ -1,4 +1,4 @@
-CLASS ltcl_semver_compa DEFINITION FOR TESTING RISK LEVEL HARMLESS
+CLASS ltcl_semver_comparator DEFINITION FOR TESTING RISK LEVEL HARMLESS
   DURATION SHORT FINAL.
 
   PRIVATE SECTION.
@@ -13,30 +13,30 @@ CLASS ltcl_semver_compa DEFINITION FOR TESTING RISK LEVEL HARMLESS
 
 ENDCLASS.
 
-CLASS ltcl_semver_compa IMPLEMENTATION.
+CLASS ltcl_semver_comparator IMPLEMENTATION.
 
   METHOD comparator.
 
-    DATA(c) = zcl_semver_compa=>create( '>=1.2.3' ).
+    DATA(c) = zcl_semver_comparator=>create( '>=1.2.3' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = c->test( '1.2.4' )
       exp = abap_true ).
 
-    DATA(c2) = zcl_semver_compa=>create( c ).
+    DATA(c2) = zcl_semver_comparator=>create( c ).
 
     cl_abap_unit_assert=>assert_equals(
       act = c2->test( '1.2.4' )
       exp = abap_true ).
 
-    DATA(c3) = zcl_semver_compa=>create( comp = c loose = abap_true ).
+    DATA(c3) = zcl_semver_comparator=>create( comp = c loose = abap_true ).
 
     cl_abap_unit_assert=>assert_equals(
       act = c3->test( '1.2.4' )
       exp = abap_true ).
 
     " test an invalid version, should not throw
-    DATA(c4) = zcl_semver_compa=>create( c ).
+    DATA(c4) = zcl_semver_comparator=>create( c ).
 
     cl_abap_unit_assert=>assert_equals(
       act = c4->test( 'not a version string' )
@@ -47,17 +47,17 @@ CLASS ltcl_semver_compa IMPLEMENTATION.
   METHOD to_string.
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_compa=>create( '>= 1.2.3' )->to_string( )
+      act = zcl_semver_comparator=>create( '>= 1.2.3' )->to_string( )
       exp = '>=1.2.3' ).
 
   ENDMETHOD.
 
   METHOD intersect.
 
-    LOOP AT zcl_semver_fixt=>comparator_intersection( ) INTO DATA(intersection).
+    LOOP AT zcl_semver_fixtures=>comparator_intersection( ) INTO DATA(intersection).
       DATA(msg) = |{ intersection-c0 } { intersection-c1 }|.
-      DATA(comp0) = zcl_semver_compa=>create( intersection-c0 ).
-      DATA(comp1) = zcl_semver_compa=>create( intersection-c1 ).
+      DATA(comp0) = zcl_semver_comparator=>create( intersection-c0 ).
+      DATA(comp1) = zcl_semver_comparator=>create( intersection-c1 ).
 
       cl_abap_unit_assert=>assert_equals(
         act = comp0->intersects( comp = comp1 incpre = intersection-incpre )
@@ -75,17 +75,17 @@ CLASS ltcl_semver_compa IMPLEMENTATION.
   METHOD any.
     " ANY matches anything
 
-    DATA(c) = zcl_semver_compa=>create( '' ).
+    DATA(c) = zcl_semver_comparator=>create( '' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = c->test( '1.2.3' )
       exp = abap_true
       msg = 'ANY should match anything' ).
 
-    DATA(c1) = zcl_semver_compa=>create( '>=1.2.3' ).
+    DATA(c1) = zcl_semver_comparator=>create( '>=1.2.3' ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = c1->test( zcl_semver_compa=>any_semver->version )
+      act = c1->test( zcl_semver_comparator=>any_semver->version )
       exp = abap_true
       msg = 'anything should match ANY' ).
 
@@ -94,7 +94,7 @@ CLASS ltcl_semver_compa IMPLEMENTATION.
   METHOD invalid.
 
     TRY.
-        DATA(c) = zcl_semver_compa=>create( 'foo bar baz' ).
+        DATA(c) = zcl_semver_comparator=>create( 'foo bar baz' ).
 
         cl_abap_unit_assert=>fail( msg = 'Should throw invalid comparator' ).
       CATCH zcx_semver_error ##NO_HANDLER.
@@ -106,8 +106,8 @@ CLASS ltcl_semver_compa IMPLEMENTATION.
     " equal sign is ignored
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_compa=>create( '=1.2.3' )->value
-      exp = zcl_semver_compa=>create( '1.2.3' )->value ).
+      act = zcl_semver_comparator=>create( '=1.2.3' )->value
+      exp = zcl_semver_comparator=>create( '1.2.3' )->value ).
 
   ENDMETHOD.
 

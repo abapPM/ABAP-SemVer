@@ -2,7 +2,7 @@ CLASS ltcl_semver_identifiers DEFINITION FOR TESTING RISK LEVEL HARMLESS
   DURATION SHORT FINAL.
 
   PRIVATE SECTION.
-    DATA mo_cut TYPE REF TO zcl_semver_ident.
+    DATA mo_cut TYPE REF TO zcl_semver_identifiers.
 
     METHODS:
       setup,

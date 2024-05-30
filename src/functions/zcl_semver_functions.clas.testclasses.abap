@@ -66,7 +66,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
     LOOP AT tests INTO DATA(test).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>clean( test-range )
+        act = zcl_semver_functions=>clean( test-range )
         exp = test-version
         msg = |{ test-range } { test-version }| ).
     ENDLOOP.
@@ -76,7 +76,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
   METHOD cmp_invalid.
 
     TRY.
-        zcl_semver_funct=>cmp( a = '1.2.3' op = 'a frog' b = '4.5.6' ).
+        zcl_semver_functions=>cmp( a = '1.2.3' op = 'a frog' b = '4.5.6' ).
         cl_abap_unit_assert=>fail( msg = 'invalid cmp usage' ).
       CATCH zcx_semver_error ##NO_HANDLER.
     ENDTRY.
@@ -85,39 +85,39 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD cmp_comparison.
 
-    LOOP AT zcl_semver_fixt=>comparisons( ) INTO DATA(comparison).
+    LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = comparison-v0 op = '>' b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>cmp( a = comparison-v0 op = '>' b = comparison-v1 loose = comparison-loose )
         exp = abap_true
         msg = msg && '>' ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = comparison-v1 op = '<' b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>cmp( a = comparison-v1 op = '<' b = comparison-v0 loose = comparison-loose )
         exp = abap_true
         msg = msg && '<' ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = comparison-v1 op = '>' b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>cmp( a = comparison-v1 op = '>' b = comparison-v0 loose = comparison-loose )
         exp = abap_false
         msg = msg && '>' ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = comparison-v0 op = '<' b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>cmp( a = comparison-v0 op = '<' b = comparison-v1 loose = comparison-loose )
         exp = abap_false
         msg = msg && '<' ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = comparison-v1 op = '==' b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>cmp( a = comparison-v1 op = '==' b = comparison-v1 loose = comparison-loose )
         exp = abap_true
         msg = msg && '==' ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = comparison-v0 op = '>=' b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>cmp( a = comparison-v0 op = '>=' b = comparison-v1 loose = comparison-loose )
         exp = abap_true
         msg = msg && '>=' ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = comparison-v1 op = '<=' b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>cmp( a = comparison-v1 op = '<=' b = comparison-v0 loose = comparison-loose )
         exp = abap_true
         msg = msg && '<=' ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = comparison-v0 op = '!=' b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>cmp( a = comparison-v0 op = '!=' b = comparison-v1 loose = comparison-loose )
         exp = abap_true
         msg = msg && '!=' ).
     ENDLOOP.
@@ -126,23 +126,23 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD cmp_equality.
 
-    LOOP AT zcl_semver_fixt=>equality( ) INTO DATA(equality).
+    LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       DATA(msg) = |{ equality-v0 } { equality-v1 } { equality-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = equality-v0 op = '' b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>cmp( a = equality-v0 op = '' b = equality-v1 loose = equality-loose )
         exp = abap_true
         msg = msg && 'nop' ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = equality-v0 op = '=' b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>cmp( a = equality-v0 op = '=' b = equality-v1 loose = equality-loose )
         exp = abap_true
         msg = msg && '=' ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = equality-v0 op = '==' b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>cmp( a = equality-v0 op = '==' b = equality-v1 loose = equality-loose )
         exp = abap_true
         msg = msg && '==' ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = equality-v0 op = '!=' b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>cmp( a = equality-v0 op = '!=' b = equality-v1 loose = equality-loose )
         exp = abap_false
         msg = msg && '!=' ).
 
@@ -151,12 +151,12 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       DATA(semver_v1) = zcl_semver=>create( version = equality-v1 loose = equality-loose ).
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = semver_v0 op = '===' b = semver_v1 loose = equality-loose )
+        act = zcl_semver_functions=>cmp( a = semver_v0 op = '===' b = semver_v1 loose = equality-loose )
         exp = abap_true
         msg = msg && '===' ).
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>cmp( a = semver_v0 op = '!==' b = semver_v1 loose = equality-loose )
+        act = zcl_semver_functions=>cmp( a = semver_v0 op = '!==' b = semver_v1 loose = equality-loose )
         exp = abap_false
         msg = msg && '!==' ).
     ENDLOOP.
@@ -165,7 +165,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD coerce_to_null.
 
-    DATA(mx) = zif_semver_const=>max_safe_component_length.
+    DATA(mx) = zif_semver_constants=>max_safe_component_length.
     DATA(my) = mx + 1. " make it too long
 
     DATA(tests) = VALUE string_table(
@@ -184,7 +184,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( |{ repeat( val = '1' occ = mx ) }.{ repeat( val = '1' occ = mx ) }.{ repeat( val = '9' occ = mx ) }| ) ). " JS: 1.2.9
 
     LOOP AT tests INTO DATA(test).
-      DATA(semver) = zcl_semver_funct=>coerce( test ).
+      DATA(semver) = zcl_semver_functions=>coerce( test ).
 
       cl_abap_unit_assert=>assert_not_bound(
         act = semver
@@ -203,7 +203,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
     DATA tests TYPE TABLE OF ty_test.
 
-    DATA(mx) = zif_semver_const=>max_safe_component_length.
+    DATA(mx) = zif_semver_constants=>max_safe_component_length.
     DATA(my) = mx + 1. " make it too long
 
     tests = VALUE #(
@@ -278,8 +278,8 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( version = 10 res = '10.0.0' ) ).
 
     LOOP AT tests INTO DATA(test).
-      DATA(semver) = zcl_semver_funct=>coerce( test-version ).
-      DATA(expected) = zcl_semver_funct=>parse( test-res ).
+      DATA(semver) = zcl_semver_functions=>coerce( test-version ).
+      DATA(expected) = zcl_semver_functions=>parse( test-res ).
 
       cl_abap_unit_assert=>assert_bound(
         act = semver
@@ -327,8 +327,8 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( version = '1.2.3-rc.5+rev.6/a' res = '1.2.3-rc.5+rev.6' ) ).
 
     LOOP AT tests INTO DATA(test).
-      DATA(semver) = zcl_semver_funct=>coerce( version = test-version incpre = abap_true ).
-      DATA(expected) = zcl_semver_funct=>parse( version = test-res incpre = abap_true ).
+      DATA(semver) = zcl_semver_functions=>coerce( version = test-version incpre = abap_true ).
+      DATA(expected) = zcl_semver_functions=>parse( version = test-res incpre = abap_true ).
 
       cl_abap_unit_assert=>assert_bound(
         act = semver
@@ -369,8 +369,8 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( version = '1.2.3.4xyz' res = '2.3.4' ) ).
 
     LOOP AT tests INTO DATA(test).
-      DATA(semver) = zcl_semver_funct=>coerce( version = test-version rtl = abap_true ).
-      DATA(expected) = zcl_semver_funct=>parse( version = test-res ).
+      DATA(semver) = zcl_semver_functions=>coerce( version = test-version rtl = abap_true ).
+      DATA(expected) = zcl_semver_functions=>parse( version = test-res ).
 
       cl_abap_unit_assert=>assert_bound(
         act = semver
@@ -410,8 +410,8 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( version = '1.2.3.4/7-rc.5+rev.6' res = '7.0.0-rc.5+rev.6' ) ).
 
     LOOP AT tests INTO DATA(test).
-      DATA(semver) = zcl_semver_funct=>coerce( version = test-version rtl = abap_true incpre = abap_true ).
-      DATA(expected) = zcl_semver_funct=>parse( version = test-res incpre = abap_true ).
+      DATA(semver) = zcl_semver_functions=>coerce( version = test-version rtl = abap_true incpre = abap_true ).
+      DATA(expected) = zcl_semver_functions=>parse( version = test-res incpre = abap_true ).
 
       cl_abap_unit_assert=>assert_bound(
         act = semver
@@ -432,44 +432,44 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD compare.
 
-    LOOP AT zcl_semver_fixt=>comparisons( ) INTO DATA(comparison).
+    LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>compare( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>compare( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
         exp = +1
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>compare( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>compare( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
         exp = -1
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>compare( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>compare( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
         exp = 0
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>compare( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>compare( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
         exp = 0
         msg = msg ).
     ENDLOOP.
 
-    LOOP AT zcl_semver_fixt=>equality( ) INTO DATA(equality).
+    LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       msg = |{ equality-v0 } { equality-v1 } { equality-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>compare( a = equality-v0 b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>compare( a = equality-v0 b = equality-v1 loose = equality-loose )
         exp = 0
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>compare( a = equality-v1 b = equality-v0 loose = equality-loose )
+        act = zcl_semver_functions=>compare( a = equality-v1 b = equality-v0 loose = equality-loose )
         exp = 0
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>compare( a = equality-v0 b = equality-v0 loose = equality-loose )
+        act = zcl_semver_functions=>compare( a = equality-v0 b = equality-v0 loose = equality-loose )
         exp = 0
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>compare( a = equality-v1 b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>compare( a = equality-v1 b = equality-v1 loose = equality-loose )
         exp = 0
         msg = msg ).
 
@@ -478,7 +478,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       DATA(semver_v1) = zcl_semver=>create( version = equality-v1 loose = equality-loose ).
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>compare( a = semver_v0 b = semver_v1 loose = equality-loose )
+        act = zcl_semver_functions=>compare( a = semver_v0 b = semver_v1 loose = equality-loose )
         exp = 0
         msg = msg ).
     ENDLOOP.
@@ -493,26 +493,26 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
     DATA(build10) = '1.0.0+1.0'.
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>compare_build( a = nobuild b = build0 )
+      act = zcl_semver_functions=>compare_build( a = nobuild b = build0 )
       exp = -1 ).
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>compare_build( a = build0 b = build0 )
+      act = zcl_semver_functions=>compare_build( a = build0 b = build0 )
       exp = 0 ).
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>compare_build( a = build0 b = nobuild )
+      act = zcl_semver_functions=>compare_build( a = build0 b = nobuild )
       exp = +1 ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>compare_build( a = build0 b = '1.0.0+0.0' )
+      act = zcl_semver_functions=>compare_build( a = build0 b = '1.0.0+0.0' )
       exp = -1 ).
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>compare_build( a = build0 b = build1 )
+      act = zcl_semver_functions=>compare_build( a = build0 b = build1 )
       exp = -1 ).
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>compare_build( a = build1 b = build0 )
+      act = zcl_semver_functions=>compare_build( a = build1 b = build0 )
       exp = +1 ).
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>compare_build( a = build10 b = build1 )
+      act = zcl_semver_functions=>compare_build( a = build10 b = build1 )
       exp = +1 ).
 
   ENDMETHOD.
@@ -550,12 +550,12 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         exp = test-strict ).
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>eq( a = test-loose b = test-strict loose = abap_true )
+        act = zcl_semver_functions=>eq( a = test-loose b = test-strict loose = abap_true )
         exp = abap_true ).
 
       TRY.
           cl_abap_unit_assert=>assert_equals(
-            act = zcl_semver_funct=>eq( a = test-loose b = test-strict )
+            act = zcl_semver_functions=>eq( a = test-loose b = test-strict )
             exp = abap_true ).
 
           cl_abap_unit_assert=>fail( ).
@@ -570,7 +570,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ENDTRY.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>compare_loose( a = test-loose b = test-strict )
+        act = zcl_semver_functions=>compare_loose( a = test-loose b = test-strict )
         exp = 0 ).
 
     ENDLOOP.
@@ -623,14 +623,14 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       DATA(msg) = |{ test-v1 } { test-v2 } { test-res } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>diff( version_1 = test-v1 version_2 = test-v2 )
+        act = zcl_semver_functions=>diff( version_1 = test-v1 version_2 = test-v2 )
         exp = test-res
         msg = msg ).
     ENDLOOP.
 
     " throws on bad version
     TRY.
-        zcl_semver_funct=>diff(
+        zcl_semver_functions=>diff(
           version_1 = 'bad'
           version_2 = '1.2.3' ).
         cl_abap_unit_assert=>fail( ).
@@ -644,44 +644,44 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD eq.
 
-    LOOP AT zcl_semver_fixt=>comparisons( ) INTO DATA(comparison).
+    LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>eq( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>eq( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>eq( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>eq( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>eq( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>eq( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>eq( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>eq( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
     ENDLOOP.
 
-    LOOP AT zcl_semver_fixt=>equality( ) INTO DATA(equality).
+    LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       msg = |{ equality-v0 } { equality-v1 } { equality-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>eq( a = equality-v0 b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>eq( a = equality-v0 b = equality-v1 loose = equality-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>eq( a = equality-v1 b = equality-v0 loose = equality-loose )
+        act = zcl_semver_functions=>eq( a = equality-v1 b = equality-v0 loose = equality-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>eq( a = equality-v0 b = equality-v0 loose = equality-loose )
+        act = zcl_semver_functions=>eq( a = equality-v0 b = equality-v0 loose = equality-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>eq( a = equality-v1 b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>eq( a = equality-v1 b = equality-v1 loose = equality-loose )
         exp = abap_true
         msg = msg ).
     ENDLOOP.
@@ -690,36 +690,36 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD gt.
 
-    LOOP AT zcl_semver_fixt=>comparisons( ) INTO DATA(comparison).
+    LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gt( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>gt( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gt( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>gt( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gt( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>gt( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gt( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>gt( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
     ENDLOOP.
 
-    LOOP AT zcl_semver_fixt=>equality( ) INTO DATA(equality).
+    LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       msg = |{ equality-v0 } { equality-v1 } { equality-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gt( a = equality-v0 b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>gt( a = equality-v0 b = equality-v1 loose = equality-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gt( a = equality-v1 b = equality-v0 loose = equality-loose )
+        act = zcl_semver_functions=>gt( a = equality-v1 b = equality-v0 loose = equality-loose )
         exp = abap_false
         msg = msg ).
     ENDLOOP.
@@ -728,36 +728,36 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD gte.
 
-    LOOP AT zcl_semver_fixt=>comparisons( ) INTO DATA(comparison).
+    LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gte( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>gte( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gte( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>gte( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gte( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>gte( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gte( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>gte( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
     ENDLOOP.
 
-    LOOP AT zcl_semver_fixt=>equality( ) INTO DATA(equality).
+    LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       msg = |{ equality-v0 } { equality-v1 } { equality-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gte( a = equality-v0 b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>gte( a = equality-v0 b = equality-v1 loose = equality-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>gte( a = equality-v1 b = equality-v0 loose = equality-loose )
+        act = zcl_semver_functions=>gte( a = equality-v1 b = equality-v0 loose = equality-loose )
         exp = abap_true
         msg = msg ).
     ENDLOOP.
@@ -766,11 +766,11 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD inc.
 
-    LOOP AT zcl_semver_fixt=>increments( ) INTO DATA(increments).
+    LOOP AT zcl_semver_fixtures=>increments( ) INTO DATA(increments).
       DATA(msg) = |{ increments-version } { increments-release } { increments-identifier }|
         && | { increments-identifier_base } { increments-res } |.
 
-      DATA(s) = zcl_semver_funct=>inc(
+      DATA(s) = zcl_semver_functions=>inc(
                   version         = increments-version
                   release         = increments-release
                   identifier      = increments-identifier
@@ -790,12 +790,12 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
           msg = msg ).
       ENDIF.
 
-      DATA(parsed) = zcl_semver_funct=>parse(
+      DATA(parsed) = zcl_semver_functions=>parse(
                        version = increments-version
                        loose   = increments-loose
                        incpre  = increments-incpre ).
 
-      DATA(parsed_input) = zcl_semver_funct=>parse(
+      DATA(parsed_input) = zcl_semver_functions=>parse(
                              version = increments-version
                              loose   = increments-loose
                              incpre  = increments-incpre ).
@@ -814,7 +814,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
         DATA(pre_inc) = parsed_input->version.
 
-        zcl_semver_funct=>inc(
+        zcl_semver_functions=>inc(
           version         = parsed_input
           release         = increments-release
           identifier      = increments-identifier
@@ -849,36 +849,36 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD lt.
 
-    LOOP AT zcl_semver_fixt=>comparisons( ) INTO DATA(comparison).
+    LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lt( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>lt( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lt( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>lt( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lt( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>lt( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lt( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>lt( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
     ENDLOOP.
 
-    LOOP AT zcl_semver_fixt=>equality( ) INTO DATA(equality).
+    LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       msg = |{ equality-v0 } { equality-v1 } { equality-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lt( a = equality-v0 b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>lt( a = equality-v0 b = equality-v1 loose = equality-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lt( a = equality-v1 b = equality-v0 loose = equality-loose )
+        act = zcl_semver_functions=>lt( a = equality-v1 b = equality-v0 loose = equality-loose )
         exp = abap_false
         msg = msg ).
     ENDLOOP.
@@ -887,36 +887,36 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD lte.
 
-    LOOP AT zcl_semver_fixt=>comparisons( ) INTO DATA(comparison).
+    LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lte( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>lte( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lte( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>lte( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lte( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>lte( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lte( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>lte( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
     ENDLOOP.
 
-    LOOP AT zcl_semver_fixt=>equality( ) INTO DATA(equality).
+    LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       msg = |{ equality-v0 } { equality-v1 } { equality-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lte( a = equality-v0 b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>lte( a = equality-v0 b = equality-v1 loose = equality-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>lte( a = equality-v1 b = equality-v0 loose = equality-loose )
+        act = zcl_semver_functions=>lte( a = equality-v1 b = equality-v0 loose = equality-loose )
         exp = abap_true
         msg = msg ).
     ENDLOOP.
@@ -941,7 +941,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       DATA(msg) = |{ test-range } { test-loose } { test-version } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>major( version = test-range loose = test-loose )
+        act = zcl_semver_functions=>major( version = test-range loose = test-loose )
         exp = condense( test-version )
         msg = msg ).
     ENDLOOP.
@@ -966,7 +966,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       DATA(msg) = |{ test-range } { test-loose } { test-version } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>minor( version = test-range loose = test-loose )
+        act = zcl_semver_functions=>minor( version = test-range loose = test-loose )
         exp = condense( test-version )
         msg = msg ).
     ENDLOOP.
@@ -975,44 +975,44 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   METHOD neq.
 
-    LOOP AT zcl_semver_fixt=>comparisons( ) INTO DATA(comparison).
+    LOOP AT zcl_semver_fixtures=>comparisons( ) INTO DATA(comparison).
       DATA(msg) = |{ comparison-v0 } { comparison-v1 } { comparison-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>neq( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>neq( a = comparison-v0 b = comparison-v1 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>neq( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>neq( a = comparison-v1 b = comparison-v0 loose = comparison-loose )
         exp = abap_true
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>neq( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
+        act = zcl_semver_functions=>neq( a = comparison-v0 b = comparison-v0 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>neq( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
+        act = zcl_semver_functions=>neq( a = comparison-v1 b = comparison-v1 loose = comparison-loose )
         exp = abap_false
         msg = msg ).
     ENDLOOP.
 
-    LOOP AT zcl_semver_fixt=>equality( ) INTO DATA(equality).
+    LOOP AT zcl_semver_fixtures=>equality( ) INTO DATA(equality).
       msg = |{ equality-v0 } { equality-v1 } { equality-loose } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>neq( a = equality-v0 b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>neq( a = equality-v0 b = equality-v1 loose = equality-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>neq( a = equality-v1 b = equality-v0 loose = equality-loose )
+        act = zcl_semver_functions=>neq( a = equality-v1 b = equality-v0 loose = equality-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>neq( a = equality-v0 b = equality-v0 loose = equality-loose )
+        act = zcl_semver_functions=>neq( a = equality-v0 b = equality-v0 loose = equality-loose )
         exp = abap_false
         msg = msg ).
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>neq( a = equality-v1 b = equality-v1 loose = equality-loose )
+        act = zcl_semver_functions=>neq( a = equality-v1 b = equality-v1 loose = equality-loose )
         exp = abap_false
         msg = msg ).
     ENDLOOP.
@@ -1022,17 +1022,17 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
   METHOD parse.
     " returns null instead of throwing when presented with garbage
 
-    LOOP AT zcl_semver_fixt=>invalid_versions( ) INTO DATA(invalid_version).
+    LOOP AT zcl_semver_fixtures=>invalid_versions( ) INTO DATA(invalid_version).
       DATA(msg) = |{ invalid_version-value } { invalid_version-loose } { invalid_version-reason } |.
 
       cl_abap_unit_assert=>assert_initial(
-        act = zcl_semver_funct=>parse( version = invalid_version-value loose = invalid_version-loose )
+        act = zcl_semver_functions=>parse( version = invalid_version-value loose = invalid_version-loose )
         msg = msg ).
     ENDLOOP.
 
     " throw errors if asked to
     TRY.
-        zcl_semver_funct=>parse(
+        zcl_semver_functions=>parse(
           version      = 'bad'
           throw_errors = abap_true ).
         cl_abap_unit_assert=>fail( ).
@@ -1045,7 +1045,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
     TRY.
         DATA(wrong_type) = NEW zcl_semver_cli( ).
 
-        zcl_semver_funct=>parse(
+        zcl_semver_functions=>parse(
           version      = wrong_type
           throw_errors = abap_true ).
         cl_abap_unit_assert=>fail( ).
@@ -1057,20 +1057,20 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
     " parse a version into a SemVer object
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>parse( '1.2.3' )->version
+      act = zcl_semver_functions=>parse( '1.2.3' )->version
       exp = '1.2.3' ).
 
     DATA(s) = zcl_semver=>create( '4.5.6' ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>parse( s )
+      act = zcl_semver_functions=>parse( s )
       exp = s
       msg = 'return it if it is a SemVer obj' ).
 
     DATA(l) = zcl_semver=>create( version = '4.2.0' loose = abap_true ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>parse( version = '4.2.0' loose = abap_true )->version
+      act = zcl_semver_functions=>parse( version = '4.2.0' loose = abap_true )->version
       exp = l->version
       msg = 'looseness as an option' ).
   ENDMETHOD.
@@ -1093,7 +1093,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       DATA(msg) = |{ test-range } { test-loose } { test-version } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>patch( version = test-range loose = test-loose )
+        act = zcl_semver_functions=>patch( version = test-range loose = test-loose )
         exp = condense( test-version )
         msg = msg ).
     ENDLOOP.
@@ -1126,7 +1126,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       DATA(msg) = |{ test-version } { test-loose } { lines( test-prerel ) } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>prerelease( version = test-version loose = test-loose )
+        act = zcl_semver_functions=>prerelease( version = test-version loose = test-loose )
         exp = test-prerel
         msg = msg ).
     ENDLOOP.
@@ -1136,16 +1136,16 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
   METHOD rcompare.
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>rcompare( a = '1.0.0' b = '1.0.1' )
+      act = zcl_semver_functions=>rcompare( a = '1.0.0' b = '1.0.1' )
       exp = +1 ).
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>rcompare( a = '1.0.0' b = '1.0.0' )
+      act = zcl_semver_functions=>rcompare( a = '1.0.0' b = '1.0.0' )
       exp = 0 ).
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>rcompare( a = '1.0.0+0' b = '1.0.0' )
+      act = zcl_semver_functions=>rcompare( a = '1.0.0+0' b = '1.0.0' )
       exp = 0 ).
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>rcompare( a = '1.0.1' b = '1.0.0' )
+      act = zcl_semver_functions=>rcompare( a = '1.0.1' b = '1.0.0' )
       exp = -1 ).
 
   ENDMETHOD.
@@ -1167,20 +1167,20 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( `0.1.2` ) ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>rsort( list )
+      act = zcl_semver_functions=>rsort( list )
       exp = rsorted ).
 
   ENDMETHOD.
 
   METHOD satisfies.
 
-    DATA tests TYPE zcl_semver_fixt=>ty_ranges.
+    DATA tests TYPE zcl_semver_fixtures=>ty_ranges.
 
-    LOOP AT zcl_semver_fixt=>range_include( ) INTO DATA(range_include).
+    LOOP AT zcl_semver_fixtures=>range_include( ) INTO DATA(range_include).
       DATA(msg) = |{ range_include-range } { range_include-version } { range_include-loose } { range_include-incpre } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>satisfies(
+        act = zcl_semver_functions=>satisfies(
                  version = range_include-version
                  range   = range_include-range
                  loose   = range_include-loose
@@ -1189,11 +1189,11 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         msg = msg ).
     ENDLOOP.
 
-    LOOP AT zcl_semver_fixt=>range_exclude( ) INTO DATA(range_exclude).
+    LOOP AT zcl_semver_fixtures=>range_exclude( ) INTO DATA(range_exclude).
       msg = |{ range_exclude-range } { range_exclude-version } { range_exclude-loose } { range_exclude-incpre } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>satisfies(
+        act = zcl_semver_functions=>satisfies(
                  version = range_exclude-version
                  range   = range_exclude-range
                  loose   = range_exclude-loose
@@ -1214,7 +1214,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       msg = |{ test-range } { test-version } |.
 
       cl_abap_unit_assert=>assert_equals(
-        act = zcl_semver_funct=>satisfies( version = test-version range = test-range loose = test-loose )
+        act = zcl_semver_functions=>satisfies( version = test-version range = test-range loose = test-loose )
         exp = abap_false
         msg = msg ).
     ENDLOOP.
@@ -1238,7 +1238,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( `5.9.6` ) ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>sort( list )
+      act = zcl_semver_functions=>sort( list )
       exp = sorted ).
 
   ENDMETHOD.
@@ -1246,43 +1246,43 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
   METHOD valid.
     " returns null instead of throwing when presented with garbage
 
-    LOOP AT zcl_semver_fixt=>invalid_versions( ) INTO DATA(invalid_version).
+    LOOP AT zcl_semver_fixtures=>invalid_versions( ) INTO DATA(invalid_version).
       DATA(msg) = |{ invalid_version-value } { invalid_version-loose } { invalid_version-reason } |.
 
       cl_abap_unit_assert=>assert_initial(
-        act = zcl_semver_funct=>valid( version = invalid_version-value loose = invalid_version-loose )
+        act = zcl_semver_functions=>valid( version = invalid_version-value loose = invalid_version-loose )
         msg = msg ).
     ENDLOOP.
 
     " validate a version into a SemVer object
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>valid( '1.2.3' )
+      act = zcl_semver_functions=>valid( '1.2.3' )
       exp = '1.2.3' ).
 
     DATA(s) = zcl_semver=>create( '4.5.6' ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>valid( s )
+      act = zcl_semver_functions=>valid( s )
       exp = '4.5.6'
       msg = 'return the version if a SemVer obj' ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>valid( version = '4.2.0foo' loose = abap_true )
+      act = zcl_semver_functions=>valid( version = '4.2.0foo' loose = abap_true )
       exp = '4.2.0-foo'
       msg = 'looseness as an option' ).
 
-    DATA(mx) = zif_semver_const=>max_safe_integer.
+    DATA(mx) = zif_semver_constants=>max_safe_integer.
 
     DATA(long_build)    = '-928490632884417731e7af463c92b034d6a78268fc993bcb88a57944'.
     DATA(short_version) = '1.1.1'.
     DATA(long_version)  = |{ mx }.{ mx }.{ mx }|.
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>valid( short_version && long_build )
+      act = zcl_semver_functions=>valid( short_version && long_build )
       exp = short_version && long_build ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_funct=>valid( long_version && long_build )
+      act = zcl_semver_functions=>valid( long_version && long_build )
       exp = long_version && long_build ).
 
   ENDMETHOD.
