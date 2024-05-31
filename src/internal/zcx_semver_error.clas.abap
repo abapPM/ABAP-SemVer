@@ -15,6 +15,8 @@ CLASS zcx_semver_error DEFINITION
     INTERFACES if_t100_dyn_msg.
     INTERFACES if_t100_message.
 
+    CLASS-DATA null TYPE string.
+
     METHODS constructor
       IMPORTING
         !textid   LIKE if_t100_message=>t100key OPTIONAL
@@ -110,7 +112,6 @@ CLASS zcx_semver_error IMPLEMENTATION.
 
     DATA:
       lv_text TYPE string,
-      lv_rest TYPE string,
       ls_msg  TYPE symsg.
 
     IF iv_text IS INITIAL.
@@ -122,7 +123,7 @@ CLASS zcx_semver_error IMPLEMENTATION.
     ls_msg = split_text_to_symsg( lv_text ).
 
     " Set syst variables using generic error message
-    MESSAGE e001(00) WITH ls_msg-msgv1 ls_msg-msgv2 ls_msg-msgv3 ls_msg-msgv4 INTO lv_rest.
+    MESSAGE e001(00) WITH ls_msg-msgv1 ls_msg-msgv2 ls_msg-msgv3 ls_msg-msgv4 INTO null.
 
     raise_t100( ix_previous = ix_previous ).
 
