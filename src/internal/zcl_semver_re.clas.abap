@@ -6,7 +6,7 @@ CLASS zcl_semver_re DEFINITION
 * SemVer Regex
 *
 * Copyright (c) Isaac Z. Schlueter and Contributors
-* ABAP Port by Marc Bernard <https://marcbernardtools.com/>
+* Ported to ABAP by apm.to Inc. <https://apm.to>
 * SPDX-License-Identifier: ISC
 ************************************************************************
   PUBLIC SECTION.
