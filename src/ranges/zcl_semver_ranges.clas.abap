@@ -534,8 +534,8 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
         " This will throw if it's invalid anyway
         DATA(semrange) = zcl_semver_range=>create( range = range loose = loose incpre = incpre ).
 
-        IF semrange IS BOUND AND semrange->range IS NOT INITIAL.
-          result = semrange->range.
+        IF semrange IS BOUND AND semrange->range( ) IS NOT INITIAL.
+          result = semrange->range( ).
         ELSE.
           result = '*'.
         ENDIF.

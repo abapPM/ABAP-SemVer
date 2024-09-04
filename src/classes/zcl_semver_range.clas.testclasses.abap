@@ -8,6 +8,7 @@ CLASS ltcl_semver_range DEFINITION FOR TESTING RISK LEVEL HARMLESS
       range_intersect FOR TESTING RAISING zcx_semver_error,
       range_exclude FOR TESTING RAISING zcx_semver_error,
       range_parse FOR TESTING RAISING zcx_semver_error,
+      range_formatted FOR TESTING RAISING zcx_semver_error,
       empty_comparator FOR TESTING RAISING zcx_semver_error,
       create_from_comparator FOR TESTING RAISING zcx_semver_error,
       create_from_range FOR TESTING RAISING zcx_semver_error,
@@ -94,7 +95,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
           loose  = range_parse-loose
           incpre = range_parse-incpre ).
 
-        DATA(res) = COND #( WHEN r->range IS INITIAL THEN `*` ELSE r->range ).
+        DATA(res) = COND #( WHEN r->range( ) IS INITIAL THEN `*` ELSE r->range( ) ).
 
         cl_abap_unit_assert=>assert_equals(
           act = res
@@ -107,13 +108,34 @@ CLASS ltcl_semver_range IMPLEMENTATION.
           incpre = range_parse-incpre ).
 
         cl_abap_unit_assert=>assert_equals(
-          act = r->range
-          exp = e->range
+          act = r->range( )
+          exp = e->range( )
           msg = msg ).
       ENDIF.
     ENDLOOP.
 
   ENDMETHOD.
+
+  METHOD range_formatted.
+ " formatted value is calculated lazily and cached
+
+    DATA(r) = zcl_semver_range=>create( '>= 1.2.3' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = r->formatted
+      exp = '' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = r->format( )
+      exp = '>=1.2.3' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = r->formatted
+      exp = '>=1.2.3' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = r->format( )
+      exp = '>=1.2.3' ).
+
+  ENDMETHOD.
+
 
   METHOD empty_comparator.
 
@@ -146,8 +168,8 @@ CLASS ltcl_semver_range IMPLEMENTATION.
       loose  = abap_true ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_range=>create( range = loose loose = abap_true )->range
-      exp = loose->range ).
+      act = zcl_semver_range=>create( range = loose loose = abap_true )->range( )
+      exp = loose->range( ) ).
 
     cl_abap_unit_assert=>assert_differs(
       act = zcl_semver_range=>create( range = loose )->options
@@ -158,8 +180,8 @@ CLASS ltcl_semver_range IMPLEMENTATION.
       incpre = abap_true ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_range=>create( range = incpre incpre = abap_true )->range
-      exp = incpre->range ).
+      act = zcl_semver_range=>create( range = incpre incpre = abap_true )->range( )
+      exp = incpre->range( ) ).
 
     cl_abap_unit_assert=>assert_differs(
       act = zcl_semver_range=>create( range = incpre )->options
@@ -176,7 +198,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
     ENDTRY.
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_range=>create( range = '>=01.02.03' loose = abap_true )->range
+      act = zcl_semver_range=>create( range = '>=01.02.03' loose = abap_true )->range( )
       exp = '>=1.2.3' ).
 
     TRY.
@@ -186,7 +208,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
     ENDTRY.
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_range=>create( range = '~1.02.03beta' loose = abap_true )->range
+      act = zcl_semver_range=>create( range = '~1.02.03beta' loose = abap_true )->range( )
       exp = '>=1.2.3-beta <1.3.0-0' ).
 
   ENDMETHOD.

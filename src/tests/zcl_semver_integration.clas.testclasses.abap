@@ -40,7 +40,7 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
     DATA(r) = |1.2.3 { ws_large } <1.3.0|.
 
     cl_abap_unit_assert=>assert_equals(
-      act = zcl_semver_range=>create( r )->range
+      act = zcl_semver_range=>create( r )->range( )
       exp = '1.2.3 <1.3.0' ).
 
     cl_abap_unit_assert=>assert_equals(

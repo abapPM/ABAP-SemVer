@@ -15,9 +15,7 @@ CLASS zcl_semver_range DEFINITION
       ty_comparators TYPE STANDARD TABLE OF REF TO zcl_semver_comparator WITH DEFAULT KEY,
       ty_set         TYPE STANDARD TABLE OF ty_comparators WITH DEFAULT KEY.
 
-    DATA:
-      range TYPE string READ-ONLY,
-      set   TYPE ty_set READ-ONLY.
+    DATA set TYPE ty_set READ-ONLY.
 
     METHODS constructor
       IMPORTING
@@ -36,6 +34,10 @@ CLASS zcl_semver_range DEFINITION
         VALUE(result) TYPE REF TO zcl_semver_range
       RAISING
         zcx_semver_error.
+
+    METHODS range
+      RETURNING
+        VALUE(result) TYPE string.
 
     METHODS format
       RETURNING
@@ -83,10 +85,12 @@ CLASS zcl_semver_range DEFINITION
       END OF ty_cache_entry,
       ty_cache TYPE HASHED TABLE OF ty_cache_entry WITH UNIQUE KEY key.
 
+    CLASS-DATA cache TYPE ty_cache.
+
     DATA:
-      raw     TYPE string,
-      cache   TYPE ty_cache,
-      options TYPE zif_semver_options=>ty_options.
+      raw       TYPE string,
+      formatted TYPE string,
+      options   TYPE zif_semver_options=>ty_options.
 
     CLASS-METHODS is_any
       IMPORTING
@@ -296,8 +300,6 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
     ENDIF.
 
-    format( ).
-
   ENDMETHOD.
 
 
@@ -335,25 +337,7 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
 
   METHOD format.
-
-    DATA comps TYPE string_table.
-    DATA comp TYPE string.
-
-    LOOP AT set ASSIGNING FIELD-SYMBOL(<set>).
-      LOOP AT <set> ASSIGNING FIELD-SYMBOL(<comp>).
-        IF sy-tabix = 1.
-          comp = zcl_semver_utils=>trim( <comp>->value ).
-        ELSE.
-          comp = comp && ` ` && zcl_semver_utils=>trim( <comp>->value ).
-        ENDIF.
-      ENDLOOP.
-      INSERT comp INTO TABLE comps.
-    ENDLOOP.
-
-    range = zcl_semver_utils=>trim( concat_lines_of( table = comps sep = `||` ) ).
-
-    result = range.
-
+    result = range( ).
   ENDMETHOD.
 
 
@@ -550,6 +534,31 @@ CLASS zcl_semver_range IMPLEMENTATION.
     cache_entry-key   = cache_key.
     cache_entry-value = result.
     INSERT cache_entry INTO TABLE cache.
+
+  ENDMETHOD.
+
+
+  METHOD range.
+
+    DATA comps TYPE string_table.
+    DATA comp TYPE string.
+
+    IF formatted IS INITIAL.
+      LOOP AT set ASSIGNING FIELD-SYMBOL(<set>).
+        LOOP AT <set> ASSIGNING FIELD-SYMBOL(<comp>).
+          IF sy-tabix = 1.
+            comp = zcl_semver_utils=>trim( <comp>->value ).
+          ELSE.
+            comp = comp && ` ` && zcl_semver_utils=>trim( <comp>->value ).
+          ENDIF.
+        ENDLOOP.
+        INSERT comp INTO TABLE comps.
+      ENDLOOP.
+
+      formatted = zcl_semver_utils=>trim( concat_lines_of( table = comps sep = `||` ) ).
+    ENDIF.
+
+    result = formatted.
 
   ENDMETHOD.
 
@@ -1004,6 +1013,6 @@ CLASS zcl_semver_range IMPLEMENTATION.
 
 
   METHOD to_string.
-    result = range.
+    result = range( ).
   ENDMETHOD.
 ENDCLASS.
