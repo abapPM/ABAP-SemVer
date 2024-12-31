@@ -4,16 +4,16 @@ CLASS ltcl_semver_range DEFINITION FOR TESTING RISK LEVEL HARMLESS
   PRIVATE SECTION.
 
     METHODS:
-      range_include FOR TESTING RAISING zcx_semver_error,
-      range_intersect FOR TESTING RAISING zcx_semver_error,
-      range_exclude FOR TESTING RAISING zcx_semver_error,
-      range_parse FOR TESTING RAISING zcx_semver_error,
-      range_formatted FOR TESTING RAISING zcx_semver_error,
-      empty_comparator FOR TESTING RAISING zcx_semver_error,
-      create_from_comparator FOR TESTING RAISING zcx_semver_error,
-      create_from_range FOR TESTING RAISING zcx_semver_error,
-      strict_vs_loose FOR TESTING RAISING zcx_semver_error,
-      to_string FOR TESTING RAISING zcx_semver_error.
+      range_include FOR TESTING RAISING zcx_error,
+      range_intersect FOR TESTING RAISING zcx_error,
+      range_exclude FOR TESTING RAISING zcx_error,
+      range_parse FOR TESTING RAISING zcx_error,
+      range_formatted FOR TESTING RAISING zcx_error,
+      empty_comparator FOR TESTING RAISING zcx_error,
+      create_from_comparator FOR TESTING RAISING zcx_error,
+      create_from_range FOR TESTING RAISING zcx_error,
+      strict_vs_loose FOR TESTING RAISING zcx_error,
+      to_string FOR TESTING RAISING zcx_error.
 
 ENDCLASS.
 
@@ -87,7 +87,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
               loose  = range_parse-loose
               incpre = range_parse-incpre ).
             cl_abap_unit_assert=>fail( msg = msg ).
-          CATCH zcx_semver_error ##NO_HANDLER.
+          CATCH zcx_error ##NO_HANDLER.
         ENDTRY.
       ELSE.
         r = zcl_semver_range=>create(
@@ -144,7 +144,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
           range  = 'sadf||asdf'
           loose  = abap_true ).
         cl_abap_unit_assert=>fail( ).
-      CATCH zcx_semver_error ##NO_HANDLER.
+      CATCH zcx_error ##NO_HANDLER.
     ENDTRY.
 
   ENDMETHOD.
@@ -194,7 +194,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
     TRY.
         DATA(loose) = zcl_semver_range=>create( '>=01.02.03' ).
         cl_abap_unit_assert=>fail( ).
-      CATCH zcx_semver_error ##NO_HANDLER.
+      CATCH zcx_error ##NO_HANDLER.
     ENDTRY.
 
     cl_abap_unit_assert=>assert_equals(
@@ -204,7 +204,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
     TRY.
         loose = zcl_semver_range=>create( '~1.02.03beta' ).
         cl_abap_unit_assert=>fail( ).
-      CATCH zcx_semver_error ##NO_HANDLER.
+      CATCH zcx_error ##NO_HANDLER.
     ENDTRY.
 
     cl_abap_unit_assert=>assert_equals(

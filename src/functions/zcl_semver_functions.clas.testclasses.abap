@@ -12,36 +12,36 @@ CLASS ltcl_semver_functions DEFINITION FOR TESTING RISK LEVEL HARMLESS
       ty_tests TYPE STANDARD TABLE OF ty_test WITH DEFAULT KEY.
 
     METHODS:
-      clean FOR TESTING RAISING zcx_semver_error,
-      cmp_invalid FOR TESTING RAISING zcx_semver_error,
-      cmp_comparison FOR TESTING RAISING zcx_semver_error,
-      cmp_equality FOR TESTING RAISING zcx_semver_error,
-      coerce_to_null FOR TESTING RAISING zcx_semver_error,
-      coerce_to_valid FOR TESTING RAISING zcx_semver_error,
-      coerce_to_valid_incpre FOR TESTING RAISING zcx_semver_error,
-      coerce_rtl FOR TESTING RAISING zcx_semver_error,
-      coerce_rtl_incpre FOR TESTING RAISING zcx_semver_error,
-      compare FOR TESTING RAISING zcx_semver_error,
-      compare_build FOR TESTING RAISING zcx_semver_error,
-      compare_loose FOR TESTING RAISING zcx_semver_error,
-      diff FOR TESTING RAISING zcx_semver_error,
-      eq FOR TESTING RAISING zcx_semver_error,
-      gt FOR TESTING RAISING zcx_semver_error,
-      gte FOR TESTING RAISING zcx_semver_error,
-      inc FOR TESTING RAISING zcx_semver_error,
-      lt FOR TESTING RAISING zcx_semver_error,
-      lte FOR TESTING RAISING zcx_semver_error,
-      major FOR TESTING RAISING zcx_semver_error,
-      minor FOR TESTING RAISING zcx_semver_error,
-      neq FOR TESTING RAISING zcx_semver_error,
-      parse FOR TESTING RAISING zcx_semver_error,
-      patch FOR TESTING RAISING zcx_semver_error,
-      prerelease FOR TESTING RAISING zcx_semver_error,
-      rcompare FOR TESTING RAISING zcx_semver_error,
-      rsort FOR TESTING RAISING zcx_semver_error,
-      satisfies FOR TESTING RAISING zcx_semver_error,
-      sort FOR TESTING RAISING zcx_semver_error,
-      valid FOR TESTING RAISING zcx_semver_error.
+      clean FOR TESTING RAISING zcx_error,
+      cmp_invalid FOR TESTING RAISING zcx_error,
+      cmp_comparison FOR TESTING RAISING zcx_error,
+      cmp_equality FOR TESTING RAISING zcx_error,
+      coerce_to_null FOR TESTING RAISING zcx_error,
+      coerce_to_valid FOR TESTING RAISING zcx_error,
+      coerce_to_valid_incpre FOR TESTING RAISING zcx_error,
+      coerce_rtl FOR TESTING RAISING zcx_error,
+      coerce_rtl_incpre FOR TESTING RAISING zcx_error,
+      compare FOR TESTING RAISING zcx_error,
+      compare_build FOR TESTING RAISING zcx_error,
+      compare_loose FOR TESTING RAISING zcx_error,
+      diff FOR TESTING RAISING zcx_error,
+      eq FOR TESTING RAISING zcx_error,
+      gt FOR TESTING RAISING zcx_error,
+      gte FOR TESTING RAISING zcx_error,
+      inc FOR TESTING RAISING zcx_error,
+      lt FOR TESTING RAISING zcx_error,
+      lte FOR TESTING RAISING zcx_error,
+      major FOR TESTING RAISING zcx_error,
+      minor FOR TESTING RAISING zcx_error,
+      neq FOR TESTING RAISING zcx_error,
+      parse FOR TESTING RAISING zcx_error,
+      patch FOR TESTING RAISING zcx_error,
+      prerelease FOR TESTING RAISING zcx_error,
+      rcompare FOR TESTING RAISING zcx_error,
+      rsort FOR TESTING RAISING zcx_error,
+      satisfies FOR TESTING RAISING zcx_error,
+      sort FOR TESTING RAISING zcx_error,
+      valid FOR TESTING RAISING zcx_error.
 
 ENDCLASS.
 
@@ -78,7 +78,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
     TRY.
         zcl_semver_functions=>cmp( a = '1.2.3' op = 'a frog' b = '4.5.6' ).
         cl_abap_unit_assert=>fail( msg = 'invalid cmp usage' ).
-      CATCH zcx_semver_error ##NO_HANDLER.
+      CATCH zcx_error ##NO_HANDLER.
     ENDTRY.
 
   ENDMETHOD.
@@ -540,7 +540,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       TRY.
           DATA(semver) = zcl_semver=>create( test-loose ).
           cl_abap_unit_assert=>fail( ).
-        CATCH zcx_semver_error ##NO_HANDLER.
+        CATCH zcx_error ##NO_HANDLER.
       ENDTRY.
 
       semver = zcl_semver=>create( version = test-loose loose = abap_true ).
@@ -559,14 +559,14 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
             exp = abap_true ).
 
           cl_abap_unit_assert=>fail( ).
-        CATCH zcx_semver_error ##NO_HANDLER.
+        CATCH zcx_error ##NO_HANDLER.
       ENDTRY.
 
       TRY.
           semver = zcl_semver=>create( test-strict ).
           semver->compare( test-loose ).
           cl_abap_unit_assert=>fail( ).
-        CATCH zcx_semver_error ##NO_HANDLER.
+        CATCH zcx_error ##NO_HANDLER.
       ENDTRY.
 
       cl_abap_unit_assert=>assert_equals(
@@ -634,7 +634,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
           version_1 = 'bad'
           version_2 = '1.2.3' ).
         cl_abap_unit_assert=>fail( ).
-      CATCH zcx_semver_error INTO DATA(error).
+      CATCH zcx_error INTO DATA(error).
         cl_abap_unit_assert=>assert_equals(
           act = error->get_text( )
           exp = 'Invalid version: bad' ).
@@ -838,7 +838,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
               identifier_base = increments-identifier_base ).
 
             cl_abap_unit_assert=>fail( ).
-          CATCH zcx_semver_error ##NO_HANDLER.
+          CATCH zcx_error ##NO_HANDLER.
         ENDTRY.
 
       ENDIF.
@@ -1036,7 +1036,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
           version      = 'bad'
           throw_errors = abap_true ).
         cl_abap_unit_assert=>fail( ).
-      CATCH zcx_semver_error INTO DATA(error).
+      CATCH zcx_error INTO DATA(error).
         cl_abap_unit_assert=>assert_equals(
           act = error->get_text( )
           exp = 'Invalid version: bad' ).
@@ -1049,7 +1049,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
           version      = wrong_type
           throw_errors = abap_true ).
         cl_abap_unit_assert=>fail( ).
-      CATCH zcx_semver_error INTO error.
+      CATCH zcx_error INTO error.
         cl_abap_unit_assert=>assert_equals(
           act = substring( val = error->get_text( ) len = 50 )
           exp = 'Invalid version. Must be a string or a semver. Got' ).

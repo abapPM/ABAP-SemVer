@@ -10,10 +10,10 @@ CLASS ltcl_semver_integration DEFINITION FOR TESTING RISK LEVEL HARMLESS
 
     METHODS:
       setup,
-      range_with_whitespace FOR TESTING RAISING zcx_semver_error,
-      range_with_0 FOR TESTING RAISING zcx_semver_error,
-      semver_version FOR TESTING RAISING zcx_semver_error,
-      comparator FOR TESTING RAISING zcx_semver_error.
+      range_with_whitespace FOR TESTING RAISING zcx_error,
+      range_with_0 FOR TESTING RAISING zcx_error,
+      semver_version FOR TESTING RAISING zcx_error,
+      comparator FOR TESTING RAISING zcx_error.
 
 ENDCLASS.
 
@@ -70,7 +70,7 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
     TRY.
         DATA(range) = zcl_semver_range=>create( r ).
         cl_abap_unit_assert=>fail( ).
-      CATCH zcx_semver_error ##no_handler.
+      CATCH zcx_error ##no_handler.
     ENDTRY.
 
     cl_abap_unit_assert=>assert_equals(
@@ -80,7 +80,7 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
     TRY.
         DATA(min) = zcl_semver_ranges=>min_version( r ).
         cl_abap_unit_assert=>fail( ).
-      CATCH zcx_semver_error ##no_handler.
+      CATCH zcx_error ##no_handler.
     ENDTRY.
 
     DATA(t) = VALUE string_table( ( `1.2.3` ) ).
@@ -107,7 +107,7 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
     TRY.
         DATA(t) = zcl_semver=>create( too_long ).
         cl_abap_unit_assert=>fail( ).
-      CATCH zcx_semver_error ##no_handler.
+      CATCH zcx_error ##no_handler.
     ENDTRY.
 
   ENDMETHOD.

@@ -4,17 +4,17 @@ CLASS ltcl_semver_ranges DEFINITION FOR TESTING RISK LEVEL HARMLESS
   PRIVATE SECTION.
 
     METHODS:
-      gtr FOR TESTING RAISING zcx_semver_error,
-      intersects FOR TESTING RAISING zcx_semver_error,
-      ltr FOR TESTING RAISING zcx_semver_error,
-      max_satisfying FOR TESTING RAISING zcx_semver_error,
-      min_satisfying FOR TESTING RAISING zcx_semver_error,
-      min_version FOR TESTING RAISING zcx_semver_error,
-      outside FOR TESTING RAISING zcx_semver_error,
-      simplify FOR TESTING RAISING zcx_semver_error,
-      subset FOR TESTING RAISING zcx_semver_error,
-      to_comparators FOR TESTING RAISING zcx_semver_error,
-      valid_range FOR TESTING RAISING zcx_semver_error.
+      gtr FOR TESTING RAISING zcx_error,
+      intersects FOR TESTING RAISING zcx_error,
+      ltr FOR TESTING RAISING zcx_error,
+      max_satisfying FOR TESTING RAISING zcx_error,
+      min_satisfying FOR TESTING RAISING zcx_error,
+      min_version FOR TESTING RAISING zcx_error,
+      outside FOR TESTING RAISING zcx_error,
+      simplify FOR TESTING RAISING zcx_error,
+      subset FOR TESTING RAISING zcx_error,
+      to_comparators FOR TESTING RAISING zcx_error,
+      valid_range FOR TESTING RAISING zcx_error.
 
 ENDCLASS.
 
@@ -424,7 +424,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
           range   = '>1.5.0'
           hilo    = 'x' ).
         cl_abap_unit_assert=>fail( ).
-      CATCH zcx_semver_error INTO DATA(error).
+      CATCH zcx_error INTO DATA(error).
         cl_abap_unit_assert=>assert_equals(
           act = error->get_text( )
           exp = 'Must provide a hilo val of "<" or ">"' ).

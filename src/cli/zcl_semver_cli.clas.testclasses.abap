@@ -12,11 +12,11 @@ CLASS ltcl_semver_cli DEFINITION FOR TESTING RISK LEVEL HARMLESS
           out     TYPE string OPTIONAL
           out_tab TYPE string_table OPTIONAL
           err     TYPE string OPTIONAL,
-      help FOR TESTING RAISING zcx_semver_error,
-      inc FOR TESTING RAISING zcx_semver_error,
-      sorting_and_filtering FOR TESTING RAISING zcx_semver_error,
-      coercing FOR TESTING RAISING zcx_semver_error,
-      args_with_equals FOR TESTING RAISING zcx_semver_error.
+      help FOR TESTING RAISING zcx_error,
+      inc FOR TESTING RAISING zcx_error,
+      sorting_and_filtering FOR TESTING RAISING zcx_error,
+      coercing FOR TESTING RAISING zcx_error,
+      args_with_equals FOR TESTING RAISING zcx_error.
 
 ENDCLASS.
 
@@ -36,7 +36,7 @@ CLASS ltcl_semver_cli IMPLEMENTATION.
 
     TRY.
         DATA(act_out) = zcl_semver_cli=>main( args ).
-      CATCH zcx_semver_error INTO DATA(error).
+      CATCH zcx_error INTO DATA(error).
         DATA(act_err) = error->get_text( ).
     ENDTRY.
 

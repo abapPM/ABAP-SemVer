@@ -4,15 +4,15 @@ CLASS ltcl_semver DEFINITION FOR TESTING RISK LEVEL HARMLESS
   PRIVATE SECTION.
 
     METHODS:
-      comparisons FOR TESTING RAISING zcx_semver_error,
-      equality FOR TESTING RAISING zcx_semver_error,
-      to_string FOR TESTING RAISING zcx_semver_error,
-      invalid_versions FOR TESTING RAISING zcx_semver_error,
-      options FOR TESTING RAISING zcx_semver_error,
-      really_big FOR TESTING RAISING zcx_semver_error,
-      incrementing FOR TESTING RAISING zcx_semver_error,
-      compare_main_vs_pre FOR TESTING RAISING zcx_semver_error,
-      compare_build FOR TESTING RAISING zcx_semver_error.
+      comparisons FOR TESTING RAISING zcx_error,
+      equality FOR TESTING RAISING zcx_error,
+      to_string FOR TESTING RAISING zcx_error,
+      invalid_versions FOR TESTING RAISING zcx_error,
+      options FOR TESTING RAISING zcx_error,
+      really_big FOR TESTING RAISING zcx_error,
+      incrementing FOR TESTING RAISING zcx_error,
+      compare_main_vs_pre FOR TESTING RAISING zcx_error,
+      compare_build FOR TESTING RAISING zcx_error.
 
 ENDCLASS.
 
@@ -75,7 +75,7 @@ CLASS ltcl_semver IMPLEMENTATION.
       TRY.
           DATA(s) = zcl_semver=>create( version = invalid_version-value loose = invalid_version-loose ).
           cl_abap_unit_assert=>fail( msg = msg ).
-        CATCH zcx_semver_error ##NO_HANDLER.
+        CATCH zcx_error ##NO_HANDLER.
       ENDTRY.
     ENDLOOP.
 
@@ -125,7 +125,7 @@ CLASS ltcl_semver IMPLEMENTATION.
               identifier      = increments-identifier
               identifier_base = increments-identifier_base ).
             cl_abap_unit_assert=>fail( msg = msg ).
-          CATCH zcx_semver_error ##NO_HANDLER.
+          CATCH zcx_error ##NO_HANDLER.
             " throws when presented with garbage
         ENDTRY.
       ELSE.

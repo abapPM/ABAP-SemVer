@@ -4,12 +4,12 @@ CLASS ltcl_semver_comparator DEFINITION FOR TESTING RISK LEVEL HARMLESS
   PRIVATE SECTION.
 
     METHODS:
-      comparator FOR TESTING RAISING zcx_semver_error,
-      to_string FOR TESTING RAISING zcx_semver_error,
-      intersect FOR TESTING RAISING zcx_semver_error,
-      any FOR TESTING RAISING zcx_semver_error,
-      invalid FOR TESTING RAISING zcx_semver_error,
-      ignore_equal FOR TESTING RAISING zcx_semver_error.
+      comparator FOR TESTING RAISING zcx_error,
+      to_string FOR TESTING RAISING zcx_error,
+      intersect FOR TESTING RAISING zcx_error,
+      any FOR TESTING RAISING zcx_error,
+      invalid FOR TESTING RAISING zcx_error,
+      ignore_equal FOR TESTING RAISING zcx_error.
 
 ENDCLASS.
 
@@ -97,7 +97,7 @@ CLASS ltcl_semver_comparator IMPLEMENTATION.
         DATA(c) = zcl_semver_comparator=>create( 'foo bar baz' ).
 
         cl_abap_unit_assert=>fail( msg = 'Should throw invalid comparator' ).
-      CATCH zcx_semver_error ##NO_HANDLER.
+      CATCH zcx_error ##NO_HANDLER.
     ENDTRY.
 
   ENDMETHOD.
