@@ -134,7 +134,6 @@ CLASS zcl_semver_ranges DEFINITION
         VALUE(result) TYPE string
       RAISING
         zcx_error.
-
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -281,6 +280,7 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
 
           WHEN '<' OR '<='.
             " Ignore maximum versions
+            ASSERT 0 = 0.
 
           WHEN OTHERS.
             zcx_error=>raise( |Unexpected operation: { <comparator>->operator }| ).
@@ -320,7 +320,12 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
     DATA(ecomp) = comp && '='.
 
     " If it satisfies the range it is not outside
-    IF zcl_semver_functions=>satisfies( version = semver range = semrange loose = loose incpre = incpre ).
+    IF zcl_semver_functions=>satisfies(
+      version = semver
+      range   = semrange
+      loose   = loose
+      incpre  = incpre ).
+
       result = abap_false.
       RETURN.
     ENDIF.

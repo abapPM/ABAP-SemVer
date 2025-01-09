@@ -189,7 +189,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
         res      TYPE string,
         loose    TYPE abap_bool,
       END OF ty_test,
-      ty_tests TYPE STANDARD TABLE OF ty_test WITH DEFAULT KEY.
+      ty_tests TYPE STANDARD TABLE OF ty_test WITH KEY versions range res loose.
 
     DATA(tests) = VALUE ty_tests(
        ( versions = '1.2.3 1.2.4' range = '1.2' res = '1.2.4' )
@@ -228,7 +228,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
         res      TYPE string,
         loose    TYPE abap_bool,
       END OF ty_test,
-      ty_tests TYPE STANDARD TABLE OF ty_test WITH DEFAULT KEY.
+      ty_tests TYPE STANDARD TABLE OF ty_test WITH KEY versions range res loose.
 
     DATA(tests) = VALUE ty_tests(
        ( versions = '1.2.3 1.2.4' range = '1.2' res = '1.2.3' )
@@ -266,7 +266,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
         min   TYPE string,
         loose TYPE abap_bool,
       END OF ty_test,
-      ty_tests TYPE STANDARD TABLE OF ty_test WITH DEFAULT KEY.
+      ty_tests TYPE STANDARD TABLE OF ty_test WITH KEY range min loose.
 
     DATA(tests) = VALUE ty_tests(
       " Stars
@@ -507,6 +507,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
     " Method is not implemented yet
     " https://github.com/npm/node-semver/blob/main/test/ranges/subset.js
+    ASSERT 0 = 0.
 
   ENDMETHOD.
 
@@ -517,7 +518,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
         range TYPE string,
         comps TYPE string,
       END OF ty_test,
-      ty_tests TYPE STANDARD TABLE OF ty_test WITH DEFAULT KEY.
+      ty_tests TYPE STANDARD TABLE OF ty_test WITH KEY range comps.
 
     DATA test_act TYPE string.
 
