@@ -274,7 +274,6 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
       ( range = '* || >=2' min = '0.0.0' )
       ( range = '>=2 || *' min = '0.0.0' )
       ( range = '>2 || *' min = '0.0.0' )
-
       " Equal
       ( range = '1.0.0' min = '1.0.0' )
       ( range = '1.0' min = '1.0.0' )
@@ -288,22 +287,18 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
       ( range = '1.x' min = '1.0.0' )
       ( range = '1.*' min = '1.0.0' )
       ( range = '=1.0.0' min = '1.0.0' )
-
       " Tilde
       ( range = '~1.1.1' min = '1.1.1' )
       ( range = '~1.1.1-beta' min = '1.1.1-beta' )
       ( range = '~1.1.1 || >=2' min = '1.1.1' )
-
       " Carot
       ( range = '^1.1.1' min = '1.1.1' )
       ( range = '^1.1.1-beta' min = '1.1.1-beta' )
       ( range = '^1.1.1 || >=2' min = '1.1.1' )
       ( range = '^2.16.2 ^2.16' min = '2.16.2' )
-
       " '-' operator
       ( range = '1.1.1 - 1.8.0' min = '1.1.1' )
       ( range = '1.1 - 1.8.0' min = '1.1.0' )
-
       " Less / less or equal
       ( range = '<2' min = '0.0.0' )
       ( range = '<0.0.0-beta' min = '0.0.0-0' )
@@ -314,11 +309,9 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
       ( range = '>=4 || <=2' min = '0.0.0' )
       ( range = '<0.0.0-beta >0.0.0-alpha' min = '0.0.0-alpha.0' )
       ( range = '>0.0.0-alpha <0.0.0-beta' min = '0.0.0-alpha.0' )
-
       " Greater than or equal
       ( range = '>=1.1.1 <2 || >=2.2.2 <2' min = '1.1.1' )
       ( range = '>=2.2.2 <2 || >=1.1.1 <2' min = '1.1.1' )
-
       " Greater than but not equal
       ( range = '>1.0.0' min = '1.0.1' )
       ( range = '>1.0.0-0' min = '1.0.0-0.0' )
@@ -326,7 +319,6 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
       ( range = '>2 || >1.0.0' min = '1.0.1' )
       ( range = '>2 || >1.0.0-0' min = '1.0.0-0.0' )
       ( range = '>2 || >1.0.0-beta' min = '1.0.0-beta.0' )
-
       " Impossible range
       ( range = '>4 <3' min = '' ) ).
 

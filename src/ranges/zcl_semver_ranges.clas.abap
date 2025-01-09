@@ -389,7 +389,7 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
       CASE hilo.
         WHEN '>'.
           IF ( low->operator IS INITIAL OR low->operator = comp ) AND
-            zcl_semver_functions=>lte( a = semver b =  low->semver ).
+            zcl_semver_functions=>lte( a = semver b = low->semver ).
 
             result = abap_false.
             RETURN.
@@ -399,7 +399,7 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
           ENDIF.
         WHEN '<'.
           IF ( low->operator IS INITIAL OR low->operator = comp ) AND
-            zcl_semver_functions=>gte( a = semver b =  low->semver ).
+            zcl_semver_functions=>gte( a = semver b = low->semver ).
 
             result = abap_false.
             RETURN.
@@ -472,11 +472,11 @@ CLASS zcl_semver_ranges IMPLEMENTATION.
     LOOP AT set ASSIGNING FIELD-SYMBOL(<set>).
       IF <set>-min = <set>-max.
         INSERT <set>-min INTO TABLE ranges.
-      ELSEIF <set>-max IS INITIAL AND  v[ 1 ] = <set>-min.
+      ELSEIF <set>-max IS INITIAL AND v[ 1 ] = <set>-min.
         INSERT |*| INTO TABLE ranges.
       ELSEIF <set>-max IS INITIAL.
         INSERT |>={ <set>-min }| INTO TABLE ranges.
-      ELSEIF  v[ 1 ] = <set>-min.
+      ELSEIF v[ 1 ] = <set>-min.
         INSERT |<={ <set>-max }| INTO TABLE ranges.
       ELSE.
         INSERT |{ <set>-min } - { <set>-max }| INTO TABLE ranges.

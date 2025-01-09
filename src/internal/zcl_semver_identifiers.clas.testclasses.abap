@@ -13,7 +13,7 @@ ENDCLASS.
 CLASS ltcl_semver_identifiers IMPLEMENTATION.
 
   METHOD setup.
-    CREATE OBJECT cut.
+    cut = NEW #( ).
   ENDMETHOD.
 
   METHOD test.

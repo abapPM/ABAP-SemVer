@@ -34,6 +34,7 @@ START-OF-SELECTION.
         ENDIF.
       ENDLOOP.
 
-    CATCH zcx_semver_error INTO DATA(error).
-      MESSAGE error TYPE 'I' DISPLAY LIKE 'E'.
+    CATCH zcx_error INTO DATA(error).
+      DATA(msg) = error->get_text( ).
+      MESSAGE msg TYPE 'I' DISPLAY LIKE 'E'.
   ENDTRY.

@@ -2,8 +2,6 @@ CLASS ltcl_semver_re DEFINITION FOR TESTING RISK LEVEL HARMLESS
   DURATION SHORT FINAL.
 
   PRIVATE SECTION.
-    DATA cut TYPE REF TO zcl_semver_re.
-
     METHODS:
       test_src FOR TESTING,
       test_regex FOR TESTING,
@@ -73,8 +71,7 @@ CLASS ltcl_semver_re IMPLEMENTATION.
           regex = <token>-regex.
           DATA(matcher) = regex->create_matcher( text = '1.2.3' ).
         CATCH cx_root.
-          cl_abap_unit_assert=>fail(
-            msg = |Error processing regex component #{ i }| ).
+          cl_abap_unit_assert=>fail( msg = |Error processing regex component #{ i }| ).
       ENDTRY.
     ENDDO.
 
