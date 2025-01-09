@@ -9,7 +9,7 @@ CLASS ltcl_semver_functions DEFINITION FOR TESTING RISK LEVEL HARMLESS
         version TYPE string,
         loose   TYPE abap_bool,
       END OF ty_test,
-      ty_tests TYPE STANDARD TABLE OF ty_test WITH DEFAULT KEY.
+      ty_tests TYPE STANDARD TABLE OF ty_test WITH KEY range version loose.
 
     METHODS:
       clean FOR TESTING RAISING zcx_error,
