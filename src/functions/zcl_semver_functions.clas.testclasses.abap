@@ -201,7 +201,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         res     TYPE string,
       END OF ty_test.
 
-    DATA tests TYPE TABLE OF ty_test.
+    DATA tests TYPE TABLE OF ty_test WITH KEY version res.
 
     DATA(mx) = zif_semver_constants=>max_safe_component_length.
     DATA(my) = mx + 1. " make it too long
@@ -306,7 +306,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         res     TYPE string,
       END OF ty_test.
 
-    DATA tests TYPE TABLE OF ty_test.
+    DATA tests TYPE TABLE OF ty_test WITH KEY version res.
 
     tests = VALUE #(
       ( version = '1-rc.5' res = '1.0.0-rc.5' )
@@ -355,7 +355,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         res     TYPE string,
       END OF ty_test.
 
-    DATA tests TYPE TABLE OF ty_test.
+    DATA tests TYPE TABLE OF ty_test WITH KEY version res.
 
     tests = VALUE #(
       ( version = '1.2.3.4.5.6' res = '4.5.6' )
@@ -397,7 +397,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         res     TYPE string,
       END OF ty_test.
 
-    DATA tests TYPE TABLE OF ty_test.
+    DATA tests TYPE TABLE OF ty_test WITH KEY version res.
 
     tests = VALUE #(
       ( version = '1.2-rc.5+rev.6' res = '1.2.0-rc.5+rev.6' )
@@ -526,7 +526,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         strict TYPE string,
       END OF ty_test.
 
-    DATA tests TYPE TABLE OF ty_test.
+    DATA tests TYPE TABLE OF ty_test WITH KEY loose strict.
 
     tests = VALUE #(
       ( loose = '=1.2.3' strict = '1.2.3' )
@@ -586,7 +586,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         res TYPE string,
       END OF ty_test.
 
-    DATA tests TYPE TABLE OF ty_test.
+    DATA tests TYPE TABLE OF ty_test WITH KEY v1 v2 res.
 
     tests = VALUE #(
       ( v1 = '1.2.3' v2 = '0.2.3' res = 'major' )
@@ -1109,7 +1109,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         prerel  TYPE string_table,
       END OF ty_test.
 
-    DATA tests TYPE TABLE OF ty_test.
+    DATA tests TYPE TABLE OF ty_test WITH KEY version loose.
 
     tests = VALUE #(
       ( version = '1.2.2-alpha.1' prerel = VALUE #( ( `alpha` ) ( `1` ) ) )

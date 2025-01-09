@@ -2,7 +2,7 @@ CLASS ltcl_semver_re DEFINITION FOR TESTING RISK LEVEL HARMLESS
   DURATION SHORT FINAL.
 
   PRIVATE SECTION.
-    DATA mo_cut TYPE REF TO zcl_semver_re.
+    DATA cut TYPE REF TO zcl_semver_re.
 
     METHODS:
       test_src FOR TESTING,
@@ -23,7 +23,7 @@ CLASS ltcl_semver_re IMPLEMENTATION.
     FIELD-SYMBOLS <token> TYPE zcl_semver_re=>ty_token.
 
     DO.
-      i += 1.
+      i = i + 1.
       ASSIGN COMPONENT i OF STRUCTURE zcl_semver_re=>token TO <token>.
       IF sy-subrc <> 0.
         EXIT.
@@ -63,7 +63,7 @@ CLASS ltcl_semver_re IMPLEMENTATION.
     FIELD-SYMBOLS <token> TYPE zcl_semver_re=>ty_token.
 
     DO.
-      i += 1.
+      i = i + 1.
       ASSIGN COMPONENT i OF STRUCTURE zcl_semver_re=>token TO <token>.
       IF sy-subrc <> 0.
         EXIT.
@@ -88,7 +88,7 @@ CLASS ltcl_semver_re IMPLEMENTATION.
     FIELD-SYMBOLS <token> TYPE zcl_semver_re=>ty_token.
 
     DO.
-      i += 1.
+      i = i + 1.
       ASSIGN COMPONENT i OF STRUCTURE zcl_semver_re=>token TO <token>.
       IF sy-subrc <> 0.
         EXIT.
