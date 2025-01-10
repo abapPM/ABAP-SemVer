@@ -12,14 +12,14 @@ This is a port of the [semver parser for node.js](https://github.com/npm/node-se
 
 NO WARRANTIES, [MIT License](https://github.com/abapPM/ABAP-URL/blob/main/LICENSE)
 
-Limitations (PRs welcome): 
-
-- The subset function for ranges has not been implemented.
-
 ## Prerequisites 
  
 SAP Basis 7.50 or higher 
  
+## Limitations
+
+The subset function for ranges has not been implemented (PRs welcome).
+
 ## Usage
 
 As global ABAP classes:
