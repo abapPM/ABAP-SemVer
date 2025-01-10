@@ -203,7 +203,7 @@ CLASS zcl_semver_range DEFINITION
         !loose        TYPE abap_bool
         !incpre       TYPE abap_bool
       RETURNING
-        VALUE(result) TYPE string.
+        VALUE(result) TYPE string ##NEEDED.
 
     CLASS-METHODS replace_hyphen
       IMPORTING
