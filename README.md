@@ -585,3 +585,19 @@ As a convenience, helper constants are available to provide information about wh
 ### `SEMVER_SPEC_VERSION`
 
 `2.0.0`
+
+## Contributions
+
+All contributions are welcome! Read our [Contribution Guidelines](https://github.com/abapPM/ABAP-SemVer/blob/main/CONTRIBUTING.md), fork this repo, and create a pull request.
+
+You can install the developer version of ABAP SemVer using [abapGit](https://github.com/abapGit/abapGit) either by creating a new online repository for https://github.com/abapPM/ABAP-SemVer.
+
+Recommended SAP package: `$SEMVER`
+
+## About
+
+Made with ❤️ in Canada
+
+Copyright 2024 apm.to Inc. <https://apm.to>
+
+Follow [@marcf.be](https://bsky.app/profile/marcf.be) on Blueksy or [marcfbe](https://linkedin.com/in/marcfbe) or LinkedIn
