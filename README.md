@@ -6,11 +6,15 @@
 
 # SemVer for ABAP
 
-The semantic versioner for ABAP and apm.
+The semantic version parser for ABAP and apm. 
+
+This is a port of the [semver parser for node.js](https://github.com/npm/node-semver).
 
 NO WARRANTIES, [MIT License](https://github.com/abapPM/ABAP-URL/blob/main/LICENSE)
 
-Limitations: The subset function for ranges has not been implemented.
+Limitations (PRs welcome): 
+
+- The subset function for ranges has not been implemented.
 
 ## Prerequisites 
  
