@@ -151,7 +151,9 @@
       "modify_only_own_db_tables": true,
       "msag_consistency": true,
       "names_no_dash": true,
-      "nesting": true,
+      "nesting": {
+        "depth": 6
+      },
       "newline_between_methods": true,
       "no_aliases": true,
       "no_chained_assignment": true,
