@@ -94,7 +94,7 @@ CLASS ltcl_semver_comparator IMPLEMENTATION.
   METHOD invalid.
 
     TRY.
-        DATA(c) = zcl_semver_comparator=>create( 'foo bar baz' ).
+        zcl_semver_comparator=>create( 'foo bar baz' ).
 
         cl_abap_unit_assert=>fail( msg = 'Should throw invalid comparator' ).
       CATCH zcx_error ##NO_HANDLER.

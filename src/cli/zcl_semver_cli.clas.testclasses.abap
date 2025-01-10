@@ -56,19 +56,19 @@ CLASS ltcl_semver_cli IMPLEMENTATION.
 
     test(
       args    = '-h'
-      out_tab = zcl_semver_cli=>help( ) ).
+      out_tab = zcl_semver_cli=>_help( ) ).
 
     test(
       args    = '-?'
-      out_tab = zcl_semver_cli=>help( ) ).
+      out_tab = zcl_semver_cli=>_help( ) ).
 
     test(
       args    = '--help'
-      out_tab = zcl_semver_cli=>help( ) ).
+      out_tab = zcl_semver_cli=>_help( ) ).
 
     test(
       args    = ''
-      out_tab = zcl_semver_cli=>help( ) ).
+      out_tab = zcl_semver_cli=>_help( ) ).
 
   ENDMETHOD.
 

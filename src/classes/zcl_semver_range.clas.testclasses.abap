@@ -140,7 +140,7 @@ CLASS ltcl_semver_range IMPLEMENTATION.
   METHOD empty_comparator.
 
     TRY.
-        DATA(r) = zcl_semver_range=>create(
+        zcl_semver_range=>create(
           range  = 'sadf||asdf'
           loose  = abap_true ).
         cl_abap_unit_assert=>fail( ).

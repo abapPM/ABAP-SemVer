@@ -68,7 +68,7 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
     DATA(r) = |1.2.3 { zero_large } <1.3.0|.
 
     TRY.
-        DATA(range) = zcl_semver_range=>create( r ).
+        zcl_semver_range=>create( r ).
         cl_abap_unit_assert=>fail( ).
       CATCH zcx_error ##NO_HANDLER.
     ENDTRY.
@@ -78,7 +78,7 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
       exp = '' ).
 
     TRY.
-        DATA(min) = zcl_semver_ranges=>min_version( r ).
+        zcl_semver_ranges=>min_version( r ).
         cl_abap_unit_assert=>fail( ).
       CATCH zcx_error ##NO_HANDLER.
     ENDTRY.
@@ -105,7 +105,7 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
       exp = '1.2.3' ).
 
     TRY.
-        DATA(t) = zcl_semver=>create( too_long ).
+        zcl_semver=>create( too_long ).
         cl_abap_unit_assert=>fail( ).
       CATCH zcx_error ##NO_HANDLER.
     ENDTRY.

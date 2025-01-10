@@ -74,7 +74,7 @@ CLASS ltcl_semver IMPLEMENTATION.
       DATA(msg) = |{ invalid_version-value } { invalid_version-reason }|.
 
       TRY.
-          DATA(s) = zcl_semver=>create( version = invalid_version-value loose = invalid_version-loose ).
+          zcl_semver=>create( version = invalid_version-value loose = invalid_version-loose ).
           cl_abap_unit_assert=>fail( msg = msg ).
         CATCH zcx_error ##NO_HANDLER.
       ENDTRY.

@@ -69,7 +69,7 @@ CLASS ltcl_semver_re IMPLEMENTATION.
 
       TRY.
           regex = <token>-regex.
-          DATA(matcher) = regex->create_matcher( text = '1.2.3' ).
+          regex->create_matcher( text = '1.2.3' ).
         CATCH cx_root.
           cl_abap_unit_assert=>fail( msg = |Error processing regex component #{ i }| ).
       ENDTRY.

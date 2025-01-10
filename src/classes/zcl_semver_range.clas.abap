@@ -13,7 +13,7 @@ CLASS zcl_semver_range DEFINITION
 
     TYPES:
       ty_comparators TYPE STANDARD TABLE OF REF TO zcl_semver_comparator WITH KEY table_line,
-      ty_set         TYPE STANDARD TABLE OF ty_comparators WITH DEFAULT KEY.
+      ty_set         TYPE STANDARD TABLE OF ty_comparators WITH EMPTY KEY.
 
     DATA set TYPE ty_set READ-ONLY.
 
@@ -72,7 +72,6 @@ CLASS zcl_semver_range DEFINITION
         VALUE(result) TYPE abap_bool
       RAISING
         zcx_error.
-
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -148,7 +147,7 @@ CLASS zcl_semver_range DEFINITION
       RETURNING
         VALUE(result) TYPE string
       RAISING
-        zcx_error.
+        zcx_error ##NEEDED.
 
     CLASS-METHODS replace_carets
       IMPORTING
@@ -196,7 +195,7 @@ CLASS zcl_semver_range DEFINITION
         !loose        TYPE abap_bool
         !incpre       TYPE abap_bool
       RETURNING
-        VALUE(result) TYPE string.
+        VALUE(result) TYPE string ##NEEDED.
 
     CLASS-METHODS replace_gte0
       IMPORTING
@@ -232,7 +231,6 @@ CLASS zcl_semver_range DEFINITION
         !value        TYPE i
       RETURNING
         VALUE(result) TYPE string.
-
 ENDCLASS.
 
 
