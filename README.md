@@ -1,21 +1,21 @@
-![Version](https://img.shields.io/endpoint?url=https://shield.abappm.com/github/abapPM/ABAP-SemVer/src/internal/zif_semver_constants.intf.abap/version&label=Version&color=blue) 
- 
-[![License](https://img.shields.io/github/license/abapPM/ABAP-SemVer?label=License&color=success)](LICENSE) 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?color=success)](https://github.com/abapPM/.github/blob/main/CODE_OF_CONDUCT.md) 
-[![REUSE Status](https://api.reuse.software/badge/github.com/abapPM/ABAP-SemVer)](https://api.reuse.software/info/github.com/abapPM/ABAP-SemVer) 
+![Version](https://img.shields.io/endpoint?url=https://shield.abappm.com/github/abapPM/ABAP-SemVer/src/internal/zif_semver_constants.intf.abap/version&label=Version&color=blue)
+
+[![License](https://img.shields.io/github/license/abapPM/ABAP-SemVer?label=License&color=success)](LICENSE)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?color=success)](https://github.com/abapPM/.github/blob/main/CODE_OF_CONDUCT.md)
+[![REUSE Status](https://api.reuse.software/badge/github.com/abapPM/ABAP-SemVer)](https://api.reuse.software/info/github.com/abapPM/ABAP-SemVer)
 
 # SemVer for ABAP
 
-The semantic version parser for ABAP and apm. 
+The semantic version parser for ABAP and apm.
 
 This is a port of the [semver parser for node.js](https://github.com/npm/node-semver).
 
 NO WARRANTIES, [MIT License](https://github.com/abapPM/ABAP-URL/blob/main/LICENSE)
 
-## Prerequisites 
- 
-SAP Basis 7.50 or higher 
- 
+## Prerequisites
+
+SAP Basis 7.50 or higher
+
 ## Limitations
 
 The subset function for ranges has not been implemented (PRs welcome).
@@ -121,7 +121,7 @@ multiple versions to the utility will just sort them.
 ```
 
 ## Installation
- 
+
 Install `semver` as a global module in your system using [apm](https://abappm.com).
 
 or
@@ -218,7 +218,7 @@ The method `.inc` takes an additional `identifier` string argument that
 will append the value of the string as a prerelease identifier:
 
 ```abap
-zcl_semver_functions=>inc( 
+zcl_semver_functions=>inc(
   version    = '1.2.3'
   release    = 'prerelease'
   identifier = 'beta' ).
@@ -247,7 +247,7 @@ Set to `false` to omit the prerelease number altogether.
 If you do not specify this parameter, it will default to zero-based.
 
 ```abap
-zcl_semver_functions=>inc( 
+zcl_semver_functions=>inc(
   version         = '1.2.3'
   release         = 'prerelease'
   identifier      = 'beta'
@@ -256,7 +256,7 @@ zcl_semver_functions=>inc(
 ```
 
 ```abap
-zcl_semver_functions=>inc( 
+zcl_semver_functions=>inc(
   version         = '1.2.3'
   release         = 'prerelease'
   identifier      = 'beta'
@@ -425,7 +425,7 @@ Strict-mode Comparators and Ranges will be strict about the SemVer
 strings that they parse.
 
 * `valid(v)`: Return the parsed version, or null if it's not valid.
-* `inc(v, release, options, identifier, identifierBase)`: 
+* `inc(v, release, options, identifier, identifierBase)`:
   Return the version incremented by the release
   type (`major`, `premajor`, `minor`, `preminor`, `patch`,
   `prepatch`, or `prerelease`), or null if it's not valid
@@ -476,7 +476,7 @@ strings that they parse.
 
 ### Sorting
 
-* `sort(versions)`: Returns a sorted array of versions based on the `compareBuild` 
+* `sort(versions)`: Returns a sorted array of versions based on the `compareBuild`
   function.
 * `rsort(versions)`: The reverse of `sort`. Returns an array of versions based on
   the `compareBuild` function in descending order.
@@ -594,7 +594,7 @@ As a convenience, helper constants are available to provide information about wh
 
 All contributions are welcome! Read our [Contribution Guidelines](https://github.com/abapPM/ABAP-SemVer/blob/main/CONTRIBUTING.md), fork this repo, and create a pull request.
 
-You can install the developer version of ABAP SemVer using [abapGit](https://github.com/abapGit/abapGit) either by creating a new online repository for https://github.com/abapPM/ABAP-SemVer.
+You can install the developer version of ABAP SemVer using [abapGit](https://github.com/abapGit/abapGit) either by creating a new online repository for `https://github.com/abapPM/ABAP-SemVer`.
 
 Recommended SAP package: `$SEMVER`
 
@@ -602,6 +602,6 @@ Recommended SAP package: `$SEMVER`
 
 Made with ❤ in Canada
 
-Copyright 2024 apm.to Inc. <https://apm.to>
+Copyright 2025 apm.to Inc. <https://apm.to>
 
-Follow [@marcf.be](https://bsky.app/profile/marcf.be) on Blueksy and [marcfbe](https://linkedin.com/in/marcfbe) or LinkedIn
+Follow [@marcf.be](https://bsky.app/profile/marcf.be) on Blueksy and [@marcfbe](https://linkedin.com/in/marcfbe) or LinkedIn
