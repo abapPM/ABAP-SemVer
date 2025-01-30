@@ -18,14 +18,12 @@
     "license": "ISC",
     "author": {
       "name": "Marc Bernard",
-      "url": "https://github.com/mbtools",
-      "email": "marc@abappm.com"
+      "url": "https://github.com/mbtools"
     },
     "maintainers": [
       {
         "name": "Marc Bernard",
-        "url": "https://github.com/mbtools",
-        "email": "marc@abappm.com"
+        "url": "https://github.com/mbtools"
       }
     ],
     "repository": {
