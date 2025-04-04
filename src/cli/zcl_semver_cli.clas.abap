@@ -250,19 +250,20 @@ CLASS zcl_semver_cli IMPLEMENTATION.
     DELETE versions WHERE table_line IS INITIAL.
 
     LOOP AT versions ASSIGNING FIELD-SYMBOL(<version>).
+      DATA(tabix) = sy-tabix.
 
       IF coerce = abap_true.
         DATA(semver) = zcl_semver_functions=>coerce( version = <version> rtl = rtl ).
         IF semver IS BOUND.
           <version> = semver->version.
         ELSE.
-          DELETE versions.
+          DELETE versions INDEX tabix.
           CONTINUE.
         ENDIF.
       ENDIF.
 
       IF NOT zcl_semver_functions=>valid( <version> ).
-        DELETE versions.
+        DELETE versions INDEX tabix.
       ENDIF.
 
     ENDLOOP.
@@ -277,6 +278,7 @@ CLASS zcl_semver_cli IMPLEMENTATION.
 
     LOOP AT ranges ASSIGNING FIELD-SYMBOL(<range>).
       LOOP AT versions ASSIGNING <version>.
+        tabix = sy-tabix.
 
         IF NOT zcl_semver_functions=>satisfies(
           version = <version>
@@ -284,7 +286,7 @@ CLASS zcl_semver_cli IMPLEMENTATION.
           loose   = loose
           incpre  = incpre ).
 
-          DELETE versions.
+          DELETE versions INDEX tabix.
         ENDIF.
 
       ENDLOOP.
