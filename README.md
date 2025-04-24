@@ -85,7 +85,7 @@ Options:
 -i --increment [<level>]
         Increment a version by the specified level.  Level can
         be one of: major, minor, patch, premajor, preminor,
-        prepatch, or prerelease.  Default level is 'patch'.
+        prepatch, prerelease, or release.  Default level is 'patch'.
         Only one version may be specified.
 
 --preid <identifier>
@@ -239,6 +239,13 @@ zcl_semver_cli=>main( 'semver 1.2.4-beta.0 -i prerelease' ).
 " 1.2.4-beta.1
 ```
 
+To get out of the prerelease phase, use the `release` option:
+
+```abap
+zcl_semver_cli=>main( 'semver 1.2.4-beta.1 -i release' ).
+1.2.4
+```
+
 #### Prerelease Identifier Base
 
 The method `.inc` takes an optional parameter 'identifierBase' string
@@ -249,7 +256,7 @@ If you do not specify this parameter, it will default to zero-based.
 ```abap
 zcl_semver_functions=>inc(
   version         = '1.2.3'
-  release         = 'prerelease'
+  release_type    = 'prerelease'
   identifier      = 'beta'
   identifier_base = '1' ).
 " '1.2.4-beta.1'
@@ -258,7 +265,7 @@ zcl_semver_functions=>inc(
 ```abap
 zcl_semver_functions=>inc(
   version         = '1.2.3'
-  release         = 'prerelease'
+  release_type    = 'prerelease'
   identifier      = 'beta'
   identifier_base = '' ).
 " '1.2.4-beta'
@@ -425,10 +432,10 @@ Strict-mode Comparators and Ranges will be strict about the SemVer
 strings that they parse.
 
 * `valid(v)`: Return the parsed version, or null if it's not valid.
-* `inc(v, release, options, identifier, identifierBase)`:
+* `inc(v, release_type, options, identifier, identifier_base)`:
   Return the version incremented by the release
   type (`major`, `premajor`, `minor`, `preminor`, `patch`,
-  `prepatch`, or `prerelease`), or null if it's not valid
+  `prepatch`, `prerelease`, or `release`), or null if it's not valid
   * `premajor` in one call will bump the version up to the next major
     version and down to a prerelease of that major version.
     `preminor`, and `prepatch` work the same way.
@@ -436,6 +443,7 @@ strings that they parse.
     same as `prepatch`. It increments the patch version and then makes a
     prerelease. If the input version is already a prerelease it simply
     increments it.
+  * `release` will remove any prerelease part of the version.
   * `identifier` can be used to prefix `premajor`, `preminor`,
     `prepatch`, or `prerelease` version increments. `identifierBase`
     is the base to be used for the `prerelease` identifier.
@@ -487,7 +495,7 @@ strings that they parse.
 
 ### Ranges
 
-* `validRange(range)`: Return the valid range or null if it's not valid
+* `validRange(range)`: Return the valid range or null if it's not valid.
 * `satisfies(version, range)`: Return true if the version satisfies the
   range.
 * `maxSatisfying(versions, range)`: Return the highest version in the list

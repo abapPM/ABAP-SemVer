@@ -11,6 +11,8 @@ CLASS ltcl_semver DEFINITION FOR TESTING RISK LEVEL HARMLESS
       options FOR TESTING RAISING zcx_error,
       really_big FOR TESTING RAISING zcx_error,
       incrementing FOR TESTING RAISING zcx_error,
+      invalid_increments FOR TESTING RAISING zcx_error,
+      increment_side_effects FOR TESTING RAISING zcx_error,
       compare_main_vs_pre FOR TESTING RAISING zcx_error,
       compare_build FOR TESTING RAISING zcx_error.
 
@@ -122,7 +124,7 @@ CLASS ltcl_semver IMPLEMENTATION.
             DATA(s) = zcl_semver=>create( version = increments-version loose = increments-loose ).
 
             s->inc(
-              release         = increments-release
+              release_type    = increments-release
               identifier      = increments-identifier
               identifier_base = increments-identifier_base ).
             cl_abap_unit_assert=>fail( msg = msg ).
@@ -133,7 +135,7 @@ CLASS ltcl_semver IMPLEMENTATION.
         s = zcl_semver=>create( version = increments-version loose = increments-loose ).
 
         DATA(inc) = s->inc(
-          release         = increments-release
+          release_type    = increments-release
           identifier      = increments-identifier
           identifier_base = increments-identifier_base ).
 
@@ -155,6 +157,63 @@ CLASS ltcl_semver IMPLEMENTATION.
         ENDIF.
       ENDIF.
     ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD invalid_increments.
+
+    TRY.
+        zcl_semver=>create( '1.2.3' )->inc(
+          release_type    = 'prerelease'
+          identifier      = ''
+          identifier_base = 'false' ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH zcx_error INTO DATA(error).
+        cl_abap_unit_assert=>assert_equals(
+          act = error->get_text( )
+          exp = 'Invalid increment argument: identifier is empty' ).
+    ENDTRY.
+
+    TRY.
+        zcl_semver=>create( '1.2.3-dev' )->inc(
+          release_type    = 'prerelease'
+          identifier      = 'dev'
+          identifier_base = 'false' ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH zcx_error INTO error.
+        cl_abap_unit_assert=>assert_equals(
+          act = error->get_text( )
+          exp = 'Invalid increment argument: identifier already exists' ).
+    ENDTRY.
+
+    TRY.
+        zcl_semver=>create( '1.2.3' )->inc(
+          release_type    = 'prerelease'
+          identifier      = 'invalid/preid' ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH zcx_error INTO error.
+        cl_abap_unit_assert=>assert_equals(
+          act = error->get_text( )
+          exp = 'Invalid identifier: invalid/preid' ).
+    ENDTRY.
+
+  ENDMETHOD.
+
+  METHOD increment_side_effects.
+
+    DATA(v) = zcl_semver=>create( '1.0.0' ).
+
+    TRY.
+        v->inc(
+          release_type    = 'prerelease'
+          identifier      = 'hot/mess' ).
+      CATCH zcx_error ##NO_HANDLER.
+        " ignore but check that the version has not changed
+    ENDTRY.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = v->to_string( )
+      exp = '1.0.0' ).
 
   ENDMETHOD.
 

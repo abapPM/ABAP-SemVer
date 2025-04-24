@@ -617,7 +617,14 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( v1 = '1.0.0-1' v2 = '2.0.0' res = 'major' )
       ( v1 = '1.0.0-1' v2 = '2.0.0-1' res = 'premajor' )
       ( v1 = '1.0.0-1' v2 = '1.1.0-1' res = 'preminor' )
-      ( v1 = '1.0.0-1' v2 = '1.0.1-1' res = 'prepatch' ) ).
+      ( v1 = '1.0.0-1' v2 = '1.0.1-1' res = 'prepatch' )
+      ( v1 = '1.7.2-1' v2 = '1.8.1' res = 'minor' )
+      ( v1 = '1.1.1-pre' v2 = '2.1.1-pre' res = 'premajor' )
+      ( v1 = '1.1.1-pre' v2 = '2.1.1' res = 'major' )
+      ( v1 = '1.2.3-1' v2 = '1.2.3' res = 'patch' )
+      ( v1 = '1.4.0-1' v2 = '2.3.5' res = 'major' )
+      ( v1 = '1.6.1-5' v2 = '1.7.2' res = 'minor' )
+      ( v1 = '2.0.0-1' v2 = '2.1.1' res = 'major' ) ).
 
     LOOP AT tests INTO DATA(test).
       DATA(msg) = |{ test-v1 } { test-v2 } { test-res } |.
@@ -772,7 +779,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
       DATA(s) = zcl_semver_functions=>inc(
                   version         = increments-version
-                  release         = increments-release
+                  release_type    = increments-release
                   identifier      = increments-identifier
                   identifier_base = increments-identifier_base
                   loose           = increments-loose
@@ -803,7 +810,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       IF increments-res IS NOT INITIAL.
 
         parsed->inc(
-          release         = increments-release
+          release_type    = increments-release
           identifier      = increments-identifier
           identifier_base = increments-identifier_base ).
 
@@ -816,7 +823,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
         zcl_semver_functions=>inc(
           version         = parsed_input
-          release         = increments-release
+          release_type    = increments-release
           identifier      = increments-identifier
           identifier_base = increments-identifier_base
           loose           = increments-loose
@@ -833,7 +840,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
         TRY.
             parsed->inc(
-              release         = increments-release
+              release_type    = increments-release
               identifier      = increments-identifier
               identifier_base = increments-identifier_base ).
 
