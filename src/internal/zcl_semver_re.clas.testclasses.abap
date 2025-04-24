@@ -14,7 +14,7 @@ CLASS zcl_semver_re DEFINITION LOCAL FRIENDS ltcl_semver_re.
 CLASS ltcl_semver_re IMPLEMENTATION.
 
   METHOD test_src.
-    " has a list of src
+    " Semver itself has a list of src
 
     DATA i TYPE i.
 
