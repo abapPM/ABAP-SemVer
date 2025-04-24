@@ -90,9 +90,19 @@ CLASS zcl_semver DEFINITION
   PROTECTED SECTION.
   PRIVATE SECTION.
 
+    CONSTANTS false TYPE string VALUE 'false'.
+
     DATA:
       raw     TYPE string,
       options TYPE zif_semver_options=>ty_options.
+
+    METHODS _inc_check
+      IMPORTING
+        release_type    TYPE string
+        identifier      TYPE string OPTIONAL
+        identifier_base TYPE string OPTIONAL
+      RAISING
+        zcx_error.
 
 ENDCLASS.
 
@@ -316,34 +326,12 @@ CLASS zcl_semver IMPLEMENTATION.
 
   METHOD inc.
 
-    CONSTANTS false TYPE string VALUE 'false'.
-
     DATA prerelease_tab LIKE prerelease.
 
-    IF release_type CP 'pre*'.
-      IF identifier IS INITIAL AND identifier_base = false.
-        zcx_error=>raise( 'Invalid increment argument: identifier is empty' ).
-      ENDIF.
-
-      " Avoid an invalid semver results
-      IF identifier IS NOT INITIAL.
-        DATA(regex) = COND #(
-          WHEN options-loose = abap_true
-          THEN |^{ zcl_semver_re=>token-prereleaseloose-safe_src }$|
-          ELSE |^{ zcl_semver_re=>token-prerelease-safe_src }$| ).
-
-        TRY.
-            DATA(r) = NEW cl_abap_regex( pattern = regex ).
-            DATA(m) = r->create_matcher( text = |-{ identifier }| ).
-
-            IF NOT m->match( ) OR m->get_submatch( 1 ) <> identifier.
-              zcx_error=>raise( |Invalid identifier: { identifier }| ).
-            ENDIF.
-          CATCH cx_sy_matcher.
-            zcx_error=>raise( |Error evaluating regex for { identifier }| ).
-        ENDTRY.
-      ENDIF.
-    ENDIF.
+    _inc_check(
+      release_type    = release_type
+      identifier      = identifier
+      identifier_base = identifier_base ).
 
     CASE release_type.
       WHEN 'premajor'.
@@ -475,5 +463,35 @@ CLASS zcl_semver IMPLEMENTATION.
 
   METHOD to_string.
     result = version.
+  ENDMETHOD.
+
+
+  METHOD _inc_check.
+
+    IF release_type CP 'pre*'.
+      IF identifier IS INITIAL AND identifier_base = false.
+        zcx_error=>raise( 'Invalid increment argument: identifier is empty' ).
+      ENDIF.
+
+      " Avoid an invalid semver results
+      IF identifier IS NOT INITIAL.
+        DATA(regex) = COND #(
+          WHEN options-loose = abap_true
+          THEN |^{ zcl_semver_re=>token-prereleaseloose-safe_src }$|
+          ELSE |^{ zcl_semver_re=>token-prerelease-safe_src }$| ).
+
+        TRY.
+            DATA(r) = NEW cl_abap_regex( pattern = regex ).
+            DATA(m) = r->create_matcher( text = |-{ identifier }| ).
+
+            IF NOT m->match( ) OR m->get_submatch( 1 ) <> identifier.
+              zcx_error=>raise( |Invalid identifier: { identifier }| ).
+            ENDIF.
+          CATCH cx_sy_matcher.
+            zcx_error=>raise( |Error evaluating regex for { identifier }| ).
+        ENDTRY.
+      ENDIF.
+    ENDIF.
+
   ENDMETHOD.
 ENDCLASS.
