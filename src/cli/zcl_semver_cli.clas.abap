@@ -269,11 +269,13 @@ CLASS zcl_semver_cli IMPLEMENTATION.
     ENDLOOP.
 
     IF versions IS INITIAL.
-      zcx_error=>raise( 'No valid versions found' ).
+      RAISE EXCEPTION TYPE zcx_error_text EXPORTING text = 'No valid versions found'.
     ENDIF.
 
     IF inc IS NOT INITIAL AND ( lines( versions ) > 1 OR lines( ranges ) > 0 ).
-      zcx_error=>raise( '--inc can only be used on a single version with no range' ).
+      RAISE EXCEPTION TYPE zcx_error_text
+        EXPORTING
+          text = '--inc can only be used on a single version with no range'.
     ENDIF.
 
     LOOP AT ranges ASSIGNING FIELD-SYMBOL(<range>).
@@ -293,7 +295,7 @@ CLASS zcl_semver_cli IMPLEMENTATION.
     ENDLOOP.
 
     IF versions IS INITIAL.
-      zcx_error=>raise( 'No valid versions found' ).
+      RAISE EXCEPTION TYPE zcx_error_text EXPORTING text = 'No valid versions found'.
     ENDIF.
 
   ENDMETHOD.
