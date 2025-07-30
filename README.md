@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/endpoint?url=https://shield.abappm.com/github/abapPM/ABAP-SemVer/src/internal/zif_semver_constants.intf.abap/version&label=Version&color=blue)
+![Version](https://img.shields.io/endpoint?url=https://shield.abappm.com/github/abapPM/ABAP-SemVer/src/internal/%2523apmg%2523if_semver_constants.intf.abap/version&label=Version&color=blue)
 
 [![License](https://img.shields.io/github/license/abapPM/ABAP-SemVer?label=License&color=success)](LICENSE)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?color=success)](https://github.com/abapPM/.github/blob/main/CODE_OF_CONDUCT.md)
@@ -8,7 +8,7 @@
 
 The semantic version parser for ABAP and apm.
 
-This is a port of the [semver parser for node.js](https://github.com/npm/node-semver).
+This is a port of the [Semver Parser for Node.js](https://github.com/npm/node-semver).
 
 NO WARRANTIES, [MIT License](https://github.com/abapPM/ABAP-URL/blob/main/LICENSE)
 
@@ -18,7 +18,7 @@ SAP Basis 7.50 or higher
 
 ## Limitations
 
-The subset function for ranges has not been implemented (PRs welcome).
+The `subset` function for ranges has not been implemented (PRs welcome).
 
 ## Usage
 
@@ -26,18 +26,18 @@ As global ABAP classes:
 
 ```abap
 " Create a SemVer object
-DATA(semver) = zcl_semver=>create( 'v1.2.3' ).
+DATA(semver) = /apmg/cl_semver=>create( 'v1.2.3' ).
 
 " Patch the version
 semver->inc( 'patch' )->format( ). " 1.2.4
 
 " Create a SemVer range object
-DATA(semver_range) = zcl_semver_range=>create( '>1.0.0 <=2.0.0' ).
+DATA(semver_range) = /apmg/cl_semver_range=>create( '>1.0.0 <=2.0.0' ).
 
 semver_range->intersects( '1.9.0' ). " abap_true
 
 " Create a SemVer comparator
-DATA(comparator) = zcl_semver_comparator=>create( '>=1.2.3' ).
+DATA(comparator) = /apmg/cl_semver_comparator=>create( '>=1.2.3' ).
 
 comparator->test( '1.2.4' ). " abap_true
 ```
@@ -45,29 +45,29 @@ comparator->test( '1.2.4' ). " abap_true
 You can clone semver, range, and comparator objects:
 
 ```abap
-DATA(cloned_semver) = zcl_semver=>create( semver ).
-DATA(cloned_range) = zcl_semver=>create( semver_range ).
-DATA(cloned_comp) = zcl_semver_comparator=>create( comparator ).
+DATA(cloned_semver) = /apmg/cl_semver=>create( semver ).
+DATA(cloned_range) = /apmg/cl_semver=>create( semver_range ).
+DATA(cloned_comp) = /apmg/cl_semver_comparator=>create( comparator ).
 ```
 
 As semver functions:
 
 ```abap
-zcl_semver_functions=>valid( '1.2.3' ). " '1.2.3'
-zcl_semver_functions=>valid( 'a.b.c' ). " null
-zcl_semver_functions=>clean( '  =v1.2.3   ' ). " '1.2.3'
-zcl_semver_functions=>satisfies( '1.2.3', '1.x || >=2.5.0 || 5.0.0 - 7.2.3' ). " true
-zcl_semver_functions=>gt( '1.2.3', '9.8.7' ). " false
-zcl_semver_functions=>mver.lt( '1.2.3', '9.8.7' ). " true
-zcl_semver_functions=>minVersion( '>=1.0.0' ). " '1.0.0'
-zcl_semver_functions=>valid( zcl_semver_functions=>coerce( 'v2' ) ). " '2.0.0'
-zcl_semver_functions=>valid( zcl_semver_functions=>coerce( '42.6.7.9.3-alpha' ) ). " '42.6.7'
+/apmg/cl_semver_functions=>valid( '1.2.3' ). " '1.2.3'
+/apmg/cl_semver_functions=>valid( 'a.b.c' ). " null
+/apmg/cl_semver_functions=>clean( '  =v1.2.3   ' ). " '1.2.3'
+/apmg/cl_semver_functions=>satisfies( '1.2.3', '1.x || >=2.5.0 || 5.0.0 - 7.2.3' ). " true
+/apmg/cl_semver_functions=>gt( '1.2.3', '9.8.7' ). " false
+/apmg/cl_semver_functions=>mver.lt( '1.2.3', '9.8.7' ). " true
+/apmg/cl_semver_functions=>minVersion( '>=1.0.0' ). " '1.0.0'
+/apmg/cl_semver_functions=>valid( /apmg/cl_semver_functions=>coerce( 'v2' ) ). " '2.0.0'
+/apmg/cl_semver_functions=>valid( /apmg/cl_semver_functions=>coerce( '42.6.7.9.3-alpha' ) ). " '42.6.7'
 ```
 
 As a "command-line utility":
 
 ```abap
-result = zcl_semver_cli=>main( '-h' ).
+result = /apmg/cl_semver_cli=>main( '-h' ).
 ```
 
 ```
@@ -128,20 +128,13 @@ or
 
 Specify the `semver` module as a dependency in your project and import it to your namespace using [apm](https://abappm.com).
 
-```abap
-IMPORT '*' TO 'z$1_your_project$2' FROM 'semver'.
-" or
-IMPORT '*' TO '/namespace/$1$2' FROM 'semver'.
-```
-
 ## Versions
 
-A "version" is described by the `v2.0.0` specification found at
-<https:"semver.org/>.
+A "version" is described by the `v2.0.0` specification found at <https://semver.org/>.
 
 A leading `"="` or `"v"` character is stripped off and ignored.
 Support for stripping a leading "v" is kept for compatibility with `v1.0.0` of the SemVer
-specification but should not be used anymore.
+specification, but should not be used anymore.
 
 ## Ranges
 
@@ -218,7 +211,7 @@ The method `.inc` takes an additional `identifier` string argument that
 will append the value of the string as a prerelease identifier:
 
 ```abap
-zcl_semver_functions=>inc(
+/apmg/cl_semver_functions=>inc(
   version    = '1.2.3'
   release    = 'prerelease'
   identifier = 'beta' ).
@@ -228,21 +221,21 @@ zcl_semver_functions=>inc(
 command-line example:
 
 ```abap
-zcl_semver_cli=>main( '1.2.3 -i prerelease --preid beta' )
+/apmg/cl_semver_cli=>main( '1.2.3 -i prerelease --preid beta' )
 " 1.2.4-beta.0
 ```
 
 Which then can be used to increment further:
 
 ```abap
-zcl_semver_cli=>main( 'semver 1.2.4-beta.0 -i prerelease' ).
+/apmg/cl_semver_cli=>main( 'semver 1.2.4-beta.0 -i prerelease' ).
 " 1.2.4-beta.1
 ```
 
 To get out of the prerelease phase, use the `release` option:
 
 ```abap
-zcl_semver_cli=>main( 'semver 1.2.4-beta.1 -i release' ).
+/apmg/cl_semver_cli=>main( 'semver 1.2.4-beta.1 -i release' ).
 1.2.4
 ```
 
@@ -254,7 +247,7 @@ Set to `false` to omit the prerelease number altogether.
 If you do not specify this parameter, it will default to zero-based.
 
 ```abap
-zcl_semver_functions=>inc(
+/apmg/cl_semver_functions=>inc(
   version         = '1.2.3'
   release_type    = 'prerelease'
   identifier      = 'beta'
@@ -263,7 +256,7 @@ zcl_semver_functions=>inc(
 ```
 
 ```abap
-zcl_semver_functions=>inc(
+/apmg/cl_semver_functions=>inc(
   version         = '1.2.3'
   release_type    = 'prerelease'
   identifier      = 'beta'
@@ -274,12 +267,12 @@ zcl_semver_functions=>inc(
 command-line example:
 
 ```abap
-zcl_semver_cli=>main( '1.2.3 -i prerelease --preid beta -n 1' ).
+/apmg/cl_semver_cli=>main( '1.2.3 -i prerelease --preid beta -n 1' ).
 " 1.2.4-beta.1
 ```
 
 ```abap
-zcl_semver_cli=>main( '1.2.3 -i prerelease --preid beta -n false' ).
+/apmg/cl_semver_cli=>main( '1.2.3 -i prerelease --preid beta -n false' ).
 " 1.2.4-beta
 ```
 
@@ -604,7 +597,7 @@ All contributions are welcome! Read our [Contribution Guidelines](https://github
 
 You can install the developer version of ABAP SemVer using [abapGit](https://github.com/abapGit/abapGit) either by creating a new online repository for `https://github.com/abapPM/ABAP-SemVer`.
 
-Recommended SAP package: `$SEMVER`
+Recommended SAP package: `/APMG/SEMVER`
 
 ## About
 
@@ -612,4 +605,4 @@ Made with ❤ in Canada
 
 Copyright 2025 apm.to Inc. <https://apm.to>
 
-Follow [@marcf.be](https://bsky.app/profile/marcf.be) on Blueksy and [@marcfbe](https://linkedin.com/in/marcfbe) or LinkedIn
+Follow [@marcf.be](https://bsky.app/profile/marcf.be) on Bluesky and [@marcfbe](https://linkedin.com/in/marcfbe) or LinkedIn
