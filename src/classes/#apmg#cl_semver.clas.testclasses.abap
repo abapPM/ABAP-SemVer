@@ -7,6 +7,7 @@ CLASS ltcl_semver DEFINITION FOR TESTING RISK LEVEL HARMLESS
       comparisons FOR TESTING RAISING /apmg/cx_error,
       equality FOR TESTING RAISING /apmg/cx_error,
       to_string FOR TESTING RAISING /apmg/cx_error,
+      valid_versions FOR TESTING RAISING /apmg/cx_error,
       invalid_versions FOR TESTING RAISING /apmg/cx_error,
       options FOR TESTING RAISING /apmg/cx_error,
       really_big FOR TESTING RAISING /apmg/cx_error,
@@ -66,6 +67,46 @@ CLASS ltcl_semver IMPLEMENTATION.
       act = s->to_string( )
       exp = '1.2.3'
       msg = 'to_string does not equal parsed version' ).
+
+  ENDMETHOD.
+
+  METHOD valid_versions.
+
+    LOOP AT /apmg/cl_semver_fixtures=>valid_versions( ) INTO DATA(valid_version).
+      DATA(msg) = valid_version-version.
+
+      TRY.
+          DATA(s) = /apmg/cl_semver=>create( valid_version-version ).
+
+          cl_abap_unit_assert=>assert_equals(
+            act = s->major
+            exp = valid_version-major
+            msg = msg ).
+          cl_abap_unit_assert=>assert_equals(
+            act = s->minor
+            exp = valid_version-minor
+            msg = msg ).
+          cl_abap_unit_assert=>assert_equals(
+            act = s->patch
+            exp = valid_version-patch
+            msg = msg ).
+          cl_abap_unit_assert=>assert_equals(
+            act = s->prerelease
+            exp = valid_version-prerelease
+            msg = msg ).
+          cl_abap_unit_assert=>assert_equals(
+            act = s->build
+            exp = valid_version-build
+            msg = msg ).
+          cl_abap_unit_assert=>assert_equals(
+            act = s->raw
+            exp = valid_version-version
+            msg = msg ).
+
+        CATCH /apmg/cx_error.
+          cl_abap_unit_assert=>fail( msg = msg ).
+      ENDTRY.
+    ENDLOOP.
 
   ENDMETHOD.
 
@@ -205,8 +246,8 @@ CLASS ltcl_semver IMPLEMENTATION.
 
     TRY.
         v->inc(
-          release_type    = 'prerelease'
-          identifier      = 'hot/mess' ).
+          release_type = 'prerelease'
+          identifier   = 'hot/mess' ).
       CATCH /apmg/cx_error ##NO_HANDLER.
         " ignore but check that the version has not changed
     ENDTRY.

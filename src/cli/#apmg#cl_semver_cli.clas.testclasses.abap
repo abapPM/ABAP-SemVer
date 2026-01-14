@@ -98,6 +98,10 @@ CLASS ltcl_semver_cli IMPLEMENTATION.
       args = '-i 1.2.3'
       out  = |1.2.4\n| ).
 
+    test(
+      args = '-i release 1.0.0-pre'
+      out  = |1.0.0\n| ).
+
   ENDMETHOD.
 
   METHOD sorting_and_filtering.
@@ -124,7 +128,11 @@ CLASS ltcl_semver_cli IMPLEMENTATION.
 
     test(
       args = '1.2.3foo 1.2.3-bar -l'
-      out  = |1.2.3-bar\n| ).
+      out  = |1.2.3-bar\n1.2.3-foo\n| ).
+
+    test(
+      args = '1.2.3beta -l'
+      out  = |1.2.3-beta\n| ).
 
     test(
       args = '1.2.3 3.2.1 -r 2.x 2.3.4'
@@ -140,7 +148,7 @@ CLASS ltcl_semver_cli IMPLEMENTATION.
 
     test(
       args = '3.2.1 2.3.4 2.3.4-beta 2.0.0asdf -r 2.x -p -l'
-      out  = |2.3.4-beta\n2.3.4\n| ).
+      out  = |2.0.0-asdf\n2.3.4-beta\n2.3.4\n| ).
 
     test(
       args = '1.2.3 3.2.1 -r 2.x'

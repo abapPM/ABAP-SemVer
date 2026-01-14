@@ -4,6 +4,11 @@ CLASS ltcl_semver_ranges DEFINITION FOR TESTING RISK LEVEL HARMLESS
   PRIVATE SECTION.
 
     METHODS:
+      _bool
+        IMPORTING
+          bool          TYPE abap_bool
+        RETURNING
+          VALUE(result) TYPE string,
       gtr FOR TESTING RAISING /apmg/cx_error,
       intersects FOR TESTING RAISING /apmg/cx_error,
       ltr FOR TESTING RAISING /apmg/cx_error,
@@ -20,11 +25,19 @@ ENDCLASS.
 
 CLASS ltcl_semver_ranges IMPLEMENTATION.
 
+  METHOD _bool.
+    IF bool = abap_true.
+      result = 'true'.
+    ELSE.
+      result = 'false'.
+    ENDIF.
+  ENDMETHOD.
+
   METHOD gtr.
 
     " Version should be greater than range
     LOOP AT /apmg/cl_semver_fixtures=>version_gt_range( ) INTO DATA(version_gt_range).
-      DATA(msg) = |{ version_gt_range-range } { version_gt_range-version } { version_gt_range-loose }|.
+      DATA(msg) = |{ version_gt_range-range } { version_gt_range-version } { _bool( version_gt_range-loose ) }|.
       DATA(act) = /apmg/cl_semver_ranges=>gtr(
         range   = version_gt_range-range
         version = version_gt_range-version
@@ -39,7 +52,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     " Version should not be greater than range
     LOOP AT /apmg/cl_semver_fixtures=>version_not_gt_range( ) INTO DATA(version_not_gt_range).
       msg = |{ version_not_gt_range-range } { version_not_gt_range-version } |
-         && |{ version_not_gt_range-loose } { version_not_gt_range-incpre }|.
+         && |{ _bool( version_not_gt_range-loose ) } { _bool( version_not_gt_range-incpre ) }|.
       act = /apmg/cl_semver_ranges=>gtr(
         range   = version_not_gt_range-range
         version = version_not_gt_range-version
@@ -58,7 +71,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
     " Intersect comparators
     LOOP AT /apmg/cl_semver_fixtures=>comparator_intersection( ) INTO DATA(comparator_intersection).
-      DATA(msg) = |{ comparator_intersection-c0 } { comparator_intersection-c1 } { comparator_intersection-res }|.
+      DATA(msg) = |{ comparator_intersection-c0 } { comparator_intersection-c1 } { _bool( comparator_intersection-res ) }|.
 
       DATA(comp0) = /apmg/cl_semver_comparator=>create( comparator_intersection-c0 ).
       DATA(comp1) = /apmg/cl_semver_comparator=>create( comparator_intersection-c1 ).
@@ -102,7 +115,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
     " Ranges intersect
     LOOP AT /apmg/cl_semver_fixtures=>range_intersection( ) INTO DATA(range_intersection).
-      msg = |{ range_intersection-r0 } { range_intersection-r1 } { range_intersection-res }|.
+      msg = |{ range_intersection-r0 } { range_intersection-r1 } { _bool( range_intersection-res ) }|.
 
       DATA(range0) = /apmg/cl_semver_range=>create( range_intersection-r0 ).
       DATA(range1) = /apmg/cl_semver_range=>create( range_intersection-r1 ).
@@ -150,7 +163,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
     " Version should be less than range
     LOOP AT /apmg/cl_semver_fixtures=>version_lt_range( ) INTO DATA(version_lt_range).
-      DATA(msg) = |{ version_lt_range-range } { version_lt_range-version } { version_lt_range-loose }|.
+      DATA(msg) = |{ version_lt_range-range } { version_lt_range-version } { _bool( version_lt_range-loose ) }|.
       DATA(act) = /apmg/cl_semver_ranges=>ltr(
         range   = version_lt_range-range
         version = version_lt_range-version
@@ -165,7 +178,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     " Version not should be less than range
     LOOP AT /apmg/cl_semver_fixtures=>version_not_lt_range( ) INTO DATA(version_not_lt_range).
       msg = |{ version_not_lt_range-range } { version_not_lt_range-version } |
-         && |{ version_not_lt_range-loose } { version_not_lt_range-incpre }|.
+         && |{ _bool( version_not_lt_range-loose ) } { _bool( version_not_lt_range-incpre ) }|.
       act = /apmg/cl_semver_ranges=>ltr(
         range   = version_not_lt_range-range
         version = version_not_lt_range-version
@@ -192,11 +205,11 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
       ty_tests TYPE STANDARD TABLE OF ty_test WITH KEY versions range res loose.
 
     DATA(tests) = VALUE ty_tests(
-       ( versions = '1.2.3 1.2.4' range = '1.2' res = '1.2.4' )
-       ( versions = '1.2.4 1.2.3' range = '1.2' res = '1.2.4' )
-       ( versions = '1.2.3 1.2.4 1.2.5 1.2.6' range = '~1.2.3' res = '1.2.6' )
+       ( versions = '1.2.3 1.2.4'             range = '1.2'    res   = '1.2.4' )
+       ( versions = '1.2.4 1.2.3'             range = '1.2'    res   = '1.2.4' )
+       ( versions = '1.2.3 1.2.4 1.2.5 1.2.6' range = '~1.2.3' res   = '1.2.6' )
        ( versions = '1.1.0 1.2.0 1.2.1 1.3.0 2.0.0b1 2.0.0b2 2.0.0b3 2.0.0 2.1.0'
-         range = '~2.0.0' res = '2.0.0' loose = abap_true ) ).
+         range    = '~2.0.0'                  res   = '2.0.0'  loose = abap_true ) ).
 
     LOOP AT tests INTO DATA(test).
       SPLIT test-versions AT ` ` INTO TABLE DATA(versions).
@@ -231,11 +244,11 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
       ty_tests TYPE STANDARD TABLE OF ty_test WITH KEY versions range res loose.
 
     DATA(tests) = VALUE ty_tests(
-       ( versions = '1.2.3 1.2.4' range = '1.2' res = '1.2.3' )
-       ( versions = '1.2.4 1.2.3' range = '1.2' res = '1.2.3' )
-       ( versions = '1.2.3 1.2.4 1.2.5 1.2.6' range = '~1.2.3' res = '1.2.3' )
+       ( versions = '1.2.3 1.2.4'             range = '1.2'    res   = '1.2.3' )
+       ( versions = '1.2.4 1.2.3'             range = '1.2'    res   = '1.2.3' )
+       ( versions = '1.2.3 1.2.4 1.2.5 1.2.6' range = '~1.2.3' res   = '1.2.3' )
        ( versions = '1.1.0 1.2.0 1.2.1 1.3.0 2.0.0b1 2.0.0b2 2.0.0b3 2.0.0 2.1.0'
-         range = '~2.0.0' res = '2.0.0' loose = abap_true ) ).
+         range    = '~2.0.0'                  res   = '2.0.0'  loose = abap_true ) ).
 
     LOOP AT tests INTO DATA(test).
       SPLIT test-versions AT ` ` INTO TABLE DATA(versions).
@@ -270,57 +283,57 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
     DATA(tests) = VALUE ty_tests(
       " Stars
-      ( range = '*' min = '0.0.0' )
-      ( range = '* || >=2' min = '0.0.0' )
-      ( range = '>=2 || *' min = '0.0.0' )
-      ( range = '>2 || *' min = '0.0.0' )
+      ( range = '*'                        min = '0.0.0' )
+      ( range = '* || >=2'                 min = '0.0.0' )
+      ( range = '>=2 || *'                 min = '0.0.0' )
+      ( range = '>2 || *'                  min = '0.0.0' )
       " Equal
-      ( range = '1.0.0' min = '1.0.0' )
-      ( range = '1.0' min = '1.0.0' )
-      ( range = '1.0.x' min = '1.0.0' )
-      ( range = '1.0.*' min = '1.0.0' )
-      ( range = '1' min = '1.0.0' )
-      ( range = '1.x.x' min = '1.0.0' )
-      ( range = '1.x.x' min = '1.0.0' )
-      ( range = '1.*.x' min = '1.0.0' )
-      ( range = '1.x.*' min = '1.0.0' )
-      ( range = '1.x' min = '1.0.0' )
-      ( range = '1.*' min = '1.0.0' )
-      ( range = '=1.0.0' min = '1.0.0' )
+      ( range = '1.0.0'                    min = '1.0.0' )
+      ( range = '1.0'                      min = '1.0.0' )
+      ( range = '1.0.x'                    min = '1.0.0' )
+      ( range = '1.0.*'                    min = '1.0.0' )
+      ( range = '1'                        min = '1.0.0' )
+      ( range = '1.x.x'                    min = '1.0.0' )
+      ( range = '1.x.x'                    min = '1.0.0' )
+      ( range = '1.*.x'                    min = '1.0.0' )
+      ( range = '1.x.*'                    min = '1.0.0' )
+      ( range = '1.x'                      min = '1.0.0' )
+      ( range = '1.*'                      min = '1.0.0' )
+      ( range = '=1.0.0'                   min = '1.0.0' )
       " Tilde
-      ( range = '~1.1.1' min = '1.1.1' )
-      ( range = '~1.1.1-beta' min = '1.1.1-beta' )
-      ( range = '~1.1.1 || >=2' min = '1.1.1' )
+      ( range = '~1.1.1'                   min = '1.1.1' )
+      ( range = '~1.1.1-beta'              min = '1.1.1-beta' )
+      ( range = '~1.1.1 || >=2'            min = '1.1.1' )
       " Carot
-      ( range = '^1.1.1' min = '1.1.1' )
-      ( range = '^1.1.1-beta' min = '1.1.1-beta' )
-      ( range = '^1.1.1 || >=2' min = '1.1.1' )
-      ( range = '^2.16.2 ^2.16' min = '2.16.2' )
+      ( range = '^1.1.1'                   min = '1.1.1' )
+      ( range = '^1.1.1-beta'              min = '1.1.1-beta' )
+      ( range = '^1.1.1 || >=2'            min = '1.1.1' )
+      ( range = '^2.16.2 ^2.16'            min = '2.16.2' )
       " '-' operator
-      ( range = '1.1.1 - 1.8.0' min = '1.1.1' )
-      ( range = '1.1 - 1.8.0' min = '1.1.0' )
+      ( range = '1.1.1 - 1.8.0'            min = '1.1.1' )
+      ( range = '1.1 - 1.8.0'              min = '1.1.0' )
       " Less / less or equal
-      ( range = '<2' min = '0.0.0' )
-      ( range = '<0.0.0-beta' min = '0.0.0-0' )
-      ( range = '<0.0.1-beta' min = '0.0.0' )
-      ( range = '<2 || >4' min = '0.0.0' )
-      ( range = '>4 || <2' min = '0.0.0' )
-      ( range = '<=2 || >=4' min = '0.0.0' )
-      ( range = '>=4 || <=2' min = '0.0.0' )
+      ( range = '<2'                       min = '0.0.0' )
+      ( range = '<0.0.0-beta'              min = '0.0.0-0' )
+      ( range = '<0.0.1-beta'              min = '0.0.0' )
+      ( range = '<2 || >4'                 min = '0.0.0' )
+      ( range = '>4 || <2'                 min = '0.0.0' )
+      ( range = '<=2 || >=4'               min = '0.0.0' )
+      ( range = '>=4 || <=2'               min = '0.0.0' )
       ( range = '<0.0.0-beta >0.0.0-alpha' min = '0.0.0-alpha.0' )
       ( range = '>0.0.0-alpha <0.0.0-beta' min = '0.0.0-alpha.0' )
       " Greater than or equal
       ( range = '>=1.1.1 <2 || >=2.2.2 <2' min = '1.1.1' )
       ( range = '>=2.2.2 <2 || >=1.1.1 <2' min = '1.1.1' )
       " Greater than but not equal
-      ( range = '>1.0.0' min = '1.0.1' )
-      ( range = '>1.0.0-0' min = '1.0.0-0.0' )
-      ( range = '>1.0.0-beta' min = '1.0.0-beta.0' )
-      ( range = '>2 || >1.0.0' min = '1.0.1' )
-      ( range = '>2 || >1.0.0-0' min = '1.0.0-0.0' )
-      ( range = '>2 || >1.0.0-beta' min = '1.0.0-beta.0' )
+      ( range = '>1.0.0'                   min = '1.0.1' )
+      ( range = '>1.0.0-0'                 min = '1.0.0-0.0' )
+      ( range = '>1.0.0-beta'              min = '1.0.0-beta.0' )
+      ( range = '>2 || >1.0.0'             min = '1.0.1' )
+      ( range = '>2 || >1.0.0-0'           min = '1.0.0-0.0' )
+      ( range = '>2 || >1.0.0-beta'        min = '1.0.0-beta.0' )
       " Impossible range
-      ( range = '>4 <3' min = '' ) ).
+      ( range = '>4 <3'                    min = '' ) ).
 
     LOOP AT tests INTO DATA(test).
       DATA(act) = /apmg/cl_semver_ranges=>min_version( range = test-range loose = test-loose ).
@@ -362,7 +375,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
     " Version should be less than range
     LOOP AT /apmg/cl_semver_fixtures=>version_lt_range( ) INTO DATA(version_lt_range).
-      msg = |{ version_lt_range-range } { version_lt_range-version } { version_lt_range-loose }|.
+      msg = |{ version_lt_range-range } { version_lt_range-version } { _bool( version_lt_range-loose ) }|.
       act = /apmg/cl_semver_ranges=>outside(
         version = version_lt_range-version
         range   = version_lt_range-range
@@ -378,7 +391,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     " Negative greater than test
     LOOP AT /apmg/cl_semver_fixtures=>version_not_gt_range( ) INTO DATA(version_not_gt_range).
       msg = |{ version_not_gt_range-range } { version_not_gt_range-version } |
-         && |{ version_not_gt_range-loose } { version_not_gt_range-incpre }|.
+         && |{ _bool( version_not_gt_range-loose ) } { _bool( version_not_gt_range-incpre ) }|.
       act = /apmg/cl_semver_ranges=>outside(
         version = version_not_gt_range-version
         range   = version_not_gt_range-range
@@ -395,7 +408,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
     " Negative less than test
     LOOP AT /apmg/cl_semver_fixtures=>version_not_lt_range( ) INTO DATA(version_not_lt_range).
       msg = |{ version_not_lt_range-range } { version_not_lt_range-version } |
-         && |{ version_not_lt_range-loose } { version_not_lt_range-incpre }|.
+         && |{ _bool( version_not_lt_range-loose ) } { _bool( version_not_lt_range-incpre ) }|.
       act = /apmg/cl_semver_ranges=>outside(
         version = version_not_lt_range-version
         range   = version_not_lt_range-range
@@ -614,11 +627,11 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
     " translate ranges into their canonical form
     LOOP AT /apmg/cl_semver_fixtures=>range_parse( ) INTO DATA(range_parse).
-      DATA(msg) = |{ range_parse-range } { range_parse-res } { range_parse-loose } { range_parse-incpre }|.
+      DATA(msg) = |{ range_parse-range } { range_parse-res } { _bool( range_parse-loose ) } { _bool( range_parse-incpre ) }|.
       DATA(act) = /apmg/cl_semver_ranges=>valid_range(
-        range   = range_parse-range
-        loose   = range_parse-loose
-        incpre  = range_parse-incpre ).
+        range  = range_parse-range
+        loose  = range_parse-loose
+        incpre = range_parse-incpre ).
 
       cl_abap_unit_assert=>assert_equals(
         act = act
