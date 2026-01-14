@@ -36,11 +36,27 @@ CLASS ltcl_semver_identifiers IMPLEMENTATION.
       exp = +1 ).
 
     cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_identifiers=>compare_identifiers( a = 1 b = 2 )
+      exp = -1 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_identifiers=>rcompare_identifiers( a = 1 b = 2 )
+      exp = +1 ).
+
+    cl_abap_unit_assert=>assert_equals(
       act = /apmg/cl_semver_identifiers=>compare_identifiers( a = '0' b = '0' )
       exp = 0 ).
 
     cl_abap_unit_assert=>assert_equals(
       act = /apmg/cl_semver_identifiers=>rcompare_identifiers( a = '0' b = '0' )
+      exp = 0 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_identifiers=>compare_identifiers( a = 1 b = 1 )
+      exp = 0 ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_identifiers=>rcompare_identifiers( a = 1 b = 1 )
       exp = 0 ).
 
   ENDMETHOD.

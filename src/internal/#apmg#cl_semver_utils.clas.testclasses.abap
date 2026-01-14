@@ -19,11 +19,19 @@ CLASS ltcl_semver_utils IMPLEMENTATION.
       exp = abap_true ).
 
     cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_utils=>is_numeric( 26111968 )
+      exp = abap_true ).
+
+    cl_abap_unit_assert=>assert_equals(
       act = /apmg/cl_semver_utils=>is_numeric( '+123' )
       exp = abap_false ).
 
     cl_abap_unit_assert=>assert_equals(
       act = /apmg/cl_semver_utils=>is_numeric( 'abc' )
+      exp = abap_false ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_utils=>is_numeric( -123 )
       exp = abap_false ).
 
   ENDMETHOD.

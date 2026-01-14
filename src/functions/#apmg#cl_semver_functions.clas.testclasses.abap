@@ -315,12 +315,21 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ( version = '1.2.3-rc.5/a' res = '1.2.3-rc.5' )
       ( version = '1.2.3.4-rc.5' res = '1.2.3' )
       ( version = '1.2.3.4+rev.6' res = '1.2.3' )
+
+      ( version = '1.0.0-1a' res = '1.0.0-1a' )
+      ( version = '1.0.0-alpha.12ab' res = '1.0.0-alpha.12ab' )
+      ( version = '1.0.0-alpha.1234.23cd' res = '1.0.0-alpha.1234.23cd' )
+      ( version = '1.0.0-nightly.abc123' res = '1.0.0-nightly.abc123' )
+      ( version = '1.0.0-nightly.abcdef' res = '1.0.0-nightly.abcdef' )
+      ( version = '1.0.0-nightly.123456' res = '1.0.0-nightly.123456' )
+
       ( version = '1+rev.6' res = '1.0.0+rev.6' )
       ( version = '1.2+rev.6' res = '1.2.0+rev.6' )
       ( version = '1.2.3+rev.6' res = '1.2.3+rev.6' )
       ( version = '1.2.3+rev.6/a' res = '1.2.3+rev.6' )
       ( version = '1.2.3.4-rc.5' res = '1.2.3' )
       ( version = '1.2.3.4+rev.6' res = '1.2.3' )
+
       ( version = '1-rc.5+rev.6' res = '1.0.0-rc.5+rev.6' )
       ( version = '1.2-rc.5+rev.6' res = '1.2.0-rc.5+rev.6' )
       ( version = '1.2.3-rc.5+rev.6' res = '1.2.3-rc.5+rev.6' )
