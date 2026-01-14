@@ -309,31 +309,31 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
     DATA tests TYPE STANDARD TABLE OF ty_test WITH KEY version res.
 
     tests = VALUE #(
-      ( version = '1-rc.5' res = '1.0.0-rc.5' )
-      ( version = '1.2-rc.5' res = '1.2.0-rc.5' )
-      ( version = '1.2.3-rc.5' res = '1.2.3-rc.5' )
-      ( version = '1.2.3-rc.5/a' res = '1.2.3-rc.5' )
-      ( version = '1.2.3.4-rc.5' res = '1.2.3' )
-      ( version = '1.2.3.4+rev.6' res = '1.2.3' )
-
-      ( version = '1.0.0-1a' res = '1.0.0-1a' )
-      ( version = '1.0.0-alpha.12ab' res = '1.0.0-alpha.12ab' )
+      ( version = '1-rc.5'                res = '1.0.0-rc.5' )
+      ( version = '1.2-rc.5'              res = '1.2.0-rc.5' )
+      ( version = '1.2.3-rc.5'            res = '1.2.3-rc.5' )
+      ( version = '1.2.3-rc.5/a'          res = '1.2.3-rc.5' )
+      ( version = '1.2.3.4-rc.5'          res = '1.2.3' )
+      ( version = '1.2.3.4+rev.6'         res = '1.2.3' )
+      "
+      ( version = '1.0.0-1a'              res = '1.0.0-1a' )
+      ( version = '1.0.0-alpha.12ab'      res = '1.0.0-alpha.12ab' )
       ( version = '1.0.0-alpha.1234.23cd' res = '1.0.0-alpha.1234.23cd' )
-      ( version = '1.0.0-nightly.abc123' res = '1.0.0-nightly.abc123' )
-      ( version = '1.0.0-nightly.abcdef' res = '1.0.0-nightly.abcdef' )
-      ( version = '1.0.0-nightly.123456' res = '1.0.0-nightly.123456' )
-
-      ( version = '1+rev.6' res = '1.0.0+rev.6' )
-      ( version = '1.2+rev.6' res = '1.2.0+rev.6' )
-      ( version = '1.2.3+rev.6' res = '1.2.3+rev.6' )
-      ( version = '1.2.3+rev.6/a' res = '1.2.3+rev.6' )
-      ( version = '1.2.3.4-rc.5' res = '1.2.3' )
-      ( version = '1.2.3.4+rev.6' res = '1.2.3' )
-
-      ( version = '1-rc.5+rev.6' res = '1.0.0-rc.5+rev.6' )
-      ( version = '1.2-rc.5+rev.6' res = '1.2.0-rc.5+rev.6' )
-      ( version = '1.2.3-rc.5+rev.6' res = '1.2.3-rc.5+rev.6' )
-      ( version = '1.2.3-rc.5+rev.6/a' res = '1.2.3-rc.5+rev.6' ) ).
+      ( version = '1.0.0-nightly.abc123'  res = '1.0.0-nightly.abc123' )
+      ( version = '1.0.0-nightly.abcdef'  res = '1.0.0-nightly.abcdef' )
+      ( version = '1.0.0-nightly.123456'  res = '1.0.0-nightly.123456' )
+      "
+      ( version = '1+rev.6'               res = '1.0.0+rev.6' )
+      ( version = '1.2+rev.6'             res = '1.2.0+rev.6' )
+      ( version = '1.2.3+rev.6'           res = '1.2.3+rev.6' )
+      ( version = '1.2.3+rev.6/a'         res = '1.2.3+rev.6' )
+      ( version = '1.2.3.4-rc.5'          res = '1.2.3' )
+      ( version = '1.2.3.4+rev.6'         res = '1.2.3' )
+      "
+      ( version = '1-rc.5+rev.6'          res = '1.0.0-rc.5+rev.6' )
+      ( version = '1.2-rc.5+rev.6'        res = '1.2.0-rc.5+rev.6' )
+      ( version = '1.2.3-rc.5+rev.6'      res = '1.2.3-rc.5+rev.6' )
+      ( version = '1.2.3-rc.5+rev.6/a'    res = '1.2.3-rc.5+rev.6' ) ).
 
     LOOP AT tests INTO DATA(test).
       DATA(semver) = /apmg/cl_semver_functions=>coerce( version = test-version incpre = abap_true ).
@@ -367,15 +367,15 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
     DATA tests TYPE STANDARD TABLE OF ty_test WITH KEY version res.
 
     tests = VALUE #(
-      ( version = '1.2.3.4.5.6' res = '4.5.6' )
+      ( version = '1.2.3.4.5.6'       res = '4.5.6' )
       ( version = '1.2.3/a/b/c/2.3.4' res = '2.3.4' )
-      ( version = '1.2.3.4.5/6' res = '6.0.0' )
-      ( version = '1.2.3.4./6' res = '6.0.0' )
-      ( version = '1.2.3.4/6' res = '6.0.0' )
-      ( version = '1.2.3./6' res = '6.0.0' )
-      ( version = '1.2.3/6' res = '6.0.0' )
-      ( version = '1.2.3.4' res = '2.3.4' )
-      ( version = '1.2.3.4xyz' res = '2.3.4' ) ).
+      ( version = '1.2.3.4.5/6'       res = '6.0.0' )
+      ( version = '1.2.3.4./6'        res = '6.0.0' )
+      ( version = '1.2.3.4/6'         res = '6.0.0' )
+      ( version = '1.2.3./6'          res = '6.0.0' )
+      ( version = '1.2.3/6'           res = '6.0.0' )
+      ( version = '1.2.3.4'           res = '2.3.4' )
+      ( version = '1.2.3.4xyz'        res = '2.3.4' ) ).
 
     LOOP AT tests INTO DATA(test).
       DATA(semver) = /apmg/cl_semver_functions=>coerce( version = test-version rtl = abap_true ).
@@ -409,11 +409,11 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
     DATA tests TYPE STANDARD TABLE OF ty_test WITH KEY version res.
 
     tests = VALUE #(
-      ( version = '1.2-rc.5+rev.6' res = '1.2.0-rc.5+rev.6' )
-      ( version = '1.2.3-rc.5+rev.6' res = '1.2.3-rc.5+rev.6' )
-      ( version = '1.2.3.4-rc.5+rev.6' res = '2.3.4-rc.5+rev.6' )
-      ( version = '1.2.3.4-rc.5' res = '2.3.4-rc.5' )
-      ( version = '1.2.3.4+rev.6' res = '2.3.4+rev.6' )
+      ( version = '1.2-rc.5+rev.6'       res = '1.2.0-rc.5+rev.6' )
+      ( version = '1.2.3-rc.5+rev.6'     res = '1.2.3-rc.5+rev.6' )
+      ( version = '1.2.3.4-rc.5+rev.6'   res = '2.3.4-rc.5+rev.6' )
+      ( version = '1.2.3.4-rc.5'         res = '2.3.4-rc.5' )
+      ( version = '1.2.3.4+rev.6'        res = '2.3.4+rev.6' )
       ( version = '1.2.3.4-rc.5+rev.6/7' res = '7.0.0' )
       ( version = '1.2.3.4-rc/7.5+rev.6' res = '7.5.0+rev.6' )
       ( version = '1.2.3.4/7-rc.5+rev.6' res = '7.0.0-rc.5+rev.6' ) ).
@@ -538,11 +538,11 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
     DATA tests TYPE STANDARD TABLE OF ty_test WITH KEY loose strict.
 
     tests = VALUE #(
-      ( loose = '=1.2.3' strict = '1.2.3' )
-      ( loose = '01.02.03' strict = '1.2.3' )
+      ( loose = '=1.2.3'        strict = '1.2.3' )
+      ( loose = '01.02.03'      strict = '1.2.3' )
       ( loose = '1.2.3-beta.01' strict = '1.2.3-beta.1' )
-      ( loose = '   =1.2.3' strict = '1.2.3' )
-      ( loose = '1.2.3foo' strict = '1.2.3-foo' ) ).
+      ( loose = '   =1.2.3'     strict = '1.2.3' )
+      ( loose = '1.2.3foo'      strict = '1.2.3-foo' ) ).
 
     LOOP AT tests INTO DATA(test).
 
@@ -598,42 +598,42 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
     DATA tests TYPE STANDARD TABLE OF ty_test WITH KEY v1 v2 res.
 
     tests = VALUE #(
-      ( v1 = '1.2.3' v2 = '0.2.3' res = 'major' )
-      ( v1 = '0.2.3' v2 = '1.2.3' res = 'major' )
-      ( v1 = '1.4.5' v2 = '0.2.3' res = 'major' )
-      ( v1 = '1.2.3' v2 = '2.0.0-pre' res = 'premajor' )
-      ( v1 = '2.0.0-pre' v2 = '1.2.3' res = 'premajor' )
-      ( v1 = '1.2.3' v2 = '1.3.3' res = 'minor' )
-      ( v1 = '1.0.1' v2 = '1.1.0-pre' res = 'preminor' )
-      ( v1 = '1.2.3' v2 = '1.2.4' res = 'patch' )
-      ( v1 = '1.2.3' v2 = '1.2.4-pre' res = 'prepatch' )
-      ( v1 = '0.0.1' v2 = '0.0.1-pre' res = 'patch' )
-      ( v1 = '0.0.1' v2 = '0.0.1-pre-2' res = 'patch' )
-      ( v1 = '1.1.0' v2 = '1.1.0-pre' res = 'minor' )
+      ( v1 = '1.2.3'       v2 = '0.2.3'       res = 'major' )
+      ( v1 = '0.2.3'       v2 = '1.2.3'       res = 'major' )
+      ( v1 = '1.4.5'       v2 = '0.2.3'       res = 'major' )
+      ( v1 = '1.2.3'       v2 = '2.0.0-pre'   res = 'premajor' )
+      ( v1 = '2.0.0-pre'   v2 = '1.2.3'       res = 'premajor' )
+      ( v1 = '1.2.3'       v2 = '1.3.3'       res = 'minor' )
+      ( v1 = '1.0.1'       v2 = '1.1.0-pre'   res = 'preminor' )
+      ( v1 = '1.2.3'       v2 = '1.2.4'       res = 'patch' )
+      ( v1 = '1.2.3'       v2 = '1.2.4-pre'   res = 'prepatch' )
+      ( v1 = '0.0.1'       v2 = '0.0.1-pre'   res = 'patch' )
+      ( v1 = '0.0.1'       v2 = '0.0.1-pre-2' res = 'patch' )
+      ( v1 = '1.1.0'       v2 = '1.1.0-pre'   res = 'minor' )
       ( v1 = '1.1.0-pre-1' v2 = '1.1.0-pre-2' res = 'prerelease' )
-      ( v1 = '1.0.0' v2 = '1.0.0' res = '' )
-      ( v1 = '1.0.0-1' v2 = '1.0.0-1' res = '' )
-      ( v1 = '0.0.2-1' v2 = '0.0.2' res = 'patch' )
-      ( v1 = '0.0.2-1' v2 = '0.0.3' res = 'patch' )
-      ( v1 = '0.0.2-1' v2 = '0.1.0' res = 'minor' )
-      ( v1 = '0.0.2-1' v2 = '1.0.0' res = 'major' )
-      ( v1 = '0.1.0-1' v2 = '0.1.0' res = 'minor' )
-      ( v1 = '1.0.0-1' v2 = '1.0.0' res = 'major' )
-      ( v1 = '1.0.0-1' v2 = '1.1.1' res = 'major' )
-      ( v1 = '1.0.0-1' v2 = '2.1.1' res = 'major' )
-      ( v1 = '1.0.1-1' v2 = '1.0.1' res = 'patch' )
-      ( v1 = '0.0.0-1' v2 = '0.0.0' res = 'major' )
-      ( v1 = '1.0.0-1' v2 = '2.0.0' res = 'major' )
-      ( v1 = '1.0.0-1' v2 = '2.0.0-1' res = 'premajor' )
-      ( v1 = '1.0.0-1' v2 = '1.1.0-1' res = 'preminor' )
-      ( v1 = '1.0.0-1' v2 = '1.0.1-1' res = 'prepatch' )
-      ( v1 = '1.7.2-1' v2 = '1.8.1' res = 'minor' )
-      ( v1 = '1.1.1-pre' v2 = '2.1.1-pre' res = 'premajor' )
-      ( v1 = '1.1.1-pre' v2 = '2.1.1' res = 'major' )
-      ( v1 = '1.2.3-1' v2 = '1.2.3' res = 'patch' )
-      ( v1 = '1.4.0-1' v2 = '2.3.5' res = 'major' )
-      ( v1 = '1.6.1-5' v2 = '1.7.2' res = 'minor' )
-      ( v1 = '2.0.0-1' v2 = '2.1.1' res = 'major' ) ).
+      ( v1 = '1.0.0'       v2 = '1.0.0'       res = '' )
+      ( v1 = '1.0.0-1'     v2 = '1.0.0-1'     res = '' )
+      ( v1 = '0.0.2-1'     v2 = '0.0.2'       res = 'patch' )
+      ( v1 = '0.0.2-1'     v2 = '0.0.3'       res = 'patch' )
+      ( v1 = '0.0.2-1'     v2 = '0.1.0'       res = 'minor' )
+      ( v1 = '0.0.2-1'     v2 = '1.0.0'       res = 'major' )
+      ( v1 = '0.1.0-1'     v2 = '0.1.0'       res = 'minor' )
+      ( v1 = '1.0.0-1'     v2 = '1.0.0'       res = 'major' )
+      ( v1 = '1.0.0-1'     v2 = '1.1.1'       res = 'major' )
+      ( v1 = '1.0.0-1'     v2 = '2.1.1'       res = 'major' )
+      ( v1 = '1.0.1-1'     v2 = '1.0.1'       res = 'patch' )
+      ( v1 = '0.0.0-1'     v2 = '0.0.0'       res = 'major' )
+      ( v1 = '1.0.0-1'     v2 = '2.0.0'       res = 'major' )
+      ( v1 = '1.0.0-1'     v2 = '2.0.0-1'     res = 'premajor' )
+      ( v1 = '1.0.0-1'     v2 = '1.1.0-1'     res = 'preminor' )
+      ( v1 = '1.0.0-1'     v2 = '1.0.1-1'     res = 'prepatch' )
+      ( v1 = '1.7.2-1'     v2 = '1.8.1'       res = 'minor' )
+      ( v1 = '1.1.1-pre'   v2 = '2.1.1-pre'   res = 'premajor' )
+      ( v1 = '1.1.1-pre'   v2 = '2.1.1'       res = 'major' )
+      ( v1 = '1.2.3-1'     v2 = '1.2.3'       res = 'patch' )
+      ( v1 = '1.4.0-1'     v2 = '2.3.5'       res = 'major' )
+      ( v1 = '1.6.1-5'     v2 = '1.7.2'       res = 'minor' )
+      ( v1 = '2.0.0-1'     v2 = '2.1.1'       res = 'major' ) ).
 
     LOOP AT tests INTO DATA(test).
       DATA(msg) = |{ test-v1 } { test-v2 } { test-res } |.
@@ -787,12 +787,12 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
         && | { increments-identifier_base } { increments-res } |.
 
       DATA(s) = /apmg/cl_semver_functions=>inc(
-                  version         = increments-version
-                  release_type    = increments-release
-                  identifier      = increments-identifier
-                  identifier_base = increments-identifier_base
-                  loose           = increments-loose
-                  incpre          = increments-incpre ).
+        version         = increments-version
+        release_type    = increments-release
+        identifier      = increments-identifier
+        identifier_base = increments-identifier_base
+        loose           = increments-loose
+        incpre          = increments-incpre ).
 
       IF s IS BOUND.
         cl_abap_unit_assert=>assert_equals(
@@ -807,14 +807,14 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
       ENDIF.
 
       DATA(parsed) = /apmg/cl_semver_functions=>parse(
-                       version = increments-version
-                       loose   = increments-loose
-                       incpre  = increments-incpre ).
+        version = increments-version
+        loose   = increments-loose
+        incpre  = increments-incpre ).
 
       DATA(parsed_input) = /apmg/cl_semver_functions=>parse(
-                             version = increments-version
-                             loose   = increments-loose
-                             incpre  = increments-incpre ).
+        version = increments-version
+        loose   = increments-loose
+        incpre  = increments-incpre ).
 
       IF increments-res IS NOT INITIAL.
 
@@ -1128,14 +1128,14 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
     DATA tests TYPE STANDARD TABLE OF ty_test WITH KEY version loose.
 
     tests = VALUE #(
-      ( version = '1.2.2-alpha.1' prerel = VALUE #( ( `alpha` ) ( `1` ) ) )
-      ( version = '0.6.1-1' prerel = VALUE #( ( `1` ) ) )
-      ( version = '1.0.0-beta.2' prerel = VALUE #( ( `beta` ) ( `2` ) ) )
-      ( version = 'v0.5.4-pre' prerel = VALUE #( ( `pre` ) ) )
-      ( version = '1.2.2-alpha.1' prerel = VALUE #( ( `alpha` ) ( `1` ) ) loose = abap_false )
-      ( version = '0.6.1beta' prerel = VALUE #( ( `beta` ) ) loose = abap_true )
-      ( version = '1.0.0' loose = abap_true )
-      ( version = '~2.0.0-alpha.1'  loose = abap_false )
+      ( version = '1.2.2-alpha.1'  prerel = VALUE #( ( `alpha` ) ( `1` ) ) )
+      ( version = '0.6.1-1'        prerel = VALUE #( ( `1` ) ) )
+      ( version = '1.0.0-beta.2'   prerel = VALUE #( ( `beta` )  ( `2` ) ) )
+      ( version = 'v0.5.4-pre'     prerel = VALUE #( ( `pre` ) ) )
+      ( version = '1.2.2-alpha.1'  prerel = VALUE #( ( `alpha` ) ( `1` ) ) loose = abap_false )
+      ( version = '0.6.1beta'      prerel = VALUE #( ( `beta` ) )          loose = abap_true )
+      ( version = '1.0.0'          loose  = abap_true )
+      ( version = '~2.0.0-alpha.1' loose  = abap_false )
       ( version = 'invalid version' ) ).
 
     LOOP AT tests INTO DATA(test).
@@ -1220,11 +1220,11 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
     " invalid ranges never satisfied (but do not throw)
     tests = VALUE #(
-      ( range = 'blerg' version = '1.2.3' )
+      ( range = 'blerg'                                        version = '1.2.3' )
       ( range = 'git+https://user:password0123@github.com/foo' version = '123.0.0' loose = abap_true )
-      ( range = '^1.2.3' version = '2.0.0-pre' )
-      ( range = '0.x' version = '' )
-      ( range = '*' version = '' ) ).
+      ( range = '^1.2.3'                                       version = '2.0.0-pre' )
+      ( range = '0.x'                                          version = '' )
+      ( range = '*'                                            version = '' ) ).
 
     LOOP AT tests INTO DATA(test).
       msg = |{ test-range } { test-version } |.

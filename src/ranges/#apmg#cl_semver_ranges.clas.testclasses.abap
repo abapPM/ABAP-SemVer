@@ -26,11 +26,11 @@ ENDCLASS.
 CLASS ltcl_semver_ranges IMPLEMENTATION.
 
   METHOD _bool.
-    if bool = abap_true.
+    IF bool = abap_true.
       result = 'true'.
-    else.
+    ELSE.
       result = 'false'.
-    endif.
+    ENDIF.
   ENDMETHOD.
 
   METHOD gtr.

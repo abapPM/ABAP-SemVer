@@ -76,7 +76,7 @@ CLASS ltcl_semver IMPLEMENTATION.
       DATA(msg) = valid_version-version.
 
       TRY.
-          DATA(s) = /apmg/cl_semver=>create( version = valid_version-version ).
+          DATA(s) = /apmg/cl_semver=>create( valid_version-version ).
 
           cl_abap_unit_assert=>assert_equals(
             act = s->major
