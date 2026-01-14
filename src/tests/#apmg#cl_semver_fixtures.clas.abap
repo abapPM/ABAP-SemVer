@@ -355,7 +355,8 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
       ( version         = '1.2.3'                 release         = 'major'      res = '2.0.0'                 identifier = 'dev' )
       ( version         = '1.2.3'                 release         = 'minor'      res = '1.3.0'                 identifier = 'dev' )
       ( version         = '1.2.3'                 release         = 'patch'      res = '1.2.4'                 identifier = 'dev' )
-      ( version         = '1.2.3tag'              release         = 'major'      res = '2.0.0'                 loose      = abap_true identifier = 'dev' )
+      ( version         = '1.2.3tag'              release         = 'major'      res = '2.0.0'                 identifier = 'dev'
+        loose           = abap_true )
       ( version         = '1.2.3-tag'             release         = 'major'      res = '2.0.0'                 identifier = 'dev' )
       ( version         = '1.2.3'                 release         = 'fake'       res = ''                      identifier = 'dev' )
       ( version         = '1.2.0-0'               release         = 'patch'      res = '1.2.0'                 identifier = 'dev' )
@@ -483,7 +484,7 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
     " none of these are semvers
     result = VALUE #(
       ( value = |{ repeat( val = '1' occ = /apmg/if_semver_constants=>max_length ) }.0.0| reason = 'too long' )
-      ( value = |{ /apmg/if_semver_constants=>max_safe_integer }0.0.0|                    reason = 'too big' )
+      ( value = |{ /apmg/if_semver_constants=>max_safe_integer }0.0.0| reason = 'too big' )
       ( value = |0.{ /apmg/if_semver_constants=>max_safe_integer }0.0|                    reason = 'too big' )
       ( value = |0.0.{ /apmg/if_semver_constants=>max_safe_integer }0|                    reason = 'too big' )
       ( value = 'hello, world'                                                            reason = 'not a version' )
