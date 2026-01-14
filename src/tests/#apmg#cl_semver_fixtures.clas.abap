@@ -483,18 +483,30 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
 
     " none of these are semvers
     result = VALUE #(
-      ( value = |{ repeat( val = '1' occ = /apmg/if_semver_constants=>max_length ) }.0.0| reason = 'too long' )
-      ( value = |{ /apmg/if_semver_constants=>max_safe_integer }0.0.0| reason = 'too big' )
-      ( value = |0.{ /apmg/if_semver_constants=>max_safe_integer }0.0|                    reason = 'too big' )
-      ( value = |0.0.{ /apmg/if_semver_constants=>max_safe_integer }0|                    reason = 'too big' )
-      ( value = 'hello, world'                                                            reason = 'not a version' )
-      ( value = 'hello, world'                                                            reason = 'even loose, it''s still junk' loose = abap_true )
-      ( value = 'xyz'                                                                     reason = 'even loose as an opt, same'   loose = abap_true )
-      ( value = 'NOT VALID'                                                               reason = 'nothing like a version' )
-      ( value = '1.2.3.4'                                                                 reason = 'patch of a patch' )
-      ( value = '1.2'                                                                     reason = 'no patch' )
-      ( value = '1'                                                                       reason = 'no minor' )
-      ( value = ''                                                                        reason = 'no data' ) ).
+      ( value  = |{ repeat( val = '1' occ = /apmg/if_semver_constants=>max_length ) }.0.0|
+        reason = 'too long' )
+      ( value  = |{ /apmg/if_semver_constants=>max_safe_integer }0.0.0|
+        reason = 'too big' )
+      ( value  = |0.{ /apmg/if_semver_constants=>max_safe_integer }0.0|
+        reason = 'too big' )
+      ( value  = |0.0.{ /apmg/if_semver_constants=>max_safe_integer }0|
+        reason = 'too big' )
+      ( value  = 'hello, world'
+        reason = 'not a version' )
+      ( value  = 'hello, world'
+        reason = 'even loose, it''s still junk' loose = abap_true )
+      ( value  = 'xyz'
+        reason = 'even loose as an opt, same'   loose = abap_true )
+      ( value  = 'NOT VALID'
+        reason = 'nothing like a version' )
+      ( value  = '1.2.3.4'
+        reason = 'patch of a patch' )
+      ( value  = '1.2'
+        reason = 'no patch' )
+      ( value  = '1'
+        reason = 'no minor' )
+      ( value  = ''
+        reason = 'no data' ) ).
     " The following test cases can't happen in ABAP due to type system
     " ( value = /a regexp/ reason = 'regexp is not a string' )
     " ( value = /1.2.3/ reason = 'semver-ish regexp is not a string' )
