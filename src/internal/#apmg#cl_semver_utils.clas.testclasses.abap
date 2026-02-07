@@ -55,8 +55,8 @@ CLASS ltcl_semver_utils IMPLEMENTATION.
       exp = 'test' ).
 
     cl_abap_unit_assert=>assert_equals(
-      act = /apmg/cl_semver_utils=>trim( |test test| )
-      exp = 'test test' ).
+      act = /apmg/cl_semver_utils=>trim( |test   test| )
+      exp = 'test   test' ).
 
   ENDMETHOD.
 
