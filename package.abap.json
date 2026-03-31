@@ -6,9 +6,9 @@
   "keywords": [
     "abap",
     "apm",
-    "semver",
     "package-manager",
     "sap",
+    "semver",
     "tools"
   ],
   "homepage": "https://abappm.com",
