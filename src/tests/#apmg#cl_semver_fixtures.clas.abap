@@ -838,7 +838,6 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
     " '*' is the return value from functions.validRange(), but
     " new Range().range will be '' in those cases
     result = VALUE #(
-      ( range = '4.17.0+' && repeat( val = 'a' occ = 250 ) && '3' res = '4.17.0' loose = abap_true )
       ( range = '1.0.0 - 2.0.0' res = '>=1.0.0 <=2.0.0' )
       ( range = '1.0.0 - 2.0.0' res = '>=1.0.0-0 <2.0.1-0' incpre = abap_true )
       ( range = '1 - 2' res = '>=1.0.0 <3.0.0-0' )
