@@ -266,17 +266,17 @@ CLASS ltcl_semver IMPLEMENTATION.
 
       IF truncation-res IS INITIAL.
         TRY.
-            DATA(s) = /apmg/cl_semver=>create( version = truncation-version ).
+            DATA(s) = /apmg/cl_semver=>create( truncation-version ).
 
-            s->truncate( release_type = truncation-release ).
+            s->truncate( truncation-release ).
             cl_abap_unit_assert=>fail( msg = msg ).
           CATCH /apmg/cx_error ##NO_HANDLER.
             " throws when presented with garbage
         ENDTRY.
       ELSE.
-        s = /apmg/cl_semver=>create( version = truncation-version ).
+        s = /apmg/cl_semver=>create( truncation-version ).
 
-        DATA(res) = s->truncate( release_type = truncation-release ).
+        DATA(res) = s->truncate( truncation-release ).
 
         cl_abap_unit_assert=>assert_equals(
           act = res->version

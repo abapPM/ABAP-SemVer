@@ -965,11 +965,9 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
       ( version = '1.2.3'     release = 'patch' res = '1.2.3' )
       ( version = '1.2.3'     release = 'minor' res = '1.2.0' )
       ( version = '1.2.3'     release = 'major' res = '1.0.0' )
-
       " invalid inputs
       ( version = '1.2.3'     release = 'fake'  res = '' )
-      " ( version = 'fake'      release = 'major' res = '' )
-
+      ( version = 'fake'      release = 'major' res = '' )
       " additional pre-release, build, and pre+build inputs
       ( version = '4.5.6-rc2'        release = 'prerelease' res = '4.5.6-rc2' )
       ( version = '4.5.6-rc2'        release = 'prepatch'   res = '4.5.6-rc2' )
@@ -978,7 +976,6 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
       ( version = '4.5.6-rc2'        release = 'patch'      res = '4.5.6' )
       ( version = '4.5.6-rc2'        release = 'minor'      res = '4.5.0' )
       ( version = '4.5.6-rc2'        release = 'major'      res = '4.0.0' )
-
       ( version = '4.5.6+dadb0d'     release = 'prerelease' res = '4.5.6' )
       ( version = '4.5.6+dadb0d'     release = 'prepatch'   res = '4.5.6' )
       ( version = '4.5.6+dadb0d'     release = 'preminor'   res = '4.5.6' )
@@ -986,7 +983,6 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
       ( version = '4.5.6+dadb0d'     release = 'patch'      res = '4.5.6' )
       ( version = '4.5.6+dadb0d'     release = 'minor'      res = '4.5.0' )
       ( version = '4.5.6+dadb0d'     release = 'major'      res = '4.0.0' )
-
       ( version = '4.5.6-rc2+dadb0d' release = 'prerelease' res = '4.5.6-rc2' )
       ( version = '4.5.6-rc2+dadb0d' release = 'prepatch'   res = '4.5.6-rc2' )
       ( version = '4.5.6-rc2+dadb0d' release = 'preminor'   res = '4.5.6-rc2' )
