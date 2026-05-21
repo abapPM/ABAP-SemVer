@@ -102,6 +102,17 @@ CLASS ltcl_semver_cli IMPLEMENTATION.
       args = '-i release 1.0.0-pre'
       out  = |1.0.0\n| ).
 
+    " last -i "wins"
+    test(
+      args = '-i major -i minor 1.0.0'
+      out  = |1.1.0\n| ).
+
+    " invalid -i value, should warn
+    test(
+      args = '-i invalid 1.0.0'
+      out  = |WARN: Invalid value for -i; defaulting to 'patch'. |
+          && |This may become a failure in future major versions.\n1.0.1\n| ).
+
   ENDMETHOD.
 
   METHOD sorting_and_filtering.

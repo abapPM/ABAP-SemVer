@@ -260,6 +260,15 @@ CLASS /apmg/cl_semver_functions DEFINITION
       RETURNING
         VALUE(result) TYPE string.
 
+    CLASS-METHODS truncate
+      IMPORTING
+        version       TYPE any
+        release_type  TYPE string
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
+      RETURNING
+        VALUE(result) TYPE string.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -543,7 +552,7 @@ CLASS /apmg/cl_semver_functions IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    " high and low are preleases
+    " high and low are prereleases
     result = 'prerelease'.
 
   ENDMETHOD.
@@ -782,6 +791,21 @@ CLASS /apmg/cl_semver_functions IMPLEMENTATION.
       ENDWHILE.
       i = i + 1.
     ENDWHILE.
+
+  ENDMETHOD.
+
+
+  METHOD truncate.
+
+    TRY.
+        DATA(semver) = parse( version = version loose = loose incpre = incpre ).
+
+        CHECK semver IS BOUND.
+
+        result = semver->truncate( release_type )->version.
+      CATCH /apmg/cx_error.
+        CLEAR result.
+    ENDTRY.
 
   ENDMETHOD.
 

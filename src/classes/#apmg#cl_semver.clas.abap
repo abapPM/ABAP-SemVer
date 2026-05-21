@@ -87,6 +87,14 @@ CLASS /apmg/cl_semver DEFINITION
       RAISING
         /apmg/cx_error.
 
+    METHODS truncate
+      IMPORTING
+        !release_type TYPE string
+      RETURNING
+        VALUE(result) TYPE REF TO /apmg/cl_semver
+      RAISING
+        /apmg/cx_error.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 
@@ -491,6 +499,33 @@ CLASS /apmg/cl_semver IMPLEMENTATION.
 
   METHOD to_string.
     result = version.
+  ENDMETHOD.
+
+
+  METHOD truncate.
+
+    result = me.
+
+    CASE release_type.
+      WHEN 'major'.
+        minor = 0.
+        patch = 0.
+        CLEAR: prerelease, build.
+      WHEN 'minor'.
+        patch = 0.
+        CLEAR: prerelease, build.
+      WHEN 'patch'.
+        CLEAR: prerelease, build.
+      WHEN 'premajor' OR 'preminor' OR 'prepatch' OR 'prerelease' OR 'release'.
+        CLEAR build.
+      WHEN OTHERS.
+        RAISE EXCEPTION TYPE /apmg/cx_error_text
+          EXPORTING
+            text = |Invalid release type argument { release_type }|.
+    ENDCASE.
+
+    format( ).
+
   ENDMETHOD.
 
 
