@@ -159,6 +159,18 @@ CLASS /apmg/cl_semver_fixtures DEFINITION
       RETURNING
         VALUE(result) TYPE ty_valid_versions.
 
+    TYPES:
+      BEGIN OF ty_truncate,
+        version TYPE string,
+        release TYPE string,
+        res     TYPE string,
+      END OF ty_truncate,
+      ty_truncates TYPE STANDARD TABLE OF ty_truncate WITH KEY version release res.
+
+    CLASS-METHODS truncations
+      RETURNING
+        VALUE(result) TYPE ty_truncates.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -944,6 +956,48 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD truncations.
+    " [version, releaseType, result]
+    " truncate(version, releaseType) -> result
+
+    result = VALUE #(
+      ( version = '1.2.3-foo' release = 'patch' res = '1.2.3' )
+      ( version = '1.2.3'     release = 'patch' res = '1.2.3' )
+      ( version = '1.2.3'     release = 'minor' res = '1.2.0' )
+      ( version = '1.2.3'     release = 'major' res = '1.0.0' )
+
+      " invalid inputs
+      ( version = '1.2.3'     release = 'fake'  res = '' )
+      " ( version = 'fake'      release = 'major' res = '' )
+
+      " additional pre-release, build, and pre+build inputs
+      ( version = '4.5.6-rc2'        release = 'prerelease' res = '4.5.6-rc2' )
+      ( version = '4.5.6-rc2'        release = 'prepatch'   res = '4.5.6-rc2' )
+      ( version = '4.5.6-rc2'        release = 'preminor'   res = '4.5.6-rc2' )
+      ( version = '4.5.6-rc2'        release = 'premajor'   res = '4.5.6-rc2' )
+      ( version = '4.5.6-rc2'        release = 'patch'      res = '4.5.6' )
+      ( version = '4.5.6-rc2'        release = 'minor'      res = '4.5.0' )
+      ( version = '4.5.6-rc2'        release = 'major'      res = '4.0.0' )
+
+      ( version = '4.5.6+dadb0d'     release = 'prerelease' res = '4.5.6' )
+      ( version = '4.5.6+dadb0d'     release = 'prepatch'   res = '4.5.6' )
+      ( version = '4.5.6+dadb0d'     release = 'preminor'   res = '4.5.6' )
+      ( version = '4.5.6+dadb0d'     release = 'premajor'   res = '4.5.6' )
+      ( version = '4.5.6+dadb0d'     release = 'patch'      res = '4.5.6' )
+      ( version = '4.5.6+dadb0d'     release = 'minor'      res = '4.5.0' )
+      ( version = '4.5.6+dadb0d'     release = 'major'      res = '4.0.0' )
+
+      ( version = '4.5.6-rc2+dadb0d' release = 'prerelease' res = '4.5.6-rc2' )
+      ( version = '4.5.6-rc2+dadb0d' release = 'prepatch'   res = '4.5.6-rc2' )
+      ( version = '4.5.6-rc2+dadb0d' release = 'preminor'   res = '4.5.6-rc2' )
+      ( version = '4.5.6-rc2+dadb0d' release = 'premajor'   res = '4.5.6-rc2' )
+      ( version = '4.5.6-rc2+dadb0d' release = 'patch'      res = '4.5.6' )
+      ( version = '4.5.6-rc2+dadb0d' release = 'minor'      res = '4.5.0' )
+      ( version = '4.5.6-rc2+dadb0d' release = 'major'      res = '4.0.0' ) ).
+
+  ENDMETHOD.
+
+
   METHOD valid_versions.
     " [version, major, minor, patch, prerelease[], build[]]
 
@@ -985,7 +1039,6 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
   METHOD version_gt_range.
     " [range, version, options]
 
-    " Version should be greater than range
     result = VALUE #(
       ( range = '~1.2.2'          version = '1.3.0' )
       ( range = '~0.6.1-1'        version = '0.7.1-1' )
@@ -1050,7 +1103,6 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
   METHOD version_lt_range.
     " [range, version, options]
 
-    " Version should be less than range
     result = VALUE #(
       ( range = '~1.2.2'          version = '1.2.1' )
       ( range = '~0.6.1-1'        version = '0.6.1-0' )

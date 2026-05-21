@@ -41,6 +41,7 @@ CLASS ltcl_semver_functions DEFINITION FOR TESTING RISK LEVEL HARMLESS
       rsort FOR TESTING RAISING /apmg/cx_error,
       satisfies FOR TESTING RAISING /apmg/cx_error,
       sort FOR TESTING RAISING /apmg/cx_error,
+      truncate FOR TESTING RAISING /apmg/cx_error,
       valid FOR TESTING RAISING /apmg/cx_error.
 
 ENDCLASS.
@@ -1259,11 +1260,24 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD truncate.
+
+    LOOP AT /apmg/cl_semver_fixtures=>truncations( ) INTO DATA(truncation).
+      DATA(msg) = |{ truncation-version } { truncation-release }|.
+
+      cl_abap_unit_assert=>assert_equals(
+        act = /apmg/cl_semver_functions=>truncate( version = truncation-version release_type = truncation-release )
+        exp = truncation-res
+        msg = msg ).
+    ENDLOOP.
+
+  ENDMETHOD.
+
   METHOD valid.
     " returns null instead of throwing when presented with garbage
 
     LOOP AT /apmg/cl_semver_fixtures=>invalid_versions( ) INTO DATA(invalid_version).
-      DATA(msg) = |{ invalid_version-value } { invalid_version-loose } { invalid_version-reason } |.
+      DATA(msg) = |{ invalid_version-value } { invalid_version-loose } { invalid_version-reason }|.
 
       cl_abap_unit_assert=>assert_initial(
         act = /apmg/cl_semver_functions=>valid( version = invalid_version-value loose = invalid_version-loose )

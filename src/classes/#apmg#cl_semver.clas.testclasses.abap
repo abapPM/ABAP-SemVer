@@ -14,6 +14,7 @@ CLASS ltcl_semver DEFINITION FOR TESTING RISK LEVEL HARMLESS
       incrementing FOR TESTING RAISING /apmg/cx_error,
       invalid_increments FOR TESTING RAISING /apmg/cx_error,
       increment_side_effects FOR TESTING RAISING /apmg/cx_error,
+      truncating FOR TESTING RAISING /apmg/cx_error,
       compare_main_vs_pre FOR TESTING RAISING /apmg/cx_error,
       compare_build FOR TESTING RAISING /apmg/cx_error.
 
@@ -255,6 +256,38 @@ CLASS ltcl_semver IMPLEMENTATION.
     cl_abap_unit_assert=>assert_equals(
       act = v->to_string( )
       exp = '1.0.0' ).
+
+  ENDMETHOD.
+
+  METHOD truncating.
+
+    LOOP AT /apmg/cl_semver_fixtures=>truncations( ) INTO DATA(truncation).
+      DATA(msg) = |{ truncation-version } { truncation-release }|.
+
+      IF truncation-res IS INITIAL.
+        TRY.
+            DATA(s) = /apmg/cl_semver=>create( version = truncation-version ).
+
+            s->truncate( release_type = truncation-release ).
+            cl_abap_unit_assert=>fail( msg = msg ).
+          CATCH /apmg/cx_error ##NO_HANDLER.
+            " throws when presented with garbage
+        ENDTRY.
+      ELSE.
+        s = /apmg/cl_semver=>create( version = truncation-version ).
+
+        DATA(res) = s->truncate( release_type = truncation-release ).
+
+        cl_abap_unit_assert=>assert_equals(
+          act = res->version
+          exp = truncation-res
+          msg = msg ).
+
+        IF res->build IS NOT INITIAL.
+          cl_abap_unit_assert=>fail( msg = msg ).
+        ENDIF.
+      ENDIF.
+    ENDLOOP.
 
   ENDMETHOD.
 

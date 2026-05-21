@@ -304,7 +304,7 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
       ( range = '~1.1.1'                   min = '1.1.1' )
       ( range = '~1.1.1-beta'              min = '1.1.1-beta' )
       ( range = '~1.1.1 || >=2'            min = '1.1.1' )
-      " Carot
+      " Caret
       ( range = '^1.1.1'                   min = '1.1.1' )
       ( range = '^1.1.1-beta'              min = '1.1.1-beta' )
       ( range = '^1.1.1 || >=2'            min = '1.1.1' )

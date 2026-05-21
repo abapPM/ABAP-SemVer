@@ -58,8 +58,7 @@ CLASS /apmg/cl_semver_utils IMPLEMENTATION.
         val   = data
         regex = `[\t\n\r]`
         with  = ` `
-        occ   = 0 )
-      from = `` ) ##REGEX_POSIX.
+        occ   = 0 ) ) ##REGEX_POSIX.
   ENDMETHOD.
 
 
