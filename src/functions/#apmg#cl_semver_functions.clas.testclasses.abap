@@ -1049,9 +1049,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
 
     " throw errors if asked to
     TRY.
-        /apmg/cl_semver_functions=>parse(
-          version      = 'bad'
-          throw_errors = abap_true ).
+        /apmg/cl_semver_functions=>parse_throw( 'bad' ).
         cl_abap_unit_assert=>fail( ).
       CATCH /apmg/cx_error INTO DATA(error).
         cl_abap_unit_assert=>assert_equals(
@@ -1062,9 +1060,7 @@ CLASS ltcl_semver_functions IMPLEMENTATION.
     TRY.
         DATA(wrong_type) = NEW /apmg/cl_semver_cli( ).
 
-        /apmg/cl_semver_functions=>parse(
-          version      = wrong_type
-          throw_errors = abap_true ).
+        /apmg/cl_semver_functions=>parse_throw( wrong_type ).
         cl_abap_unit_assert=>fail( ).
       CATCH /apmg/cx_error INTO error.
         cl_abap_unit_assert=>assert_equals(
