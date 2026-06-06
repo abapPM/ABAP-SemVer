@@ -17,9 +17,7 @@ CLASS /apmg/cl_semver_functions DEFINITION
         loose         TYPE abap_bool DEFAULT abap_false
         incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
-        VALUE(result) TYPE string
-      RAISING
-        /apmg/cx_error.
+        VALUE(result) TYPE string.
 
     CLASS-METHODS cmp
       IMPORTING
@@ -40,9 +38,7 @@ CLASS /apmg/cl_semver_functions DEFINITION
         loose         TYPE abap_bool DEFAULT abap_false
         incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
-        VALUE(result) TYPE REF TO /apmg/cl_semver
-      RAISING
-        /apmg/cx_error.
+        VALUE(result) TYPE REF TO /apmg/cl_semver.
 
     CLASS-METHODS compare
       IMPORTING
@@ -185,7 +181,14 @@ CLASS /apmg/cl_semver_functions DEFINITION
         version       TYPE any
         loose         TYPE abap_bool DEFAULT abap_false
         incpre        TYPE abap_bool DEFAULT abap_false
-        throw_errors  TYPE abap_bool DEFAULT abap_false
+      RETURNING
+        VALUE(result) TYPE REF TO /apmg/cl_semver.
+
+    CLASS-METHODS parse_throw
+      IMPORTING
+        version       TYPE any
+        loose         TYPE abap_bool DEFAULT abap_false
+        incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(result) TYPE REF TO /apmg/cl_semver
       RAISING
@@ -206,9 +209,7 @@ CLASS /apmg/cl_semver_functions DEFINITION
         loose         TYPE abap_bool DEFAULT abap_false
         incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
-        VALUE(result) TYPE string_table
-      RAISING
-        /apmg/cx_error.
+        VALUE(result) TYPE string_table.
 
     CLASS-METHODS rcompare
       IMPORTING
@@ -248,9 +249,7 @@ CLASS /apmg/cl_semver_functions DEFINITION
         loose         TYPE abap_bool DEFAULT abap_false
         incpre        TYPE abap_bool DEFAULT abap_false
       RETURNING
-        VALUE(result) TYPE abap_bool
-      RAISING
-        /apmg/cx_error.
+        VALUE(result) TYPE abap_bool.
 
     CLASS-METHODS valid
       IMPORTING
@@ -495,8 +494,8 @@ CLASS /apmg/cl_semver_functions IMPLEMENTATION.
 
   METHOD diff.
 
-    DATA(v1) = parse( version = version_1 throw_errors = abap_true ).
-    DATA(v2) = parse( version = version_2 throw_errors = abap_true ).
+    DATA(v1) = parse_throw( version_1 ).
+    DATA(v2) = parse_throw( version_2 ).
 
     DATA(comparison) = v1->compare( v2 ).
 
@@ -686,13 +685,21 @@ CLASS /apmg/cl_semver_functions IMPLEMENTATION.
 
     TRY.
         result = /apmg/cl_semver=>create( version = version loose = loose incpre = incpre ).
-      CATCH /apmg/cx_error INTO DATA(error).
-        IF throw_errors = abap_false.
-          RETURN.
-        ENDIF.
-
-        RAISE EXCEPTION error.
+      CATCH /apmg/cx_error ##NO_HANDLER.
     ENDTRY.
+
+  ENDMETHOD.
+
+
+  METHOD parse_throw.
+
+    DATA(kind) = cl_abap_typedescr=>describe_by_data( version )->type_kind.
+
+    IF kind = cl_abap_typedescr=>typekind_oref AND version IS INSTANCE OF /apmg/cl_semver.
+      result ?= version.
+    ELSE.
+      result = /apmg/cl_semver=>create( version = version loose = loose incpre = incpre ).
+    ENDIF.
 
   ENDMETHOD.
 
@@ -812,14 +819,11 @@ CLASS /apmg/cl_semver_functions IMPLEMENTATION.
 
   METHOD valid.
 
-    TRY.
-        DATA(semver) = parse( version = version loose = loose incpre = incpre ).
+    DATA(semver) = parse( version = version loose = loose incpre = incpre ).
 
-        CHECK semver IS BOUND.
+    CHECK semver IS BOUND.
 
-        result = semver->version.
-      CATCH /apmg/cx_error ##NO_HANDLER.
-    ENDTRY.
+    result = semver->version.
 
   ENDMETHOD.
 ENDCLASS.

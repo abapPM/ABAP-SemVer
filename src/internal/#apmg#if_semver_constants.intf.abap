@@ -7,14 +7,14 @@ INTERFACE /apmg/if_semver_constants PUBLIC.
 * Ported to ABAP by apm.to Inc. <https://apm.to>
 * SPDX-License-Identifier: ISC
 ************************************************************************
-* Based on node semver package v7.8.0 (May 2026)
-* https://github.com/npm/node-semver/releases/tag/v7.8.0
+* Based on node semver package v7.8.1 (May 2026)
+* https://github.com/npm/node-semver/releases/tag/v7.8.1
 * not included yet:
-* https://github.com/npm/node-semver/compare/v7.8.0...main
+* https://github.com/npm/node-semver/compare/v7.8.1...main
 ************************************************************************
 
   " Package version
-  CONSTANTS version TYPE string VALUE '7.8.0' ##NEEDED.
+  CONSTANTS version TYPE string VALUE '7.8.1' ##NEEDED.
 
   " Note: this is the semver.org version of the spec that it implements
   " Not necessarily the package version of this code.

@@ -838,7 +838,6 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
     " '*' is the return value from functions.validRange(), but
     " new Range().range will be '' in those cases
     result = VALUE #(
-      ( range = '1.x.x+build >2.x+build' res = '>=1.0.0 <2.0.0-0 >=3.0.0' )
       ( range = '1.0.0 - 2.0.0' res = '>=1.0.0 <=2.0.0' )
       ( range = '1.0.0 - 2.0.0' res = '>=1.0.0-0 <2.0.1-0' incpre = abap_true )
       ( range = '1 - 2' res = '>=1.0.0 <3.0.0-0' )
@@ -951,7 +950,22 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
       ( range = '1.x.x-alpha+build' res = '>=1.0.0 <2.0.0-0' )
       ( range = '>1.x.x-alpha+build' res = '>=2.0.0' )
       ( range = '>=1.x.x-alpha+build <2.x.x+build' res = '>=1.0.0 <2.0.0-0' )
-      ( range = '1.x.x-alpha+build || 2.x.x+build' res = '>=1.0.0 <2.0.0-0||>=2.0.0 <3.0.0-0' ) ).
+      ( range = '1.x.x-alpha+build || 2.x.x+build' res = '>=1.0.0 <2.0.0-0||>=2.0.0 <3.0.0-0' )
+      " long build metadata must be stripped, not bled into the version
+      ( range = '4.17.0+' && repeat( val = 'a' occ = 250 ) && '3' res = '4.17.0' loose = abap_true )
+      ( range = '4.17.0+' && repeat( val = 'a' occ = 251 ) res = '4.17.0' loose = abap_true )
+      ( range = 'v1.0+' && repeat( val = 'a' occ = 249 ) && 'x6' res = '>=1.0.0 <1.1.0-0' )
+      ( range = '1.2.3+' && repeat( val = 'a' occ = 251 ) && ' - 2.0.0' res = '>=1.2.3 <=2.0.0' )
+      ( range = '1.2.3+' && repeat( val = 'a' occ = 251 ) && ' - 2.0.0' res = '>=1.2.3 <=2.0.0' loose = abap_true )
+      ( range = '> 1.2.3+' && repeat( val = 'a' occ = 251 ) res = '>1.2.3' )
+      ( range = '>= 1.2.3+' && repeat( val = 'a' occ = 251 ) res = '>=1.2.3' loose = abap_true )
+      ( range = '~1.2.3+' && repeat( val = 'a' occ = 251 ) res = '>=1.2.3 <1.3.0-0' )
+      ( range = '^1.2.3+' && repeat( val = 'a' occ = 251 ) res = '>=1.2.3 <2.0.0-0' )
+      ( range = '1.2.3+sha512.' && repeat( val = 'a' occ = 251 ) res = '1.2.3' loose = abap_true )
+      ( range = '1.2.3+sha256.' && repeat( val = 'a' occ = 200 ) && '.' && repeat( val = 'b' occ = 200 )
+        res = '1.2.3' loose = abap_true )
+      ( range = '1.2.3+' && repeat( val = 'a' occ = 251 ) && ' || 2.0.0+' && repeat( val = 'b' occ = 251 )
+        res = '1.2.3||2.0.0' loose = abap_true ) ).
 
   ENDMETHOD.
 
@@ -961,13 +975,13 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
     " truncate(version, releaseType) -> result
 
     result = VALUE #(
-      ( version = '1.2.3-foo' release = 'patch' res = '1.2.3' )
-      ( version = '1.2.3'     release = 'patch' res = '1.2.3' )
-      ( version = '1.2.3'     release = 'minor' res = '1.2.0' )
-      ( version = '1.2.3'     release = 'major' res = '1.0.0' )
+      ( version = '1.2.3-foo'        release = 'patch'      res = '1.2.3' )
+      ( version = '1.2.3'            release = 'patch'      res = '1.2.3' )
+      ( version = '1.2.3'            release = 'minor'      res = '1.2.0' )
+      ( version = '1.2.3'            release = 'major'      res = '1.0.0' )
       " invalid inputs
-      ( version = '1.2.3'     release = 'fake'  res = '' )
-      ( version = 'fake'      release = 'major' res = '' )
+      ( version = '1.2.3'            release = 'fake'       res = '' )
+      ( version = 'fake'             release = 'major'      res = '' )
       " additional pre-release, build, and pre+build inputs
       ( version = '4.5.6-rc2'        release = 'prerelease' res = '4.5.6-rc2' )
       ( version = '4.5.6-rc2'        release = 'prepatch'   res = '4.5.6-rc2' )
