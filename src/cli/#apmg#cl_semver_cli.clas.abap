@@ -161,7 +161,7 @@ CLASS /apmg/cl_semver_cli IMPLEMENTATION.
           version = inc_maybe_errant_value
           loose   = loose
           incpre  = incpre ).
-        IF valid = abap_false.
+        IF valid IS INITIAL.
           DATA(msg) = |WARN: Invalid value for { inc_option }; defaulting to 'patch'. |
                    && |This may become a failure in future major versions.|.
           INSERT msg INTO TABLE warnings.
