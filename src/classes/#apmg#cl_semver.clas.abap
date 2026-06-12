@@ -112,6 +112,18 @@ CLASS /apmg/cl_semver DEFINITION
       RAISING
         /apmg/cx_error.
 
+    METHODS _is_prerelease_identifier
+      IMPORTING
+        identifier    TYPE string
+      RETURNING
+        VALUE(result) TYPE abap_bool.
+
+    METHODS _get_prerelease_base
+      IMPORTING
+        identifier    TYPE string
+      RETURNING
+        VALUE(result) TYPE string.
+
 ENDCLASS.
 
 
@@ -467,8 +479,9 @@ CLASS /apmg/cl_semver IMPLEMENTATION.
             prerelease_tab = VALUE #( ( identifier ) ).
           ENDIF.
 
-          IF /apmg/cl_semver_identifiers=>compare_identifiers( a = prerelease[ 1 ] b = identifier ) = 0.
-            IF NOT /apmg/cl_semver_utils=>is_numeric( VALUE #( prerelease[ 2 ] DEFAULT `-` ) ).
+          IF _is_prerelease_identifier( identifier ).
+            DATA(prerelease_base) = _get_prerelease_base( identifier ).
+            IF NOT /apmg/cl_semver_utils=>is_numeric( prerelease_base ).
               prerelease = prerelease_tab.
             ENDIF.
           ELSE.
@@ -529,6 +542,19 @@ CLASS /apmg/cl_semver IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD _get_prerelease_base.
+
+    SPLIT identifier AT '.' INTO TABLE DATA(identifiers).
+
+    IF lines( identifiers ) + 1 > lines( prerelease ).
+      result = '-'.
+    ELSE.
+      result = prerelease[ lines( identifiers ) + 1 ].
+    ENDIF.
+
+  ENDMETHOD.
+
+
   METHOD _inc_check.
 
     IF release_type CP 'pre*'.
@@ -560,6 +586,30 @@ CLASS /apmg/cl_semver IMPLEMENTATION.
         ENDTRY.
       ENDIF.
     ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD _is_prerelease_identifier.
+
+    result = abap_false.
+
+    SPLIT identifier AT '.' INTO TABLE DATA(identifiers).
+
+    IF lines( identifiers ) > lines( prerelease ).
+      RETURN.
+    ENDIF.
+
+    LOOP AT identifiers ASSIGNING FIELD-SYMBOL(<identifier>).
+      READ TABLE prerelease ASSIGNING FIELD-SYMBOL(<prerelease>) INDEX sy-tabix.
+      ASSERT sy-subrc = 0.
+
+      IF /apmg/cl_semver_identifiers=>compare_identifiers( a = <prerelease> b = <identifier> ) <> 0.
+        RETURN.
+      ENDIF.
+    ENDLOOP.
+
+    result = abap_true.
 
   ENDMETHOD.
 ENDCLASS.
