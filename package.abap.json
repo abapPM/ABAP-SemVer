@@ -37,7 +37,7 @@
     "url": "https://github.com/sponsors/abappm"
   },
   "dependencies": {
-    "error": "^1.0.0"
+    "exceptions": "^1.0.0"
   },
   "devDependencies": {
     "tap": "^1.0.0"
