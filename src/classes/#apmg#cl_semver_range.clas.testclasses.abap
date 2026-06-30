@@ -4,6 +4,7 @@ CLASS ltcl_semver_range DEFINITION FOR TESTING RISK LEVEL HARMLESS
   PRIVATE SECTION.
 
     METHODS:
+      setup,
       range_include FOR TESTING RAISING /apmg/cx_error,
       range_intersect FOR TESTING RAISING /apmg/cx_error,
       range_exclude FOR TESTING RAISING /apmg/cx_error,
@@ -20,6 +21,10 @@ ENDCLASS.
 CLASS /apmg/cl_semver_range DEFINITION LOCAL FRIENDS ltcl_semver_range.
 
 CLASS ltcl_semver_range IMPLEMENTATION.
+
+  METHOD setup.
+    /apmg/cl_semver_range=>clear_cache( ).
+  ENDMETHOD.
 
   METHOD range_include.
 
@@ -141,8 +146,8 @@ CLASS ltcl_semver_range IMPLEMENTATION.
 
     TRY.
         /apmg/cl_semver_range=>create(
-          range  = 'sadf||asdf'
-          loose  = abap_true ).
+          range = 'sadf||asdf'
+          loose = abap_true ).
         cl_abap_unit_assert=>fail( ).
       CATCH /apmg/cx_error ##NO_HANDLER.
     ENDTRY.
@@ -164,8 +169,8 @@ CLASS ltcl_semver_range IMPLEMENTATION.
   METHOD create_from_range.
 
     DATA(loose) = /apmg/cl_semver_range=>create(
-      range  = '1.2.3'
-      loose  = abap_true ).
+      range = '1.2.3'
+      loose = abap_true ).
 
     cl_abap_unit_assert=>assert_equals(
       act = /apmg/cl_semver_range=>create( range = loose loose = abap_true )->range( )

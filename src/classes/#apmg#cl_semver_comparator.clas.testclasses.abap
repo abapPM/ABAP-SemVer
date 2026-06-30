@@ -4,6 +4,7 @@ CLASS ltcl_semver_comparator DEFINITION FOR TESTING RISK LEVEL HARMLESS
   PRIVATE SECTION.
 
     METHODS:
+      setup,
       comparator FOR TESTING RAISING /apmg/cx_error,
       to_string FOR TESTING RAISING /apmg/cx_error,
       intersect FOR TESTING RAISING /apmg/cx_error,
@@ -14,6 +15,10 @@ CLASS ltcl_semver_comparator DEFINITION FOR TESTING RISK LEVEL HARMLESS
 ENDCLASS.
 
 CLASS ltcl_semver_comparator IMPLEMENTATION.
+
+  METHOD setup.
+    /apmg/cl_semver_range=>clear_cache( ).
+  ENDMETHOD.
 
   METHOD comparator.
 
