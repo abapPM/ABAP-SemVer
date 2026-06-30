@@ -4,6 +4,7 @@ CLASS ltcl_semver_ranges DEFINITION FOR TESTING RISK LEVEL HARMLESS
   PRIVATE SECTION.
 
     METHODS:
+      setup,
       _bool
         IMPORTING
           bool          TYPE abap_bool
@@ -24,6 +25,10 @@ CLASS ltcl_semver_ranges DEFINITION FOR TESTING RISK LEVEL HARMLESS
 ENDCLASS.
 
 CLASS ltcl_semver_ranges IMPLEMENTATION.
+
+  METHOD setup.
+    /apmg/cl_semver_range=>clear_cache( ).
+  ENDMETHOD.
 
   METHOD _bool.
     IF bool = abap_true.
