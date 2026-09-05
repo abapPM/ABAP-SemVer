@@ -6,7 +6,7 @@
 
 # SemVer for ABAP
 
-The semantic version parser for ABAP and apm.
+The semantic version parser for ABAP and used by apm.
 
 This is a port of the [Semver Parser for Node.js](https://github.com/npm/node-semver).
 
