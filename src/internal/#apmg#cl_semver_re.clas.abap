@@ -31,7 +31,7 @@ CLASS /apmg/cl_semver_re DEFINITION
       version_trim_replace    TYPE string VALUE '$1$2'. " added for POSIX
 
     CLASS-DATA:
-      BEGIN OF token,
+      BEGIN OF token READ-ONLY,
         v                         TYPE ty_token, " added for POSIX
         vtrim                     TYPE ty_token, " added for POSIX
         build                     TYPE ty_token,
