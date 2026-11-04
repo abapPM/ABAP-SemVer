@@ -20,7 +20,8 @@ CLASS ltcl_semver_ranges DEFINITION FOR TESTING RISK LEVEL HARMLESS
       simplify FOR TESTING RAISING /apmg/cx_error,
       subset FOR TESTING RAISING /apmg/cx_error,
       to_comparators FOR TESTING RAISING /apmg/cx_error,
-      valid_range FOR TESTING RAISING /apmg/cx_error.
+      valid_range FOR TESTING RAISING /apmg/cx_error,
+      is_version FOR TESTING RAISING /apmg/cx_error. " apm
 
 ENDCLASS.
 
@@ -646,4 +647,23 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD is_version.
+
+    DATA(versions) = VALUE string_table( ( `1.2.3` ) ( `0.0.0` ) ( `0.0.1-pre` ) ( `9.8.7+build` ) ).
+
+    LOOP AT versions INTO DATA(range).
+      cl_abap_unit_assert=>assert_equals(
+        act = /apmg/cl_semver_ranges=>is_version( range )
+        exp = abap_true ).
+    ENDLOOP.
+
+    DATA(not_versions) = VALUE string_table( ( `^1.2.3` ) ( `>0.0.0` ) ( `0.0.1 0.0.2` ) ( `1.2.3 || 1.2.4` ) ( `1.2.x` ) ( `*` ) ).
+
+    LOOP AT not_versions INTO range.
+      cl_abap_unit_assert=>assert_equals(
+        act = /apmg/cl_semver_ranges=>is_version( range )
+        exp = abap_false ).
+    ENDLOOP.
+
+  ENDMETHOD.
 ENDCLASS.
