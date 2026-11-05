@@ -463,6 +463,16 @@ CLASS /apmg/cl_semver_range IMPLEMENTATION.
       comp_values TYPE string_table,
       comparators TYPE ty_comparators.
 
+    " Reject detached build identifiers that can otherwise turn into a hyphen range.
+    IF options-loose = abap_false.
+      FIND REGEX `^\s*[^<>=~^|]+\s+\+[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\s+\+[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\s+\+[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*)*\s+=`
+        IN range_string.
+      IF sy-subrc = 0.
+        RAISE EXCEPTION TYPE /apmg/cx_error_text
+          EXPORTING text = |Invalid SemVer Range: { range_string }|.
+      ENDIF.
+    ENDIF.
+
     DATA(range) = replace(
       val   = range_string
       regex = /apmg/cl_semver_re=>token-build-src

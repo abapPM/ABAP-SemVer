@@ -160,20 +160,16 @@ CLASS ltcl_semver_re IMPLEMENTATION.
             incpre = options-incpre ).
           cl_abap_unit_assert=>assert_equals(
             act = range->range( )
-            exp = COND string(
-              WHEN options-incpre = abap_true
-              THEN '>=1.2.3-0 <2.0.0-0'
-              ELSE '>=1.2.3 <2.0.0' )
+            exp = '>=1.2.3 <2.0.0'
             msg = |Range parsing works with loose={ options-loose } incpre={ options-incpre }| ).
           cl_abap_unit_assert=>assert_true(
             act = range->test( '1.5.0' )
             msg = |Range membership works with loose={ options-loose } incpre={ options-incpre }| ).
         ENDLOOP.
-      CATCH cx_root INTO DATA(error).
+      CLEANUP.
         /apmg/cl_semver_re=>token-comparatortrim-regex = original_regex.
         /apmg/cl_semver_re=>token-comparatortrim-safe_regex = original_safe_regex.
         /apmg/cl_semver_range=>clear_cache( ).
-        RAISE EXCEPTION TYPE /apmg/cx_error_prev EXPORTING previous = error.
     ENDTRY.
     /apmg/cl_semver_re=>token-comparatortrim-regex = original_regex.
     /apmg/cl_semver_re=>token-comparatortrim-safe_regex = original_safe_regex.
