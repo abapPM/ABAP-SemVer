@@ -482,11 +482,7 @@ CLASS /apmg/cl_semver_range IMPLEMENTATION.
     range = replace_hyphen( range = range loose = options-loose incpre = options-incpre ).
 
     " `> 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
-    range = replace(
-      val   = range
-      regex = /apmg/cl_semver_re=>token-comparatortrim-safe_src
-      with  = /apmg/cl_semver_re=>comparator_trim_replace
-      occ   = /apmg/cl_semver_re=>token-comparatortrim-occ ) ##REGEX_POSIX.
+    range = /apmg/cl_semver_trim_whitespc=>trim_comparator_whitespace( range ).
 
     " `~ 1.2.3` => `~1.2.3`
     range = replace(

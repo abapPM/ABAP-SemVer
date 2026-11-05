@@ -9,6 +9,8 @@ CLASS ltcl_semver_range DEFINITION FOR TESTING RISK LEVEL HARMLESS
       range_intersect FOR TESTING RAISING /apmg/cx_error,
       range_exclude FOR TESTING RAISING /apmg/cx_error,
       range_parse FOR TESTING RAISING /apmg/cx_error,
+      range_parse_options FOR TESTING RAISING /apmg/cx_error,
+      legacy_range_parse_options FOR TESTING RAISING /apmg/cx_error,
       range_formatted FOR TESTING RAISING /apmg/cx_error,
       empty_comparator FOR TESTING RAISING /apmg/cx_error,
       create_from_comparator FOR TESTING RAISING /apmg/cx_error,
@@ -81,44 +83,122 @@ CLASS ltcl_semver_range IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD range_parse.
-
     LOOP AT /apmg/cl_semver_fixtures=>range_parse( ) INTO DATA(range_parse).
-      DATA(msg) = |{ range_parse-range } { range_parse-loose } { range_parse-incpre }|.
-
+      DATA(description) = |{ range_parse-range } [loose={ range_parse-loose }, incpre={ range_parse-incpre }]|.
       IF range_parse-res IS INITIAL.
         TRY.
-            DATA(r) = /apmg/cl_semver_range=>create(
+            /apmg/cl_semver_range=>create(
               range  = range_parse-range
               loose  = range_parse-loose
               incpre = range_parse-incpre ).
-            cl_abap_unit_assert=>fail( msg = msg ).
+            cl_abap_unit_assert=>fail( msg = |Invalid range: { description }| ).
           CATCH /apmg/cx_error ##NO_HANDLER.
         ENDTRY.
       ELSE.
-        r = /apmg/cl_semver_range=>create(
+        DATA(parsed) = /apmg/cl_semver_range=>create(
           range  = range_parse-range
           loose  = range_parse-loose
           incpre = range_parse-incpre ).
-
-        DATA(res) = COND #( WHEN r->range( ) IS INITIAL THEN `*` ELSE r->range( ) ).
-
         cl_abap_unit_assert=>assert_equals(
-          act = res
+          act = COND string( WHEN parsed->range( ) IS INITIAL THEN `*` ELSE parsed->range( ) )
           exp = range_parse-res
-          msg = msg ).
-
-        DATA(e) = /apmg/cl_semver_range=>create(
-          range  = range_parse-res
-          loose  = range_parse-loose
-          incpre = range_parse-incpre ).
-
+          msg = |{ description } => { range_parse-res }| ).
         cl_abap_unit_assert=>assert_equals(
-          act = r->range( )
-          exp = e->range( )
-          msg = msg ).
+          act = parsed->range( )
+          exp = /apmg/cl_semver_range=>create(
+            range  = range_parse-res
+            incpre = range_parse-incpre )->range( )
+          msg = |Parsing both yields the same result: { description }| ).
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
+
+
+  METHOD range_parse_options.
+    DATA:
+      default_inputs  TYPE string_table,
+      loose_inputs    TYPE string_table,
+      incpre_inputs   TYPE string_table,
+      combined_inputs TYPE string_table.
+
+    LOOP AT /apmg/cl_semver_fixtures=>range_parse( ) INTO DATA(range_parse).
+      IF range_parse-loose = abap_true AND range_parse-incpre = abap_true.
+        APPEND range_parse-range TO combined_inputs.
+      ELSEIF range_parse-loose = abap_true.
+        APPEND range_parse-range TO loose_inputs.
+      ELSEIF range_parse-incpre = abap_true.
+        APPEND range_parse-range TO incpre_inputs.
+      ELSE.
+        APPEND range_parse-range TO default_inputs.
       ENDIF.
     ENDLOOP.
 
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( default_inputs )
+      exp = 348
+      msg = 'Retains every source fixture row' ).
+    DATA(unique_inputs) = default_inputs.
+    SORT unique_inputs.
+    DELETE ADJACENT DUPLICATES FROM unique_inputs.
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( unique_inputs )
+      exp = 335
+      msg = 'Retains every distinct source input' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( loose_inputs )
+      exp = lines( default_inputs )
+      msg = 'Loose mode has the same source fixture rows' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( incpre_inputs )
+      exp = lines( default_inputs )
+      msg = 'Include-prerelease mode has the same source fixture rows' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = lines( combined_inputs )
+      exp = lines( default_inputs )
+      msg = 'Combined mode has the same source fixture rows' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = loose_inputs
+      exp = default_inputs
+      msg = 'Loose mode covers the same inputs' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = incpre_inputs
+      exp = default_inputs
+      msg = 'Include-prerelease mode covers the same inputs' ).
+    cl_abap_unit_assert=>assert_equals(
+      act = combined_inputs
+      exp = default_inputs
+      msg = 'Combined mode covers the same inputs' ).
+  ENDMETHOD.
+
+
+  METHOD legacy_range_parse_options.
+    TYPES:
+      BEGIN OF ty_case,
+        range  TYPE string,
+        expect TYPE string,
+        loose  TYPE abap_bool,
+      END OF ty_case,
+      ty_cases TYPE STANDARD TABLE OF ty_case WITH EMPTY KEY.
+    DATA(cases) = VALUE ty_cases(
+      ( range = '>01.02.03' expect = '>1.2.3' loose = abap_true )
+      ( range = '>01.02.03' )
+      ( range = '>= 1.2.3' expect = '>=1.2.3' )
+      ( range = '1.2.3' expect = '1.2.3' )
+      ( range = '1.2.3' expect = '1.2.3' ) ).
+    LOOP AT cases INTO DATA(test).
+      IF test-expect IS INITIAL.
+        TRY.
+            /apmg/cl_semver_range=>create( range = test-range loose = test-loose ).
+            cl_abap_unit_assert=>fail( msg = 'Strict boolean rejects leading zeros' ).
+          CATCH /apmg/cx_error ##NO_HANDLER.
+        ENDTRY.
+      ELSE.
+        cl_abap_unit_assert=>assert_equals(
+          act = /apmg/cl_semver_range=>create( range = test-range loose = test-loose )->range( )
+          exp = test-expect
+          msg = |Legacy range parsing options [loose={ test-loose }]| ).
+      ENDIF.
+    ENDLOOP.
   ENDMETHOD.
 
   METHOD range_formatted.
