@@ -10,6 +10,7 @@ CLASS ltcl_semver_range DEFINITION FOR TESTING RISK LEVEL HARMLESS
       range_exclude FOR TESTING RAISING /apmg/cx_error,
       range_parse FOR TESTING RAISING /apmg/cx_error,
       range_parse_options FOR TESTING RAISING /apmg/cx_error,
+      empty_or_alternatives FOR TESTING RAISING /apmg/cx_error,
       legacy_range_parse_options FOR TESTING RAISING /apmg/cx_error,
       range_formatted FOR TESTING RAISING /apmg/cx_error,
       empty_comparator FOR TESTING RAISING /apmg/cx_error,
@@ -232,6 +233,29 @@ CLASS ltcl_semver_range IMPLEMENTATION.
       CATCH /apmg/cx_error ##NO_HANDLER.
     ENDTRY.
 
+  ENDMETHOD.
+
+  METHOD empty_or_alternatives.
+    DATA(inputs) = VALUE string_table(
+      ( `1.2.3 ||` )
+      ( `1.2.3 || ` )
+      ( `|| 1.2.3` )
+      ( `1.2.3 || || 2.0.0` )
+      ( `||||` ) ).
+    DO 4 TIMES.
+      DATA(loose) = xsdbool( sy-index = 2 OR sy-index = 4 ).
+      DATA(incpre) = xsdbool( sy-index >= 3 ).
+      LOOP AT inputs INTO DATA(input).
+        DATA(range) = /apmg/cl_semver_range=>create( range = input loose = loose incpre = incpre ).
+        cl_abap_unit_assert=>assert_initial(
+          act = range->range( )
+          msg = |Empty OR alternative is unrestricted: { input }| ).
+        cl_abap_unit_assert=>assert_equals(
+          act = /apmg/cl_semver_ranges=>valid_range( range = input loose = loose incpre = incpre )
+          exp = '*' ).
+        cl_abap_unit_assert=>assert_true( range->test( '9.0.0' ) ).
+      ENDLOOP.
+    ENDDO.
   ENDMETHOD.
 
   METHOD create_from_comparator.

@@ -268,6 +268,10 @@ CLASS /apmg/cl_semver_range IMPLEMENTATION.
     " First, split on ||
     IF raw IS NOT INITIAL.
       SPLIT raw AT '||' INTO TABLE DATA(ranges).
+      " ABAP SPLIT omits the final empty field; JavaScript split retains it.
+      IF raw CP '*||'.
+        INSERT INITIAL LINE INTO TABLE ranges.
+      ENDIF.
     ELSE.
       INSERT INITIAL LINE INTO TABLE ranges.
     ENDIF.
