@@ -17,6 +17,12 @@ CLASS /apmg/cl_semver_trim_whitespc DEFINITION
 
     CLASS-METHODS class_constructor.
 
+    CLASS-METHODS normalize_whitespace
+      IMPORTING
+        text          TYPE string
+      RETURNING
+        VALUE(result) TYPE string.
+
     CLASS-METHODS trim_comparator_whitespace
       IMPORTING
         range         TYPE string
@@ -157,6 +163,18 @@ CLASS /apmg/cl_semver_trim_whitespc IMPLEMENTATION.
     scanner->text = range.
     scanner->length = strlen( range ).
     result = scanner->scan( ).
+  ENDMETHOD.
+
+  METHOD normalize_whitespace.
+    result = text.
+    DO strlen( whitespace ) TIMES.
+      DATA(offset) = sy-index - 1.
+      result = replace(
+        val  = result
+        sub  = whitespace+offset(1)
+        with = ` `
+        occ  = 0 ).
+    ENDDO.
   ENDMETHOD.
 
 
