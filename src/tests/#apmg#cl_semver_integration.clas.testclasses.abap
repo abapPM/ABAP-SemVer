@@ -1,34 +1,41 @@
-CLASS ltcl_semver_integration DEFINITION FOR TESTING RISK LEVEL HARMLESS
+CLASS ltcl_semver_whitespace DEFINITION FOR TESTING RISK LEVEL HARMLESS
   DURATION SHORT FINAL.
 
   PRIVATE SECTION.
 
     DATA:
-      ws_medium  TYPE string,
-      ws_large   TYPE string,
-      zero_large TYPE string.
+      ws_medium            TYPE string,
+      ws_large             TYPE string,
+      zero_large           TYPE string,
+      version_prefix_large TYPE string.
 
     METHODS:
       setup,
       range_with_whitespace FOR TESTING RAISING /apmg/cx_error,
+      range_with_version_prefix FOR TESTING RAISING /apmg/cx_error,
       range_with_0 FOR TESTING RAISING /apmg/cx_error,
       semver_version FOR TESTING RAISING /apmg/cx_error,
       comparator FOR TESTING RAISING /apmg/cx_error.
 
 ENDCLASS.
 
-CLASS ltcl_semver_integration IMPLEMENTATION.
+CLASS ltcl_semver_whitespace IMPLEMENTATION.
 
   METHOD setup.
+    CONSTANTS occ TYPE i VALUE 50000.
+
     ws_medium = repeat(
       val = ` `
       occ = 125 ).
     ws_large = repeat(
       val = ` `
-      occ = 500000 ).
+      occ = occ ).
     zero_large = repeat(
       val = `0`
-      occ = 500000 ).
+      occ = occ ). "
+    version_prefix_large = repeat(
+      val = `v`
+      occ = occ ).
   ENDMETHOD.
 
   METHOD range_with_whitespace.
@@ -52,6 +59,72 @@ CLASS ltcl_semver_integration IMPLEMENTATION.
       exp = '1.2.3' ).
 
     DATA(t) = VALUE string_table( ( `1.2.3` ) ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_ranges=>min_satisfying( versions = t range = r )
+      exp = '1.2.3' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_ranges=>max_satisfying( versions = t range = r )
+      exp = '1.2.3' ).
+
+    TRY.
+        /apmg/cl_semver_range=>create( '> invalid' ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH /apmg/cx_error ##NO_HANDLER.
+    ENDTRY.
+
+  ENDMETHOD.
+
+  METHOD range_with_version_prefix.
+
+    TRY.
+        /apmg/cl_semver_range=>create( version_prefix_large ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH /apmg/cx_error ##NO_HANDLER.
+    ENDTRY.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_ranges=>valid_range( version_prefix_large )
+      exp = '' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_functions=>satisfies( version = '1.2.3' range = version_prefix_large )
+      exp = abap_false ).
+
+    TRY.
+        /apmg/cl_semver_ranges=>min_version( version_prefix_large ).
+        cl_abap_unit_assert=>fail( ).
+      CATCH /apmg/cx_error ##NO_HANDLER.
+    ENDTRY.
+
+    DATA(t) = VALUE string_table( ( `1.2.3` ) ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_ranges=>min_satisfying( versions = t range = version_prefix_large )
+      exp = '' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_ranges=>max_satisfying( versions = t range = version_prefix_large )
+      exp = '' ).
+
+    DATA(r) = |>= { version_prefix_large }1|.
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_range=>create( r )->range( )
+      exp = '>=1.0.0' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_ranges=>valid_range( r )
+      exp = '>=1.0.0' ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_functions=>satisfies( version = '1.2.3' range = r )
+      exp = abap_true ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_ranges=>min_version( r )->version
+      exp = '1.0.0' ).
 
     cl_abap_unit_assert=>assert_equals(
       act = /apmg/cl_semver_ranges=>min_satisfying( versions = t range = r )

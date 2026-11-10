@@ -209,7 +209,15 @@ CLASS /apmg/cl_semver_fixtures DEFINITION
 
   PROTECTED SECTION.
   PRIVATE SECTION.
+
+    CLASS-METHODS uccp
+      IMPORTING
+        code          TYPE csequence
+      RETURNING
+        VALUE(result) TYPE sychar02.
+
 ENDCLASS.
+
 
 
 CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
@@ -879,21 +887,26 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
 
 
   METHOD range_parse.
-    DATA: base_ranges TYPE ty_range_parses,
-          loose_overrides TYPE ty_range_parses,
-          incpre_overrides TYPE ty_range_parses,
-          combined_overrides TYPE ty_range_parses.
-    DATA options TYPE /apmg/if_semver_options=>ty_options.
+    DATA:
+      base_ranges        TYPE ty_range_parses,
+      loose_overrides    TYPE ty_range_parses,
+      incpre_overrides   TYPE ty_range_parses,
+      combined_overrides TYPE ty_range_parses,
+      options            TYPE /apmg/if_semver_options=>ty_options.
 
-    base_ranges = VALUE #( BASE base_ranges ( LINES OF range_parse_base_1( ) ) ).
-    base_ranges = VALUE #( BASE base_ranges ( LINES OF range_parse_base_2( ) ) ).
-    base_ranges = VALUE #( BASE base_ranges ( LINES OF range_parse_base_3( ) ) ).
-    base_ranges = VALUE #( BASE base_ranges ( LINES OF range_parse_base_4( ) ) ).
-    loose_overrides = VALUE #( BASE loose_overrides ( LINES OF range_parse_loose_1( ) ) ).
-    incpre_overrides = VALUE #( BASE incpre_overrides ( LINES OF range_parse_incpre_1( ) ) ).
-    incpre_overrides = VALUE #( BASE incpre_overrides ( LINES OF range_parse_incpre_2( ) ) ).
-    combined_overrides = VALUE #( BASE combined_overrides ( LINES OF range_parse_combined_1( ) ) ).
-    combined_overrides = VALUE #( BASE combined_overrides ( LINES OF range_parse_combined_2( ) ) ).
+    base_ranges = VALUE #(
+      ( LINES OF range_parse_base_1( ) )
+      ( LINES OF range_parse_base_2( ) )
+      ( LINES OF range_parse_base_3( ) )
+      ( LINES OF range_parse_base_4( ) ) ).
+    loose_overrides = VALUE #(
+      ( LINES OF range_parse_loose_1( ) ) ).
+    incpre_overrides = VALUE #(
+      ( LINES OF range_parse_incpre_1( ) )
+      ( LINES OF range_parse_incpre_2( ) ) ).
+    combined_overrides = VALUE #(
+      ( LINES OF range_parse_combined_1( ) )
+      ( LINES OF range_parse_combined_2( ) ) ).
 
     DO 4 TIMES.
       CLEAR options.
@@ -925,7 +938,7 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
           ENDIF.
         ENDIF.
         result = VALUE #( BASE result
-          ( range = range-range res = res loose = options-loose incpre = options-incpre ) ).
+                          ( range = range-range res = res loose = options-loose incpre = options-incpre ) ).
       ENDLOOP.
     ENDDO.
   ENDMETHOD.
@@ -934,1398 +947,1365 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
   METHOD range_parse_base_1.
     result = VALUE #(
       ( range = '1.0.0 - 2.0.0'
-      res = '>=1.0.0 <=2.0.0' )
+        res   = '>=1.0.0 <=2.0.0' )
       ( range = '1 - 2'
-      res = '>=1.0.0 <3.0.0-0' )
+        res   = '>=1.0.0 <3.0.0-0' )
       ( range = '1.0 - 2.0'
-      res = '>=1.0.0 <2.1.0-0' )
+        res   = '>=1.0.0 <2.1.0-0' )
       ( range = '1.0.0'
-      res = '1.0.0' )
+        res   = '1.0.0' )
       ( range = '>=*'
-      res = '*' )
+        res   = '*' )
       ( range = ''
-      res = '*' )
+        res   = '*' )
       ( range = '*'
-      res = '*' )
+        res   = '*' )
       ( range = '>=1.0.0'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '>1.0.0'
-      res = '>1.0.0' )
+        res   = '>1.0.0' )
       ( range = '<=2.0.0'
-      res = '<=2.0.0' )
+        res   = '<=2.0.0' )
       ( range = '1'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '<2.0.0'
-      res = '<2.0.0' )
+        res   = '<2.0.0' )
       ( range = '>= 1.0.0'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '>=  1.0.0'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '>=   1.0.0'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '> 1.0.0'
-      res = '>1.0.0' )
+        res   = '>1.0.0' )
       ( range = '>  1.0.0'
-      res = '>1.0.0' )
+        res   = '>1.0.0' )
       ( range = '<=   2.0.0'
-      res = '<=2.0.0' )
+        res   = '<=2.0.0' )
       ( range = '<= 2.0.0'
-      res = '<=2.0.0' )
+        res   = '<=2.0.0' )
       ( range = '<=  2.0.0'
-      res = '<=2.0.0' )
+        res   = '<=2.0.0' )
       ( range = '<    2.0.0'
-      res = '<2.0.0' )
-      ( range = '<' &&
-          cl_abap_conv_in_ce=>uccp( '0009' ) &&
-          '2.0.0'
-      res = '<2.0.0' )
+        res   = '<2.0.0' )
+      ( range = '<' && uccp( '0009' ) && '2.0.0'
+        res   = '<2.0.0' )
       ( range = '1.2.3-dev = 1.2.3-dev'
-      res = '1.2.3-dev' )
-      ( range = '<' &&
-          cl_abap_conv_in_ce=>uccp( '00A0' ) &&
-          '2.0.0'
-      res = '<2.0.0' )
-      ( range = '<' &&
-          cl_abap_conv_in_ce=>uccp( 'FEFF' ) &&
-          '2.0.0'
-      res = '<2.0.0' )
+        res   = '1.2.3-dev' )
+      ( range = '<' && uccp( '00A0' ) && '2.0.0'
+        res   = '<2.0.0' )
+      ( range = '<' && uccp( 'FEFF' ) && '2.0.0'
+        res   = '<2.0.0' )
       ( range = '1.2.3 = 1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '== 1'
-      res = '' )
+        res   = '' )
       ( range = '>v= 1.2.3'
-      res = '' )
+        res   = '' )
       ( range = '> +foo 1.2.3'
-      res = '' )
+        res   = '' )
       ( range = '1 +a +b = 2'
-      res = '' )
+        res   = '' )
       ( range = '~ +build 1'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '~> +build 1'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '^ +build 1'
-      res = '>=1.0.0 <2.0.0-0' )
-      ( range = '>=' &&
-          cl_abap_conv_in_ce=>uccp( '0009' ) &&
-          '1.2.3 <' &&
-          cl_abap_conv_in_ce=>uccp( '000A' ) &&
-          '2.0.0'
-      res = '>=1.2.3 <2.0.0' )
+        res   = '>=1.0.0 <2.0.0-0' )
+      ( range = '>=' && uccp( '0009' ) && '1.2.3 <' && uccp( '000A' ) && '2.0.0'
+        res   = '>=1.2.3 <2.0.0' )
       ( range = '= v1.2.3'
-      res = '1.2.3' )
-      ( range = '1.2.3' &&
-          cl_abap_conv_in_ce=>uccp( '0009' ) &&
-          '=' &&
-          cl_abap_conv_in_ce=>uccp( '000A' ) &&
-          '1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
+      ( range = '1.2.3' && uccp( '0009' ) && '=' && uccp( '000A' ) && '1.2.3'
+        res   = '1.2.3' )
       ( range = '>= 1.2 < 2'
-      res = '>=1.2.0 <2.0.0-0' )
+        res   = '>=1.2.0 <2.0.0-0' )
       ( range = '~ 1.2 >= 1.2.3'
-      res = '>=1.2.0 <1.3.0-0 >=1.2.3' )
+        res   = '>=1.2.0 <1.3.0-0 >=1.2.3' )
       ( range = '^ 0.2.3 < 0.3.0'
-      res = '>=0.2.3 <0.3.0-0 <0.3.0' )
+        res   = '>=0.2.3 <0.3.0-0 <0.3.0' )
       ( range = '>= 1.x <= 2.X'
-      res = '>=1.0.0 <3.0.0-0' )
+        res   = '>=1.0.0 <3.0.0-0' )
       ( range = '> *'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '<= 0.x'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '1.2.3+dev = 1.2.3+build'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '>= 1 +build < 2'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.2.3 +build = 1.2.3'
-      res = '' )
+        res   = '' )
       ( range = '= 01.2.3'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3 = 1.2.3 || >= 2 < 3'
-      res = '1.2.3||>=2.0.0 <3.0.0-0' )
+        res   = '1.2.3||>=2.0.0 <3.0.0-0' )
       ( range = '1.2.3+build - 2.0.0+build'
-      res = '>=1.2.3 <=2.0.0' )
+        res   = '>=1.2.3 <=2.0.0' )
       ( range = '>= 2 < 1'
-      res = '>=2.0.0 <1.0.0-0' )
+        res   = '>=2.0.0 <1.0.0-0' )
       ( range = '>= 1.2.3 > 1.2.3'
-      res = '>=1.2.3 >1.2.3' )
+        res   = '>=1.2.3 >1.2.3' )
       ( range = '=>1.2.3'
-      res = '' )
+        res   = '' )
       ( range = '=<1.2.3'
-      res = '' )
+        res   = '' )
       ( range = '><1.2.3'
-      res = '' )
+        res   = '' )
       ( range = '> = 1.2.3'
-      res = '' )
+        res   = '' )
       ( range = '== 1.2.3'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3-v = 1.2.3-v'
-      res = '1.2.3-v' )
+        res   = '1.2.3-v' )
       ( range = '1.2.3-vv = 1.2.3-vv'
-      res = '1.2.3-vv' )
+        res   = '1.2.3-vv' )
       ( range = '1.2.3-1.dev = 1.2.3-1.dev'
-      res = '1.2.3-1.dev' )
+        res   = '1.2.3-1.dev' )
       ( range = '1.2.3-dev.1 = 1.2.3-dev.1'
-      res = '1.2.3-dev.1' )
+        res   = '1.2.3-dev.1' )
       ( range = '1.2.3-beta.1 = 1.2.3-beta.1'
-      res = '1.2.3-beta.1' )
+        res   = '1.2.3-beta.1' )
       ( range = '1.2.3-preview = 1.2.3-preview'
-      res = '1.2.3-preview' )
-      ( range = '1.2.3-dev' &&
-          cl_abap_conv_in_ce=>uccp( '0009' ) &&
-          '=' &&
-          cl_abap_conv_in_ce=>uccp( '000A' ) &&
-          '1.2.3-dev'
-      res = '1.2.3-dev' )
-      ( range = '1.2.3-dev' &&
-          cl_abap_conv_in_ce=>uccp( '00A0' ) &&
-          '=' &&
-          cl_abap_conv_in_ce=>uccp( 'FEFF' ) &&
-          '1.2.3-dev'
-      res = '1.2.3-dev' )
+        res   = '1.2.3-preview' )
+      ( range = '1.2.3-dev' && uccp( '0009' ) && '=' && uccp( '000A' ) && '1.2.3-dev'
+        res   = '1.2.3-dev' )
+      ( range = '1.2.3-dev' && uccp( '00A0' ) && '=' && uccp( 'FEFF' ) && '1.2.3-dev'
+        res   = '1.2.3-dev' )
       ( range = '1.2.3-dev+build = 1.2.3-dev'
-      res = '1.2.3-dev' )
+        res   = '1.2.3-dev' )
       ( range = '1.2.3-dev +build = 1.2.3-dev'
-      res = '' )
+        res   = '' )
       ( range = '>=1.2.3-dev = 1.2.3-dev'
-      res = '>=1.2.3-dev 1.2.3-dev' )
+        res   = '>=1.2.3-dev 1.2.3-dev' )
       ( range = '<=1.2.3-dev = 1.2.3-dev'
-      res = '<=1.2.3-dev 1.2.3-dev' )
+        res   = '<=1.2.3-dev 1.2.3-dev' )
       ( range = '~1.2.3-dev = 1.2.3-dev'
-      res = '>=1.2.3-dev <1.3.0-0 1.2.3-dev' )
+        res   = '>=1.2.3-dev <1.3.0-0 1.2.3-dev' )
       ( range = '^1.2.3-dev = 1.2.3-dev'
-      res = '>=1.2.3-dev <2.0.0-0 1.2.3-dev' )
+        res   = '>=1.2.3-dev <2.0.0-0 1.2.3-dev' )
       ( range = '1.2.3-dev <= 1.2.3'
-      res = '1.2.3-dev <=1.2.3' )
+        res   = '1.2.3-dev <=1.2.3' )
       ( range = '1.2.3-dev = 1'
-      res = '1.2.3-dev >=1.0.0 <2.0.0-0' )
+        res   = '1.2.3-dev >=1.0.0 <2.0.0-0' )
       ( range = '1.2.3-dev = x'
-      res = '1.2.3-dev' )
+        res   = '1.2.3-dev' )
       ( range = '1.2.3-dev = *'
-      res = '1.2.3-dev' )
+        res   = '1.2.3-dev' )
       ( range = '1.2.3-dev || = 2.0.0'
-      res = '1.2.3-dev||2.0.0' )
+        res   = '1.2.3-dev||2.0.0' )
       ( range = '1.2.3-dev - 2.0.0-dev'
-      res = '>=1.2.3-dev <=2.0.0-dev' )
+        res   = '>=1.2.3-dev <=2.0.0-dev' )
       ( range = '1.2.3-dev= 1'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3-dev== 1'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3-dev= 1 || 2.0.0'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3-dev || 1.2.3-dev= x'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3 || 1.2.3= x'
-      res = '' )
+        res   = '' )
       ( range = '>=0.1.97'
-      res = '>=0.1.97' )
+        res   = '>=0.1.97' )
       ( range = '0.1.20 || 1.2.4'
-      res = '0.1.20||1.2.4' )
+        res   = '0.1.20||1.2.4' )
       ( range = '>=0.2.3 || <0.0.1'
-      res = '>=0.2.3||<0.0.1' )
+        res   = '>=0.2.3||<0.0.1' )
       ( range = '||'
-      res = '*' )
+        res   = '*' )
       ( range = '2.x.x'
-      res = '>=2.0.0 <3.0.0-0' )
+        res   = '>=2.0.0 <3.0.0-0' )
       ( range = '1.2.x'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '1.2.x || 2.x'
-      res = '>=1.2.0 <1.3.0-0||>=2.0.0 <3.0.0-0' ) ).
+        res   = '>=1.2.0 <1.3.0-0||>=2.0.0 <3.0.0-0' ) ).
   ENDMETHOD.
 
 
   METHOD range_parse_base_2.
     result = VALUE #(
       ( range = '1.x.5'
-      res = '' )
+        res   = '' )
       ( range = '1.*.5'
-      res = '' )
+        res   = '' )
       ( range = '1.x.5 || 2.x'
-      res = '' )
+        res   = '' )
       ( range = '> invalid'
-      res = '' )
+        res   = '' )
       ( range = 'x.1'
-      res = '' )
+        res   = '' )
       ( range = 'x.1.2'
-      res = '' )
+        res   = '' )
       ( range = 'x.x.1'
-      res = '' )
+        res   = '' )
       ( range = 'x'
-      res = '*' )
+        res   = '*' )
       ( range = 'vvv1'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '>= vvv1'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = 'vvv1.2.3'
-      res = '' )
+        res   = '' )
       ( range = '===1.2.3'
-      res = '' )
+        res   = '' )
       ( range = 'v=1.2.3'
-      res = '' )
+        res   = '' )
       ( range = '2.*.*'
-      res = '>=2.0.0 <3.0.0-0' )
+        res   = '>=2.0.0 <3.0.0-0' )
       ( range = '1.2.*'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '1.2.* || 2.*'
-      res = '>=1.2.0 <1.3.0-0||>=2.0.0 <3.0.0-0' )
+        res   = '>=1.2.0 <1.3.0-0||>=2.0.0 <3.0.0-0' )
       ( range = '2'
-      res = '>=2.0.0 <3.0.0-0' )
+        res   = '>=2.0.0 <3.0.0-0' )
       ( range = '2.3'
-      res = '>=2.3.0 <2.4.0-0' )
+        res   = '>=2.3.0 <2.4.0-0' )
       ( range = '~2.4'
-      res = '>=2.4.0 <2.5.0-0' )
+        res   = '>=2.4.0 <2.5.0-0' )
       ( range = '~>3.2.1'
-      res = '>=3.2.1 <3.3.0-0' )
+        res   = '>=3.2.1 <3.3.0-0' )
       ( range = '~1'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '~>1'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '~> 1'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '~1.0'
-      res = '>=1.0.0 <1.1.0-0' )
+        res   = '>=1.0.0 <1.1.0-0' )
       ( range = '~ 1.0'
-      res = '>=1.0.0 <1.1.0-0' )
+        res   = '>=1.0.0 <1.1.0-0' )
       ( range = '~1.x'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '~1.2'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '~1.2.x'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '~1.2.3'
-      res = '>=1.2.3 <1.3.0-0' )
+        res   = '>=1.2.3 <1.3.0-0' )
       ( range = '~1.2.3-beta.4'
-      res = '>=1.2.3-beta.4 <1.3.0-0' )
+        res   = '>=1.2.3-beta.4 <1.3.0-0' )
       ( range = '^0'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '^ 1'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '^0.1'
-      res = '>=0.1.0 <0.2.0-0' )
+        res   = '>=0.1.0 <0.2.0-0' )
       ( range = '^1.0'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '^1.2'
-      res = '>=1.2.0 <2.0.0-0' )
+        res   = '>=1.2.0 <2.0.0-0' )
       ( range = '^0.0.1'
-      res = '>=0.0.1 <0.0.2-0' )
+        res   = '>=0.0.1 <0.0.2-0' )
       ( range = '^0.0.1-beta'
-      res = '>=0.0.1-beta <0.0.2-0' )
+        res   = '>=0.0.1-beta <0.0.2-0' )
       ( range = '^0.1.2'
-      res = '>=0.1.2 <0.2.0-0' )
+        res   = '>=0.1.2 <0.2.0-0' )
       ( range = '^1.2.3'
-      res = '>=1.2.3 <2.0.0-0' )
+        res   = '>=1.2.3 <2.0.0-0' )
       ( range = '^1.2.3-beta.4'
-      res = '>=1.2.3-beta.4 <2.0.0-0' )
+        res   = '>=1.2.3-beta.4 <2.0.0-0' )
       ( range = '<1'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '< 1'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '>=1'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '>= 1'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '<1.2'
-      res = '<1.2.0-0' )
+        res   = '<1.2.0-0' )
       ( range = '< 1.2'
-      res = '<1.2.0-0' )
+        res   = '<1.2.0-0' )
       ( range = '>01.02.03'
-      res = '' )
+        res   = '' )
       ( range = '~1.2.3beta'
-      res = '' )
+        res   = '' )
       ( range = '^ 1.2 ^ 1'
-      res = '>=1.2.0 <2.0.0-0 >=1.0.0' )
+        res   = '>=1.2.0 <2.0.0-0 >=1.0.0' )
       ( range = '1.2 - 3.4.5'
-      res = '>=1.2.0 <=3.4.5' )
+        res   = '>=1.2.0 <=3.4.5' )
       ( range = '1.2.3 - 3.4'
-      res = '>=1.2.3 <3.5.0-0' )
+        res   = '>=1.2.3 <3.5.0-0' )
       ( range = '1.2 - 3.4'
-      res = '>=1.2.0 <3.5.0-0' )
+        res   = '>=1.2.0 <3.5.0-0' )
       ( range = '>1'
-      res = '>=2.0.0' )
+        res   = '>=2.0.0' )
       ( range = '>1.2'
-      res = '>=1.3.0' )
+        res   = '>=1.3.0' )
       ( range = '>X'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '<X'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '<x <* || >* 2.x'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '>x 2.x || * || <x'
-      res = '*' )
+        res   = '*' )
       ( range = '>=09090'
-      res = '' )
+        res   = '' )
       ( range = '>=09090-0'
-      res = '' )
+        res   = '' )
       ( range = '^999999998.0.0'
-      res = '' )
+        res   = '' )
       ( range = '=999999998.0.0'
-      res = '999999998.0.0' )
+        res   = '999999998.0.0' )
       ( range = '^999999997.0.0'
-      res = '>=999999997.0.0 <999999998.0.0-0' )
+        res   = '>=999999997.0.0 <999999998.0.0-0' )
       ( range = '1.x.x+build >2.x+build'
-      res = '>=1.0.0 <2.0.0-0 >=3.0.0' )
+        res   = '>=1.0.0 <2.0.0-0 >=3.0.0' )
       ( range = '>=1.x+build <2.x.x+build'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.x.x+build || 2.x.x+build'
-      res = '>=1.0.0 <2.0.0-0||>=2.0.0 <3.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0||>=2.0.0 <3.0.0-0' )
       ( range = '1.x+build.123'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.x.x+meta-data'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.x.x+build.123 >2.x.x+meta-data'
-      res = '>=1.0.0 <2.0.0-0 >=3.0.0' )
+        res   = '>=1.0.0 <2.0.0-0 >=3.0.0' )
       ( range = '1.x.x+build <2.x.x+meta'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '>1.x+build <=2.x.x+meta'
-      res = '>=2.0.0 <3.0.0-0' )
+        res   = '>=2.0.0 <3.0.0-0' )
       ( range = ' 1.x.x+build   >2.x.x+build  '
-      res = '>=1.0.0 <2.0.0-0 >=3.0.0' )
+        res   = '>=1.0.0 <2.0.0-0 >=3.0.0' )
       ( range = '^1.x+build'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '^1.x.x+build'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '^1.2.x+build'
-      res = '>=1.2.0 <2.0.0-0' )
+        res   = '>=1.2.0 <2.0.0-0' )
       ( range = '^1.x+meta-data'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '^1.x.x+build.123'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '~1.x+build'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '~1.x.x+build'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '~1.2.x+build'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '~1.x+meta-data'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '~1.x.x+build.123'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '^1.x.x+build || ~2.x.x+meta'
-      res = '>=1.0.0 <2.0.0-0||>=2.0.0 <3.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0||>=2.0.0 <3.0.0-0' )
       ( range = '~1.x.x+build >2.x+meta'
-      res = '>=1.0.0 <2.0.0-0 >=3.0.0' )
+        res   = '>=1.0.0 <2.0.0-0 >=3.0.0' )
       ( range = '^1.x+build.123 <2.x.x+meta-data'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.x.x-alpha+build'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '>1.x.x-alpha+build'
-      res = '>=2.0.0' ) ).
+        res   = '>=2.0.0' ) ).
   ENDMETHOD.
 
 
   METHOD range_parse_base_3.
     result = VALUE #(
       ( range = '>=1.x.x-alpha+build <2.x.x+build'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.x.x-alpha+build || 2.x.x+build'
-      res = '>=1.0.0 <2.0.0-0||>=2.0.0 <3.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0||>=2.0.0 <3.0.0-0' )
       ( range = '4.17.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3'
-      res = '4.17.0' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa3'
+        res   = '4.17.0' )
       ( range = '4.17.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      res = '4.17.0' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        res   = '4.17.0' )
       ( range = 'v1.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaax6'
-      res = '>=1.0.0 <1.1.0-0' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaax6'
+        res   = '>=1.0.0 <1.1.0-0' )
       ( range = '1.2.3+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa - 2.0.0'
-      res = '>=1.2.3 <=2.0.0' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa - 2.0.0'
+        res   = '>=1.2.3 <=2.0.0' )
       ( range = '> 1.2.3+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      res = '>1.2.3' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        res   = '>1.2.3' )
       ( range = '>= 1.2.3+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      res = '>=1.2.3' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        res   = '>=1.2.3' )
       ( range = '~1.2.3+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      res = '>=1.2.3 <1.3.0-0' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        res   = '>=1.2.3 <1.3.0-0' )
       ( range = '^1.2.3+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      res = '>=1.2.3 <2.0.0-0' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        res   = '>=1.2.3 <2.0.0-0' )
       ( range = '1.2.3+sha512.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-      res = '1.2.3' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+        res   = '1.2.3' )
       ( range = '1.2.3+sha256.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaa.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' &&
-          'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' &&
-          'bbbbbbbbbbbbbb'
-      res = '1.2.3' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaa.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' &&
+      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' &&
+      'bbbbbbbbbbbbbb'
+        res   = '1.2.3' )
       ( range = '1.2.3+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa || 2.0.0+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' &&
-          'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' &&
-          'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' &&
-          'bbbbbbbbbbbbbbbbbb'
-      res = '1.2.3||2.0.0' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa || 2.0.0+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' &&
+      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' &&
+      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' &&
+      'bbbbbbbbbbbbbbbbbb'
+        res   = '1.2.3||2.0.0' )
       ( range = '1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '1'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.x'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.X'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.*'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.x.x'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '1.2'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '1.2.x'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '1.2.X'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '1.2.*'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = 'x'
-      res = '*' )
+        res   = '*' )
       ( range = 'X'
-      res = '*' )
+        res   = '*' )
       ( range = '*'
-      res = '*' )
+        res   = '*' )
       ( range = 'x.x'
-      res = '*' )
+        res   = '*' )
       ( range = '*.*.*'
-      res = '*' )
+        res   = '*' )
       ( range = '=1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '=1'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '=1.x'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '=1.X'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '=1.*'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '=1.x.x'
-      res = '>=1.0.0 <2.0.0-0' )
+        res   = '>=1.0.0 <2.0.0-0' )
       ( range = '=1.2'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '=1.2.x'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '=1.2.X'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '=1.2.*'
-      res = '>=1.2.0 <1.3.0-0' )
+        res   = '>=1.2.0 <1.3.0-0' )
       ( range = '=x'
-      res = '*' )
+        res   = '*' )
       ( range = '=X'
-      res = '*' )
+        res   = '*' )
       ( range = '=*'
-      res = '*' )
+        res   = '*' )
       ( range = '=x.x'
-      res = '*' )
+        res   = '*' )
       ( range = '=*.*.*'
-      res = '*' )
+        res   = '*' )
       ( range = '>1.2.3'
-      res = '>1.2.3' )
+        res   = '>1.2.3' )
       ( range = '>1'
-      res = '>=2.0.0' )
+        res   = '>=2.0.0' )
       ( range = '>1.x'
-      res = '>=2.0.0' )
+        res   = '>=2.0.0' )
       ( range = '>1.X'
-      res = '>=2.0.0' )
+        res   = '>=2.0.0' )
       ( range = '>1.*'
-      res = '>=2.0.0' )
+        res   = '>=2.0.0' )
       ( range = '>1.x.x'
-      res = '>=2.0.0' )
+        res   = '>=2.0.0' )
       ( range = '>1.2'
-      res = '>=1.3.0' )
+        res   = '>=1.3.0' )
       ( range = '>1.2.x'
-      res = '>=1.3.0' )
+        res   = '>=1.3.0' )
       ( range = '>1.2.X'
-      res = '>=1.3.0' )
+        res   = '>=1.3.0' )
       ( range = '>1.2.*'
-      res = '>=1.3.0' )
+        res   = '>=1.3.0' )
       ( range = '>x'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '>X'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '>*'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '>x.x'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '>*.*.*'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '>=1.2.3'
-      res = '>=1.2.3' )
+        res   = '>=1.2.3' )
       ( range = '>=1'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '>=1.x'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '>=1.X'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '>=1.*'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '>=1.x.x'
-      res = '>=1.0.0' )
+        res   = '>=1.0.0' )
       ( range = '>=1.2'
-      res = '>=1.2.0' )
+        res   = '>=1.2.0' )
       ( range = '>=1.2.x'
-      res = '>=1.2.0' )
+        res   = '>=1.2.0' )
       ( range = '>=1.2.X'
-      res = '>=1.2.0' )
+        res   = '>=1.2.0' )
       ( range = '>=1.2.*'
-      res = '>=1.2.0' )
+        res   = '>=1.2.0' )
       ( range = '>=x'
-      res = '*' )
+        res   = '*' )
       ( range = '>=X'
-      res = '*' )
+        res   = '*' )
       ( range = '>=*'
-      res = '*' )
+        res   = '*' )
       ( range = '>=x.x'
-      res = '*' )
+        res   = '*' )
       ( range = '>=*.*.*'
-      res = '*' )
+        res   = '*' )
       ( range = '<1.2.3'
-      res = '<1.2.3' )
+        res   = '<1.2.3' )
       ( range = '<1'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '<1.x'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '<1.X'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '<1.*'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '<1.x.x'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '<1.2'
-      res = '<1.2.0-0' )
+        res   = '<1.2.0-0' )
       ( range = '<1.2.x'
-      res = '<1.2.0-0' )
+        res   = '<1.2.0-0' )
       ( range = '<1.2.X'
-      res = '<1.2.0-0' )
+        res   = '<1.2.0-0' )
       ( range = '<1.2.*'
-      res = '<1.2.0-0' )
+        res   = '<1.2.0-0' )
       ( range = '<x'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '<X'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '<*'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '<x.x'
-      res = '<0.0.0-0' ) ).
+        res   = '<0.0.0-0' ) ).
   ENDMETHOD.
 
 
   METHOD range_parse_base_4.
     result = VALUE #(
       ( range = '<*.*.*'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '<=1.2.3'
-      res = '<=1.2.3' )
+        res   = '<=1.2.3' )
       ( range = '<=1'
-      res = '<2.0.0-0' )
+        res   = '<2.0.0-0' )
       ( range = '<=1.x'
-      res = '<2.0.0-0' )
+        res   = '<2.0.0-0' )
       ( range = '<=1.X'
-      res = '<2.0.0-0' )
+        res   = '<2.0.0-0' )
       ( range = '<=1.*'
-      res = '<2.0.0-0' )
+        res   = '<2.0.0-0' )
       ( range = '<=1.x.x'
-      res = '<2.0.0-0' )
+        res   = '<2.0.0-0' )
       ( range = '<=1.2'
-      res = '<1.3.0-0' )
+        res   = '<1.3.0-0' )
       ( range = '<=1.2.x'
-      res = '<1.3.0-0' )
+        res   = '<1.3.0-0' )
       ( range = '<=1.2.X'
-      res = '<1.3.0-0' )
+        res   = '<1.3.0-0' )
       ( range = '<=1.2.*'
-      res = '<1.3.0-0' )
+        res   = '<1.3.0-0' )
       ( range = '<=x'
-      res = '*' )
+        res   = '*' )
       ( range = '<=X'
-      res = '*' )
+        res   = '*' )
       ( range = '<=*'
-      res = '*' )
+        res   = '*' )
       ( range = '<=x.x'
-      res = '*' )
+        res   = '*' )
       ( range = '<=*.*.*'
-      res = '*' )
+        res   = '*' )
       ( range = '>=0.0.0'
-      res = '*' )
+        res   = '*' )
       ( range = '>=0.0.0-0'
-      res = '>=0.0.0-0' )
+        res   = '>=0.0.0-0' )
       ( range = '0'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '0.0'
-      res = '<0.1.0-0' )
+        res   = '<0.1.0-0' )
       ( range = '0.0.0'
-      res = '0.0.0' )
+        res   = '0.0.0' )
       ( range = '<0'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '<=0.0'
-      res = '<0.1.0-0' )
+        res   = '<0.1.0-0' )
       ( range = '~*'
-      res = '*' )
+        res   = '*' )
       ( range = '~>x'
-      res = '*' )
+        res   = '*' )
       ( range = '^X'
-      res = '*' )
+        res   = '*' )
       ( range = '~0'
-      res = '<1.0.0-0' )
+        res   = '<1.0.0-0' )
       ( range = '~0.0'
-      res = '<0.1.0-0' )
+        res   = '<0.1.0-0' )
       ( range = '~0.0.1'
-      res = '>=0.0.1 <0.1.0-0' )
+        res   = '>=0.0.1 <0.1.0-0' )
       ( range = '~0.2.3-beta.1'
-      res = '>=0.2.3-beta.1 <0.3.0-0' )
+        res   = '>=0.2.3-beta.1 <0.3.0-0' )
       ( range = '^0.0'
-      res = '<0.1.0-0' )
+        res   = '<0.1.0-0' )
       ( range = '^0.0.x'
-      res = '<0.1.0-0' )
+        res   = '<0.1.0-0' )
       ( range = '^0.0.0'
-      res = '<0.0.1-0' )
+        res   = '<0.0.1-0' )
       ( range = '^0.1.2-beta.1'
-      res = '>=0.1.2-beta.1 <0.2.0-0' )
+        res   = '>=0.1.2-beta.1 <0.2.0-0' )
       ( range = '* - *'
-      res = '*' )
+        res   = '*' )
       ( range = '* - 2.3.4'
-      res = '<=2.3.4' )
+        res   = '<=2.3.4' )
       ( range = '1.2.3 - *'
-      res = '>=1.2.3' )
+        res   = '>=1.2.3' )
       ( range = '1.x - 2.3.x'
-      res = '>=1.0.0 <2.4.0-0' )
+        res   = '>=1.0.0 <2.4.0-0' )
       ( range = '1.2 - 3'
-      res = '>=1.2.0 <4.0.0-0' )
+        res   = '>=1.2.0 <4.0.0-0' )
       ( range = '1.2.3-beta.1 - 2.3.4'
-      res = '>=1.2.3-beta.1 <=2.3.4' )
+        res   = '>=1.2.3-beta.1 <=2.3.4' )
       ( range = '1.2.3 - 2.3.4-beta.1'
-      res = '>=1.2.3 <=2.3.4-beta.1' )
-      ( range = '1.2' &&
-          cl_abap_conv_in_ce=>uccp( '0009' ) &&
-          '-' &&
-          cl_abap_conv_in_ce=>uccp( '000A' ) &&
-          '2.3'
-      res = '>=1.2.0 <2.4.0-0' )
+        res   = '>=1.2.3 <=2.3.4-beta.1' )
+      ( range = '1.2' && uccp( '0009' ) && '-' &&
+          uccp( '000A' ) && '2.3'
+        res   = '>=1.2.0 <2.4.0-0' )
       ( range = '>=1.2.3 >=1.2.3 <2.0.0 <2.0.0'
-      res = '>=1.2.3 <2.0.0' )
+        res   = '>=1.2.3 <2.0.0' )
       ( range = '* >=1.2.3 *'
-      res = '>=1.2.3' )
+        res   = '>=1.2.3' )
       ( range = '>=1.2.3 <* <2.0.0'
-      res = '<0.0.0-0' )
+        res   = '<0.0.0-0' )
       ( range = '<* || >=1.2.3'
-      res = '>=1.2.3' )
+        res   = '>=1.2.3' )
       ( range = '>=1.2.3 || >*'
-      res = '>=1.2.3' )
+        res   = '>=1.2.3' )
       ( range = ' || 1.2.3'
-      res = '*' )
+        res   = '*' )
       ( range = '1.2.3 || '
-      res = '*' )
+        res   = '*' )
       ( range = '||||'
-      res = '*' )
+        res   = '*' )
       ( range = '1.2.3 || invalid'
-      res = '' )
+        res   = '' )
       ( range = 'invalid || 1.2.3'
-      res = '' )
+        res   = '' )
       ( range = 'invalid || invalid'
-      res = '' )
+        res   = '' )
       ( range = '>=1.2.3 invalid <2.0.0'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3-01'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3-01alpha'
-      res = '1.2.3-01alpha' )
+        res   = '1.2.3-01alpha' )
       ( range = '1.2.3-0'
-      res = '1.2.3-0' )
+        res   = '1.2.3-0' )
       ( range = '1.2.3+00'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '1.2.3-'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3-alpha..1'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3-alpha_1'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3+'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3+build..1'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3.4'
-      res = '' )
+        res   = '' )
       ( range = '1.'
-      res = '' )
+        res   = '' )
       ( range = '1.2.'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3, <2.0.0'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3 | 2.0.0'
-      res = '' )
+        res   = '' )
       ( range = '>='
-      res = '' )
+        res   = '' )
       ( range = '~'
-      res = '' )
+        res   = '' )
       ( range = '^'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3 -'
-      res = '' )
+        res   = '' )
       ( range = '- 2.0.0'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3-2.0.0'
-      res = '1.2.3-2.0.0' )
+        res   = '1.2.3-2.0.0' )
       ( range = '~01.02.03'
-      res = '' )
+        res   = '' )
       ( range = '^01.02.03'
-      res = '' )
+        res   = '' )
       ( range = '>=01.02 <02'
-      res = '' )
+        res   = '' )
       ( range = '1.999999998.0'
-      res = '1.999999998.0' )
+        res   = '1.999999998.0' )
       ( range = '1.2.999999998'
-      res = '1.2.999999998' )
+        res   = '1.2.999999998' )
       ( range = '999999999.0.0'
-      res = '' )
+        res   = '' )
       ( range = '1.999999999.0'
-      res = '' )
+        res   = '' )
       ( range = '1.2.999999999'
-      res = '' )
+        res   = '' )
       ( range = '~1.999999998.0'
-      res = '' )
+        res   = '' )
       ( range = '^0.0.999999998'
-      res = '' )
+        res   = '' )
       ( range = '>1.999999998'
-      res = '' )
+        res   = '' )
       ( range = '<=999999998'
-      res = '' )
+        res   = '' )
       ( range = '1.2.3 - 1.2.999999998'
-      res = '>=1.2.3 <=1.2.999999998' ) ).
-  ENDMETHOD.
-
-
-  METHOD range_parse_loose_1.
-    result = VALUE #(
-      ( range = '== 1'
-      res = '>=1.0.0 <2.0.0-0' )
-      ( range = '>v= 1.2.3'
-      res = '1.2.3' )
-      ( range = '> +foo 1.2.3'
-      res = '1.2.3' )
-      ( range = '1 +a +b = 2'
-      res = '>=1.0.0 <2.0.0-0 >=2.0.0 <3.0.0-0' )
-      ( range = '1.2.3 +build = 1.2.3'
-      res = '1.2.3' )
-      ( range = '= 01.2.3'
-      res = '1.2.3' )
-      ( range = '> = 1.2.3'
-      res = '1.2.3' )
-      ( range = '== 1.2.3'
-      res = '1.2.3' )
-      ( range = '1.2.3-dev +build = 1.2.3-dev'
-      res = '1.2.3-dev' )
-      ( range = '1.2.3-dev== 1'
-      res = '>=1.0.0 <2.0.0-0' )
-      ( range = '1.2.3-dev= 1 || 2.0.0'
-      res = '2.0.0' )
-      ( range = '1.2.3-dev || 1.2.3-dev= x'
-      res = '1.2.3-dev' )
-      ( range = '1.2.3 || 1.2.3= x'
-      res = '1.2.3' )
-      ( range = '1.x.5 || 2.x'
-      res = '>=2.0.0 <3.0.0-0' )
-      ( range = 'vvv1.2.3'
-      res = '1.2.3' )
-      ( range = '===1.2.3'
-      res = '1.2.3' )
-      ( range = 'v=1.2.3'
-      res = '1.2.3' )
-      ( range = '>01.02.03'
-      res = '>1.2.3' )
-      ( range = '~1.2.3beta'
-      res = '>=1.2.3-beta <1.3.0-0' )
-      ( range = '>=09090'
-      res = '>=9090.0.0' )
-      ( range = '1.2.3 || invalid'
-      res = '1.2.3' )
-      ( range = 'invalid || 1.2.3'
-      res = '1.2.3' )
-      ( range = '>=1.2.3 invalid <2.0.0'
-      res = '>=1.2.3 <2.0.0' )
-      ( range = '1.2.3-01'
-      res = '1.2.3-1' )
-      ( range = '1.2.3-'
-      res = '1.2.3--' )
-      ( range = '1.2.3, <2.0.0'
-      res = '<2.0.0' )
-      ( range = '1.2.3 | 2.0.0'
-      res = '1.2.3 2.0.0' )
-      ( range = '1.2.3 -'
-      res = '1.2.3' )
-      ( range = '- 2.0.0'
-      res = '2.0.0' )
-      ( range = '~01.02.03'
-      res = '>=1.2.3 <1.3.0-0' )
-      ( range = '^01.02.03'
-      res = '>=1.2.3 <2.0.0-0' )
-      ( range = '>=01.02 <02'
-      res = '>=1.2.0 <2.0.0-0' ) ).
-  ENDMETHOD.
-
-
-  METHOD range_parse_incpre_1.
-    result = VALUE #(
-      ( range = '1.0.0 - 2.0.0'
-      res = '>=1.0.0-0 <2.0.1-0' )
-      ( range = '1 - 2'
-      res = '>=1.0.0-0 <3.0.0-0' )
-      ( range = '1.0 - 2.0'
-      res = '>=1.0.0-0 <2.1.0-0' )
-      ( range = '1'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '~ +build 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '~> +build 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '^ +build 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '>= 1.2 < 2'
-      res = '>=1.2.0-0 <2.0.0-0' )
-      ( range = '~ 1.2 >= 1.2.3'
-      res = '>=1.2.0-0 <1.3.0-0 >=1.2.3' )
-      ( range = '>= 1.x <= 2.X'
-      res = '>=1.0.0-0 <3.0.0-0' )
-      ( range = '>= 1 +build < 2'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '1.2.3 = 1.2.3 || >= 2 < 3'
-      res = '1.2.3||>=2.0.0-0 <3.0.0-0' )
-      ( range = '1.2.3+build - 2.0.0+build'
-      res = '>=1.2.3-0 <2.0.1-0' )
-      ( range = '>= 2 < 1'
-      res = '>=2.0.0-0 <1.0.0-0' )
-      ( range = '1.2.3-dev = 1'
-      res = '1.2.3-dev >=1.0.0-0 <2.0.0-0' )
-      ( range = '2.x.x'
-      res = '>=2.0.0-0 <3.0.0-0' )
-      ( range = '1.2.x'
-      res = '>=1.2.0-0 <1.3.0-0' )
-      ( range = '1.2.x || 2.x'
-      res = '>=1.2.0-0 <1.3.0-0||>=2.0.0-0 <3.0.0-0' )
-      ( range = 'vvv1'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '>= vvv1'
-      res = '>=1.0.0-0' )
-      ( range = '2.*.*'
-      res = '>=2.0.0-0 <3.0.0-0' )
-      ( range = '1.2.*'
-      res = '>=1.2.0-0 <1.3.0-0' )
-      ( range = '1.2.* || 2.*'
-      res = '>=1.2.0-0 <1.3.0-0||>=2.0.0-0 <3.0.0-0' )
-      ( range = '2'
-      res = '>=2.0.0-0 <3.0.0-0' )
-      ( range = '2.3'
-      res = '>=2.3.0-0 <2.4.0-0' )
-      ( range = '~2.4'
-      res = '>=2.4.0-0 <2.5.0-0' )
-      ( range = '~1'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '~>1'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '~> 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '~1.0'
-      res = '>=1.0.0-0 <1.1.0-0' )
-      ( range = '~ 1.0'
-      res = '>=1.0.0-0 <1.1.0-0' )
-      ( range = '~1.x'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '~1.2'
-      res = '>=1.2.0-0 <1.3.0-0' )
-      ( range = '~1.2.x'
-      res = '>=1.2.0-0 <1.3.0-0' )
-      ( range = '^ 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '^0.1'
-      res = '>=0.1.0-0 <0.2.0-0' )
-      ( range = '^1.0'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '^1.2'
-      res = '>=1.2.0-0 <2.0.0-0' )
-      ( range = '>=1'
-      res = '>=1.0.0-0' )
-      ( range = '>= 1'
-      res = '>=1.0.0-0' )
-      ( range = '^ 1.2 ^ 1'
-      res = '>=1.2.0-0 <2.0.0-0 >=1.0.0-0' )
-      ( range = '1.2 - 3.4.5'
-      res = '>=1.2.0-0 <3.4.6-0' )
-      ( range = '1.2.3 - 3.4'
-      res = '>=1.2.3-0 <3.5.0-0' )
-      ( range = '1.2 - 3.4'
-      res = '>=1.2.0-0 <3.5.0-0' )
-      ( range = '>1'
-      res = '>=2.0.0-0' )
-      ( range = '>1.2'
-      res = '>=1.3.0-0' )
-      ( range = '1.x.x+build >2.x+build'
-      res = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
-      ( range = '>=1.x+build <2.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '1.x.x+build || 2.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
-      ( range = '1.x+build.123'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '1.x.x+meta-data'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '1.x.x+build.123 >2.x.x+meta-data'
-      res = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
-      ( range = '1.x.x+build <2.x.x+meta'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '>1.x+build <=2.x.x+meta'
-      res = '>=2.0.0-0 <3.0.0-0' )
-      ( range = ' 1.x.x+build   >2.x.x+build  '
-      res = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
-      ( range = '^1.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '^1.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '^1.2.x+build'
-      res = '>=1.2.0-0 <2.0.0-0' )
-      ( range = '^1.x+meta-data'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '^1.x.x+build.123'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '~1.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '~1.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '~1.2.x+build'
-      res = '>=1.2.0-0 <1.3.0-0' )
-      ( range = '~1.x+meta-data'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '~1.x.x+build.123'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '^1.x.x+build || ~2.x.x+meta'
-      res = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
-      ( range = '~1.x.x+build >2.x+meta'
-      res = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
-      ( range = '^1.x+build.123 <2.x.x+meta-data'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '1.x.x-alpha+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '>1.x.x-alpha+build'
-      res = '>=2.0.0-0' )
-      ( range = '>=1.x.x-alpha+build <2.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '1.x.x-alpha+build || 2.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
-      ( range = 'v1.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaax6'
-      res = '>=1.0.0-0 <1.1.0-0' )
-      ( range = '1.2.3+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa - 2.0.0'
-      res = '>=1.2.3-0 <2.0.1-0' )
-      ( range = '1.x'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '1.X'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '1.*'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '1.x.x'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '1.2'
-      res = '>=1.2.0-0 <1.3.0-0' )
-      ( range = '1.2.X'
-      res = '>=1.2.0-0 <1.3.0-0' )
-      ( range = '=1'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '=1.x'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '=1.X'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '=1.*'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '=1.x.x'
-      res = '>=1.0.0-0 <2.0.0-0' )
-      ( range = '=1.2'
-      res = '>=1.2.0-0 <1.3.0-0' )
-      ( range = '=1.2.x'
-      res = '>=1.2.0-0 <1.3.0-0' ) ).
-  ENDMETHOD.
-
-
-  METHOD range_parse_incpre_2.
-    result = VALUE #(
-      ( range = '=1.2.X'
-      res = '>=1.2.0-0 <1.3.0-0' )
-      ( range = '=1.2.*'
-      res = '>=1.2.0-0 <1.3.0-0' )
-      ( range = '>1.x'
-      res = '>=2.0.0-0' )
-      ( range = '>1.X'
-      res = '>=2.0.0-0' )
-      ( range = '>1.*'
-      res = '>=2.0.0-0' )
-      ( range = '>1.x.x'
-      res = '>=2.0.0-0' )
-      ( range = '>1.2.x'
-      res = '>=1.3.0-0' )
-      ( range = '>1.2.X'
-      res = '>=1.3.0-0' )
-      ( range = '>1.2.*'
-      res = '>=1.3.0-0' )
-      ( range = '>=1.x'
-      res = '>=1.0.0-0' )
-      ( range = '>=1.X'
-      res = '>=1.0.0-0' )
-      ( range = '>=1.*'
-      res = '>=1.0.0-0' )
-      ( range = '>=1.x.x'
-      res = '>=1.0.0-0' )
-      ( range = '>=1.2'
-      res = '>=1.2.0-0' )
-      ( range = '>=1.2.x'
-      res = '>=1.2.0-0' )
-      ( range = '>=1.2.X'
-      res = '>=1.2.0-0' )
-      ( range = '>=1.2.*'
-      res = '>=1.2.0-0' )
-      ( range = '>=0.0.0'
-      res = '>=0.0.0' )
-      ( range = '>=0.0.0-0'
-      res = '*' )
-      ( range = '^0.0.0'
-      res = '>=0.0.0 <0.0.1-0' )
-      ( range = '* - 2.3.4'
-      res = '<2.3.5-0' )
-      ( range = '1.2.3 - *'
-      res = '>=1.2.3-0' )
-      ( range = '1.x - 2.3.x'
-      res = '>=1.0.0-0 <2.4.0-0' )
-      ( range = '1.2 - 3'
-      res = '>=1.2.0-0 <4.0.0-0' )
-      ( range = '1.2.3-beta.1 - 2.3.4'
-      res = '>=1.2.3-beta.1 <2.3.5-0' )
-      ( range = '1.2.3 - 2.3.4-beta.1'
-      res = '>=1.2.3-0 <=2.3.4-beta.1' )
-      ( range = '1.2' &&
-          cl_abap_conv_in_ce=>uccp( '0009' ) &&
-          '-' &&
-          cl_abap_conv_in_ce=>uccp( '000A' ) &&
-          '2.3'
-      res = '>=1.2.0-0 <2.4.0-0' )
-      ( range = '1.2.3 - 1.2.999999998'
-      res = '' ) ).
+        res   = '>=1.2.3 <=1.2.999999998' ) ).
   ENDMETHOD.
 
 
   METHOD range_parse_combined_1.
     result = VALUE #(
       ( range = '1.0.0 - 2.0.0'
-      res = '>=1.0.0-0 <2.0.1-0' )
+        res   = '>=1.0.0-0 <2.0.1-0' )
       ( range = '1 - 2'
-      res = '>=1.0.0-0 <3.0.0-0' )
+        res   = '>=1.0.0-0 <3.0.0-0' )
       ( range = '1.0 - 2.0'
-      res = '>=1.0.0-0 <2.1.0-0' )
+        res   = '>=1.0.0-0 <2.1.0-0' )
       ( range = '1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '== 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '>v= 1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '> +foo 1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '1 +a +b = 2'
-      res = '>=1.0.0-0 <2.0.0-0 >=2.0.0-0 <3.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0 >=2.0.0-0 <3.0.0-0' )
       ( range = '~ +build 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '~> +build 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '^ +build 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '>= 1.2 < 2'
-      res = '>=1.2.0-0 <2.0.0-0' )
+        res   = '>=1.2.0-0 <2.0.0-0' )
       ( range = '~ 1.2 >= 1.2.3'
-      res = '>=1.2.0-0 <1.3.0-0 >=1.2.3' )
+        res   = '>=1.2.0-0 <1.3.0-0 >=1.2.3' )
       ( range = '>= 1.x <= 2.X'
-      res = '>=1.0.0-0 <3.0.0-0' )
+        res   = '>=1.0.0-0 <3.0.0-0' )
       ( range = '>= 1 +build < 2'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.2.3 +build = 1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '= 01.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '1.2.3 = 1.2.3 || >= 2 < 3'
-      res = '1.2.3||>=2.0.0-0 <3.0.0-0' )
+        res   = '1.2.3||>=2.0.0-0 <3.0.0-0' )
       ( range = '1.2.3+build - 2.0.0+build'
-      res = '>=1.2.3-0 <2.0.1-0' )
+        res   = '>=1.2.3-0 <2.0.1-0' )
       ( range = '>= 2 < 1'
-      res = '>=2.0.0-0 <1.0.0-0' )
+        res   = '>=2.0.0-0 <1.0.0-0' )
       ( range = '> = 1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '== 1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '1.2.3-dev +build = 1.2.3-dev'
-      res = '1.2.3-dev' )
+        res   = '1.2.3-dev' )
       ( range = '1.2.3-dev = 1'
-      res = '1.2.3-dev >=1.0.0-0 <2.0.0-0' )
+        res   = '1.2.3-dev >=1.0.0-0 <2.0.0-0' )
       ( range = '1.2.3-dev== 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.2.3-dev= 1 || 2.0.0'
-      res = '2.0.0' )
+        res   = '2.0.0' )
       ( range = '1.2.3-dev || 1.2.3-dev= x'
-      res = '1.2.3-dev' )
+        res   = '1.2.3-dev' )
       ( range = '1.2.3 || 1.2.3= x'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '2.x.x'
-      res = '>=2.0.0-0 <3.0.0-0' )
+        res   = '>=2.0.0-0 <3.0.0-0' )
       ( range = '1.2.x'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '1.2.x || 2.x'
-      res = '>=1.2.0-0 <1.3.0-0||>=2.0.0-0 <3.0.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0||>=2.0.0-0 <3.0.0-0' )
       ( range = '1.x.5 || 2.x'
-      res = '>=2.0.0-0 <3.0.0-0' )
+        res   = '>=2.0.0-0 <3.0.0-0' )
       ( range = 'vvv1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '>= vvv1'
-      res = '>=1.0.0-0' )
+        res   = '>=1.0.0-0' )
       ( range = 'vvv1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '===1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = 'v=1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '2.*.*'
-      res = '>=2.0.0-0 <3.0.0-0' )
+        res   = '>=2.0.0-0 <3.0.0-0' )
       ( range = '1.2.*'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '1.2.* || 2.*'
-      res = '>=1.2.0-0 <1.3.0-0||>=2.0.0-0 <3.0.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0||>=2.0.0-0 <3.0.0-0' )
       ( range = '2'
-      res = '>=2.0.0-0 <3.0.0-0' )
+        res   = '>=2.0.0-0 <3.0.0-0' )
       ( range = '2.3'
-      res = '>=2.3.0-0 <2.4.0-0' )
+        res   = '>=2.3.0-0 <2.4.0-0' )
       ( range = '~2.4'
-      res = '>=2.4.0-0 <2.5.0-0' )
+        res   = '>=2.4.0-0 <2.5.0-0' )
       ( range = '~1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '~>1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '~> 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '~1.0'
-      res = '>=1.0.0-0 <1.1.0-0' )
+        res   = '>=1.0.0-0 <1.1.0-0' )
       ( range = '~ 1.0'
-      res = '>=1.0.0-0 <1.1.0-0' )
+        res   = '>=1.0.0-0 <1.1.0-0' )
       ( range = '~1.x'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '~1.2'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '~1.2.x'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '^ 1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '^0.1'
-      res = '>=0.1.0-0 <0.2.0-0' )
+        res   = '>=0.1.0-0 <0.2.0-0' )
       ( range = '^1.0'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '^1.2'
-      res = '>=1.2.0-0 <2.0.0-0' )
+        res   = '>=1.2.0-0 <2.0.0-0' )
       ( range = '>=1'
-      res = '>=1.0.0-0' )
+        res   = '>=1.0.0-0' )
       ( range = '>= 1'
-      res = '>=1.0.0-0' )
+        res   = '>=1.0.0-0' )
       ( range = '>01.02.03'
-      res = '>1.2.3' )
+        res   = '>1.2.3' )
       ( range = '~1.2.3beta'
-      res = '>=1.2.3-beta <1.3.0-0' )
+        res   = '>=1.2.3-beta <1.3.0-0' )
       ( range = '^ 1.2 ^ 1'
-      res = '>=1.2.0-0 <2.0.0-0 >=1.0.0-0' )
+        res   = '>=1.2.0-0 <2.0.0-0 >=1.0.0-0' )
       ( range = '1.2 - 3.4.5'
-      res = '>=1.2.0-0 <3.4.6-0' )
+        res   = '>=1.2.0-0 <3.4.6-0' )
       ( range = '1.2.3 - 3.4'
-      res = '>=1.2.3-0 <3.5.0-0' )
+        res   = '>=1.2.3-0 <3.5.0-0' )
       ( range = '1.2 - 3.4'
-      res = '>=1.2.0-0 <3.5.0-0' )
+        res   = '>=1.2.0-0 <3.5.0-0' )
       ( range = '>1'
-      res = '>=2.0.0-0' )
+        res   = '>=2.0.0-0' )
       ( range = '>1.2'
-      res = '>=1.3.0-0' )
+        res   = '>=1.3.0-0' )
       ( range = '>=09090'
-      res = '>=9090.0.0-0' )
+        res   = '>=9090.0.0-0' )
       ( range = '1.x.x+build >2.x+build'
-      res = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
       ( range = '>=1.x+build <2.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.x.x+build || 2.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
       ( range = '1.x+build.123'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.x.x+meta-data'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.x.x+build.123 >2.x.x+meta-data'
-      res = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
       ( range = '1.x.x+build <2.x.x+meta'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '>1.x+build <=2.x.x+meta'
-      res = '>=2.0.0-0 <3.0.0-0' )
+        res   = '>=2.0.0-0 <3.0.0-0' )
       ( range = ' 1.x.x+build   >2.x.x+build  '
-      res = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
       ( range = '^1.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '^1.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '^1.2.x+build'
-      res = '>=1.2.0-0 <2.0.0-0' )
+        res   = '>=1.2.0-0 <2.0.0-0' )
       ( range = '^1.x+meta-data'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '^1.x.x+build.123'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '~1.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '~1.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '~1.2.x+build'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '~1.x+meta-data'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '~1.x.x+build.123'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '^1.x.x+build || ~2.x.x+meta'
-      res = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
       ( range = '~1.x.x+build >2.x+meta'
-      res = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' ) ).
+        res   = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' ) ).
   ENDMETHOD.
 
 
   METHOD range_parse_combined_2.
     result = VALUE #(
       ( range = '^1.x+build.123 <2.x.x+meta-data'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.x.x-alpha+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '>1.x.x-alpha+build'
-      res = '>=2.0.0-0' )
+        res   = '>=2.0.0-0' )
       ( range = '>=1.x.x-alpha+build <2.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.x.x-alpha+build || 2.x.x+build'
-      res = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
       ( range = 'v1.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaax6'
-      res = '>=1.0.0-0 <1.1.0-0' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaax6'
+        res   = '>=1.0.0-0 <1.1.0-0' )
       ( range = '1.2.3+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
-          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa - 2.0.0'
-      res = '>=1.2.3-0 <2.0.1-0' )
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa - 2.0.0'
+        res   = '>=1.2.3-0 <2.0.1-0' )
       ( range = '1.x'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.X'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.*'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.x.x'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '1.2'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '1.2.X'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '=1'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '=1.x'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '=1.X'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '=1.*'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '=1.x.x'
-      res = '>=1.0.0-0 <2.0.0-0' )
+        res   = '>=1.0.0-0 <2.0.0-0' )
       ( range = '=1.2'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '=1.2.x'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '=1.2.X'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '=1.2.*'
-      res = '>=1.2.0-0 <1.3.0-0' )
+        res   = '>=1.2.0-0 <1.3.0-0' )
       ( range = '>1.x'
-      res = '>=2.0.0-0' )
+        res   = '>=2.0.0-0' )
       ( range = '>1.X'
-      res = '>=2.0.0-0' )
+        res   = '>=2.0.0-0' )
       ( range = '>1.*'
-      res = '>=2.0.0-0' )
+        res   = '>=2.0.0-0' )
       ( range = '>1.x.x'
-      res = '>=2.0.0-0' )
+        res   = '>=2.0.0-0' )
       ( range = '>1.2.x'
-      res = '>=1.3.0-0' )
+        res   = '>=1.3.0-0' )
       ( range = '>1.2.X'
-      res = '>=1.3.0-0' )
+        res   = '>=1.3.0-0' )
       ( range = '>1.2.*'
-      res = '>=1.3.0-0' )
+        res   = '>=1.3.0-0' )
       ( range = '>=1.x'
-      res = '>=1.0.0-0' )
+        res   = '>=1.0.0-0' )
       ( range = '>=1.X'
-      res = '>=1.0.0-0' )
+        res   = '>=1.0.0-0' )
       ( range = '>=1.*'
-      res = '>=1.0.0-0' )
+        res   = '>=1.0.0-0' )
       ( range = '>=1.x.x'
-      res = '>=1.0.0-0' )
+        res   = '>=1.0.0-0' )
       ( range = '>=1.2'
-      res = '>=1.2.0-0' )
+        res   = '>=1.2.0-0' )
       ( range = '>=1.2.x'
-      res = '>=1.2.0-0' )
+        res   = '>=1.2.0-0' )
       ( range = '>=1.2.X'
-      res = '>=1.2.0-0' )
+        res   = '>=1.2.0-0' )
       ( range = '>=1.2.*'
-      res = '>=1.2.0-0' )
+        res   = '>=1.2.0-0' )
       ( range = '>=0.0.0'
-      res = '>=0.0.0' )
+        res   = '>=0.0.0' )
       ( range = '>=0.0.0-0'
-      res = '*' )
+        res   = '*' )
       ( range = '^0.0.0'
-      res = '>=0.0.0 <0.0.1-0' )
+        res   = '>=0.0.0 <0.0.1-0' )
       ( range = '* - 2.3.4'
-      res = '<2.3.5-0' )
+        res   = '<2.3.5-0' )
       ( range = '1.2.3 - *'
-      res = '>=1.2.3-0' )
+        res   = '>=1.2.3-0' )
       ( range = '1.x - 2.3.x'
-      res = '>=1.0.0-0 <2.4.0-0' )
+        res   = '>=1.0.0-0 <2.4.0-0' )
       ( range = '1.2 - 3'
-      res = '>=1.2.0-0 <4.0.0-0' )
+        res   = '>=1.2.0-0 <4.0.0-0' )
       ( range = '1.2.3-beta.1 - 2.3.4'
-      res = '>=1.2.3-beta.1 <2.3.5-0' )
+        res   = '>=1.2.3-beta.1 <2.3.5-0' )
       ( range = '1.2.3 - 2.3.4-beta.1'
-      res = '>=1.2.3-0 <=2.3.4-beta.1' )
-      ( range = '1.2' &&
-          cl_abap_conv_in_ce=>uccp( '0009' ) &&
-          '-' &&
-          cl_abap_conv_in_ce=>uccp( '000A' ) &&
-          '2.3'
-      res = '>=1.2.0-0 <2.4.0-0' )
+        res   = '>=1.2.3-0 <=2.3.4-beta.1' )
+      ( range = '1.2' && uccp( '0009' ) && '-' && uccp( '000A' ) && '2.3'
+        res   = '>=1.2.0-0 <2.4.0-0' )
       ( range = '1.2.3 || invalid'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = 'invalid || 1.2.3'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '>=1.2.3 invalid <2.0.0'
-      res = '>=1.2.3 <2.0.0' )
+        res   = '>=1.2.3 <2.0.0' )
       ( range = '1.2.3-01'
-      res = '1.2.3-1' )
+        res   = '1.2.3-1' )
       ( range = '1.2.3-'
-      res = '1.2.3--' )
+        res   = '1.2.3--' )
       ( range = '1.2.3, <2.0.0'
-      res = '<2.0.0' )
+        res   = '<2.0.0' )
       ( range = '1.2.3 | 2.0.0'
-      res = '1.2.3 2.0.0' )
+        res   = '1.2.3 2.0.0' )
       ( range = '1.2.3 -'
-      res = '1.2.3' )
+        res   = '1.2.3' )
       ( range = '- 2.0.0'
-      res = '2.0.0' )
+        res   = '2.0.0' )
       ( range = '~01.02.03'
-      res = '>=1.2.3 <1.3.0-0' )
+        res   = '>=1.2.3 <1.3.0-0' )
       ( range = '^01.02.03'
-      res = '>=1.2.3 <2.0.0-0' )
+        res   = '>=1.2.3 <2.0.0-0' )
       ( range = '>=01.02 <02'
-      res = '>=1.2.0-0 <2.0.0-0' )
+        res   = '>=1.2.0-0 <2.0.0-0' )
       ( range = '1.2.3 - 1.2.999999998'
-      res = '' ) ).
+        res   = '' ) ).
+  ENDMETHOD.
+
+
+  METHOD range_parse_incpre_1.
+    result = VALUE #(
+      ( range = '1.0.0 - 2.0.0'
+        res   = '>=1.0.0-0 <2.0.1-0' )
+      ( range = '1 - 2'
+        res   = '>=1.0.0-0 <3.0.0-0' )
+      ( range = '1.0 - 2.0'
+        res   = '>=1.0.0-0 <2.1.0-0' )
+      ( range = '1'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '~ +build 1'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '~> +build 1'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '^ +build 1'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '>= 1.2 < 2'
+        res   = '>=1.2.0-0 <2.0.0-0' )
+      ( range = '~ 1.2 >= 1.2.3'
+        res   = '>=1.2.0-0 <1.3.0-0 >=1.2.3' )
+      ( range = '>= 1.x <= 2.X'
+        res   = '>=1.0.0-0 <3.0.0-0' )
+      ( range = '>= 1 +build < 2'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '1.2.3 = 1.2.3 || >= 2 < 3'
+        res   = '1.2.3||>=2.0.0-0 <3.0.0-0' )
+      ( range = '1.2.3+build - 2.0.0+build'
+        res   = '>=1.2.3-0 <2.0.1-0' )
+      ( range = '>= 2 < 1'
+        res   = '>=2.0.0-0 <1.0.0-0' )
+      ( range = '1.2.3-dev = 1'
+        res   = '1.2.3-dev >=1.0.0-0 <2.0.0-0' )
+      ( range = '2.x.x'
+        res   = '>=2.0.0-0 <3.0.0-0' )
+      ( range = '1.2.x'
+        res   = '>=1.2.0-0 <1.3.0-0' )
+      ( range = '1.2.x || 2.x'
+        res   = '>=1.2.0-0 <1.3.0-0||>=2.0.0-0 <3.0.0-0' )
+      ( range = 'vvv1'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '>= vvv1'
+        res   = '>=1.0.0-0' )
+      ( range = '2.*.*'
+        res   = '>=2.0.0-0 <3.0.0-0' )
+      ( range = '1.2.*'
+        res   = '>=1.2.0-0 <1.3.0-0' )
+      ( range = '1.2.* || 2.*'
+        res   = '>=1.2.0-0 <1.3.0-0||>=2.0.0-0 <3.0.0-0' )
+      ( range = '2'
+        res   = '>=2.0.0-0 <3.0.0-0' )
+      ( range = '2.3'
+        res   = '>=2.3.0-0 <2.4.0-0' )
+      ( range = '~2.4'
+        res   = '>=2.4.0-0 <2.5.0-0' )
+      ( range = '~1'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '~>1'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '~> 1'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '~1.0'
+        res   = '>=1.0.0-0 <1.1.0-0' )
+      ( range = '~ 1.0'
+        res   = '>=1.0.0-0 <1.1.0-0' )
+      ( range = '~1.x'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '~1.2'
+        res   = '>=1.2.0-0 <1.3.0-0' )
+      ( range = '~1.2.x'
+        res   = '>=1.2.0-0 <1.3.0-0' )
+      ( range = '^ 1'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '^0.1'
+        res   = '>=0.1.0-0 <0.2.0-0' )
+      ( range = '^1.0'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '^1.2'
+        res   = '>=1.2.0-0 <2.0.0-0' )
+      ( range = '>=1'
+        res   = '>=1.0.0-0' )
+      ( range = '>= 1'
+        res   = '>=1.0.0-0' )
+      ( range = '^ 1.2 ^ 1'
+        res   = '>=1.2.0-0 <2.0.0-0 >=1.0.0-0' )
+      ( range = '1.2 - 3.4.5'
+        res   = '>=1.2.0-0 <3.4.6-0' )
+      ( range = '1.2.3 - 3.4'
+        res   = '>=1.2.3-0 <3.5.0-0' )
+      ( range = '1.2 - 3.4'
+        res   = '>=1.2.0-0 <3.5.0-0' )
+      ( range = '>1'
+        res   = '>=2.0.0-0' )
+      ( range = '>1.2'
+        res   = '>=1.3.0-0' )
+      ( range = '1.x.x+build >2.x+build'
+        res   = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
+      ( range = '>=1.x+build <2.x.x+build'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '1.x.x+build || 2.x.x+build'
+        res   = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
+      ( range = '1.x+build.123'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '1.x.x+meta-data'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '1.x.x+build.123 >2.x.x+meta-data'
+        res   = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
+      ( range = '1.x.x+build <2.x.x+meta'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '>1.x+build <=2.x.x+meta'
+        res   = '>=2.0.0-0 <3.0.0-0' )
+      ( range = ' 1.x.x+build   >2.x.x+build  '
+        res   = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
+      ( range = '^1.x+build'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '^1.x.x+build'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '^1.2.x+build'
+        res   = '>=1.2.0-0 <2.0.0-0' )
+      ( range = '^1.x+meta-data'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '^1.x.x+build.123'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '~1.x+build'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '~1.x.x+build'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '~1.2.x+build'
+        res   = '>=1.2.0-0 <1.3.0-0' )
+      ( range = '~1.x+meta-data'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '~1.x.x+build.123'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '^1.x.x+build || ~2.x.x+meta'
+        res   = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
+      ( range = '~1.x.x+build >2.x+meta'
+        res   = '>=1.0.0-0 <2.0.0-0 >=3.0.0-0' )
+      ( range = '^1.x+build.123 <2.x.x+meta-data'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '1.x.x-alpha+build'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '>1.x.x-alpha+build'
+        res   = '>=2.0.0-0' )
+      ( range = '>=1.x.x-alpha+build <2.x.x+build'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '1.x.x-alpha+build || 2.x.x+build'
+        res   = '>=1.0.0-0 <2.0.0-0||>=2.0.0-0 <3.0.0-0' )
+      ( range = 'v1.0+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaax6'
+        res   = '>=1.0.0-0 <1.1.0-0' )
+      ( range = '1.2.3+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' &&
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa - 2.0.0'
+        res   = '>=1.2.3-0 <2.0.1-0' )
+      ( range = '1.x'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '1.X'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '1.*'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '1.x.x'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '1.2'
+        res   = '>=1.2.0-0 <1.3.0-0' )
+      ( range = '1.2.X'
+        res   = '>=1.2.0-0 <1.3.0-0' )
+      ( range = '=1'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '=1.x'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '=1.X'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '=1.*'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '=1.x.x'
+        res   = '>=1.0.0-0 <2.0.0-0' )
+      ( range = '=1.2'
+        res   = '>=1.2.0-0 <1.3.0-0' )
+      ( range = '=1.2.x'
+        res   = '>=1.2.0-0 <1.3.0-0' ) ).
+  ENDMETHOD.
+
+
+  METHOD range_parse_incpre_2.
+    result = VALUE #(
+      ( range = '=1.2.X'
+        res   = '>=1.2.0-0 <1.3.0-0' )
+      ( range = '=1.2.*'
+        res   = '>=1.2.0-0 <1.3.0-0' )
+      ( range = '>1.x'
+        res   = '>=2.0.0-0' )
+      ( range = '>1.X'
+        res   = '>=2.0.0-0' )
+      ( range = '>1.*'
+        res   = '>=2.0.0-0' )
+      ( range = '>1.x.x'
+        res   = '>=2.0.0-0' )
+      ( range = '>1.2.x'
+        res   = '>=1.3.0-0' )
+      ( range = '>1.2.X'
+        res   = '>=1.3.0-0' )
+      ( range = '>1.2.*'
+        res   = '>=1.3.0-0' )
+      ( range = '>=1.x'
+        res   = '>=1.0.0-0' )
+      ( range = '>=1.X'
+        res   = '>=1.0.0-0' )
+      ( range = '>=1.*'
+        res   = '>=1.0.0-0' )
+      ( range = '>=1.x.x'
+        res   = '>=1.0.0-0' )
+      ( range = '>=1.2'
+        res   = '>=1.2.0-0' )
+      ( range = '>=1.2.x'
+        res   = '>=1.2.0-0' )
+      ( range = '>=1.2.X'
+        res   = '>=1.2.0-0' )
+      ( range = '>=1.2.*'
+        res   = '>=1.2.0-0' )
+      ( range = '>=0.0.0'
+        res   = '>=0.0.0' )
+      ( range = '>=0.0.0-0'
+        res   = '*' )
+      ( range = '^0.0.0'
+        res   = '>=0.0.0 <0.0.1-0' )
+      ( range = '* - 2.3.4'
+        res   = '<2.3.5-0' )
+      ( range = '1.2.3 - *'
+        res   = '>=1.2.3-0' )
+      ( range = '1.x - 2.3.x'
+        res   = '>=1.0.0-0 <2.4.0-0' )
+      ( range = '1.2 - 3'
+        res   = '>=1.2.0-0 <4.0.0-0' )
+      ( range = '1.2.3-beta.1 - 2.3.4'
+        res   = '>=1.2.3-beta.1 <2.3.5-0' )
+      ( range = '1.2.3 - 2.3.4-beta.1'
+        res   = '>=1.2.3-0 <=2.3.4-beta.1' )
+      ( range = '1.2' && uccp( '0009' ) && '-' && uccp( '000A' ) && '2.3'
+        res   = '>=1.2.0-0 <2.4.0-0' )
+      ( range = '1.2.3 - 1.2.999999998'
+        res   = '' ) ).
+  ENDMETHOD.
+
+
+  METHOD range_parse_loose_1.
+    result = VALUE #(
+      ( range = '== 1'
+        res   = '>=1.0.0 <2.0.0-0' )
+      ( range = '>v= 1.2.3'
+        res   = '1.2.3' )
+      ( range = '> +foo 1.2.3'
+        res   = '1.2.3' )
+      ( range = '1 +a +b = 2'
+        res   = '>=1.0.0 <2.0.0-0 >=2.0.0 <3.0.0-0' )
+      ( range = '1.2.3 +build = 1.2.3'
+        res   = '1.2.3' )
+      ( range = '= 01.2.3'
+        res   = '1.2.3' )
+      ( range = '> = 1.2.3'
+        res   = '1.2.3' )
+      ( range = '== 1.2.3'
+        res   = '1.2.3' )
+      ( range = '1.2.3-dev +build = 1.2.3-dev'
+        res   = '1.2.3-dev' )
+      ( range = '1.2.3-dev== 1'
+        res   = '>=1.0.0 <2.0.0-0' )
+      ( range = '1.2.3-dev= 1 || 2.0.0'
+        res   = '2.0.0' )
+      ( range = '1.2.3-dev || 1.2.3-dev= x'
+        res   = '1.2.3-dev' )
+      ( range = '1.2.3 || 1.2.3= x'
+        res   = '1.2.3' )
+      ( range = '1.x.5 || 2.x'
+        res   = '>=2.0.0 <3.0.0-0' )
+      ( range = 'vvv1.2.3'
+        res   = '1.2.3' )
+      ( range = '===1.2.3'
+        res   = '1.2.3' )
+      ( range = 'v=1.2.3'
+        res   = '1.2.3' )
+      ( range = '>01.02.03'
+        res   = '>1.2.3' )
+      ( range = '~1.2.3beta'
+        res   = '>=1.2.3-beta <1.3.0-0' )
+      ( range = '>=09090'
+        res   = '>=9090.0.0' )
+      ( range = '1.2.3 || invalid'
+        res   = '1.2.3' )
+      ( range = 'invalid || 1.2.3'
+        res   = '1.2.3' )
+      ( range = '>=1.2.3 invalid <2.0.0'
+        res   = '>=1.2.3 <2.0.0' )
+      ( range = '1.2.3-01'
+        res   = '1.2.3-1' )
+      ( range = '1.2.3-'
+        res   = '1.2.3--' )
+      ( range = '1.2.3, <2.0.0'
+        res   = '<2.0.0' )
+      ( range = '1.2.3 | 2.0.0'
+        res   = '1.2.3 2.0.0' )
+      ( range = '1.2.3 -'
+        res   = '1.2.3' )
+      ( range = '- 2.0.0'
+        res   = '2.0.0' )
+      ( range = '~01.02.03'
+        res   = '>=1.2.3 <1.3.0-0' )
+      ( range = '^01.02.03'
+        res   = '>=1.2.3 <2.0.0-0' )
+      ( range = '>=01.02 <02'
+        res   = '>=1.2.0 <2.0.0-0' ) ).
   ENDMETHOD.
 
 
@@ -2364,6 +2344,11 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
       ( version = '4.5.6-rc2+dadb0d' release = 'minor'      res = '4.5.0' )
       ( version = '4.5.6-rc2+dadb0d' release = 'major'      res = '4.0.0' ) ).
 
+  ENDMETHOD.
+
+
+  METHOD uccp.
+    result = cl_abap_conv_in_ce=>uccp( code ).
   ENDMETHOD.
 
 
