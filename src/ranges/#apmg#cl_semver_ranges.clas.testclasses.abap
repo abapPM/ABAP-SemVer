@@ -631,8 +631,10 @@ CLASS ltcl_semver_ranges IMPLEMENTATION.
 
   METHOD valid_range.
 
+    DATA(ranges) = /apmg/cl_semver_fixtures=>range_parse( ).
+
     " translate ranges into their canonical form
-    LOOP AT /apmg/cl_semver_fixtures=>range_parse( ) INTO DATA(range_parse).
+    LOOP AT ranges INTO DATA(range_parse).
       DATA(msg) = |{ range_parse-range } { range_parse-res } { _bool( range_parse-loose ) } { _bool( range_parse-incpre ) }|.
       DATA(act) = /apmg/cl_semver_ranges=>valid_range(
         range  = range_parse-range

@@ -6,6 +6,7 @@ CLASS ltcl_semver_utils DEFINITION FOR TESTING RISK LEVEL HARMLESS
     METHODS:
       is_numeric FOR TESTING,
       trim FOR TESTING,
+      unicode_whitespace FOR TESTING RAISING /apmg/cx_error,
       version_trim FOR TESTING.
 
 ENDCLASS.
@@ -70,6 +71,25 @@ CLASS ltcl_semver_utils IMPLEMENTATION.
       act = /apmg/cl_semver_utils=>version_trim( |=  \t 1.2.3 | )
       exp = '=1.2.3' ).
 
+  ENDMETHOD.
+
+  METHOD unicode_whitespace.
+    DATA(characters) = VALUE string_table(
+      ( CONV string( cl_abap_conv_in_ce=>uccp( '00A0' ) ) )
+      ( CONV string( cl_abap_conv_in_ce=>uccp( '3000' ) ) ) ). " JS tests FEFF but ABAP does not support that
+    LOOP AT characters INTO DATA(character).
+      cl_abap_unit_assert=>assert_equals(
+        act = /apmg/cl_semver_utils=>trim( character && `test` && character && `test` && character )
+        exp = 'test test' ).
+
+      DATA(input) = `1.2.3-dev` && character && `=1.2.3-dev`.
+      cl_abap_unit_assert=>assert_equals(
+        act = /apmg/cl_semver_range=>create( input )->range( )
+        exp = '1.2.3-dev' ).
+      cl_abap_unit_assert=>assert_equals(
+        act = /apmg/cl_semver_ranges=>valid_range( input )
+        exp = '1.2.3-dev' ).
+    ENDLOOP.
   ENDMETHOD.
 
 ENDCLASS.
