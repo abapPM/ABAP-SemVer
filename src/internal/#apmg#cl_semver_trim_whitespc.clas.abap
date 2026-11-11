@@ -177,12 +177,16 @@ CLASS /apmg/cl_semver_trim_whitespc IMPLEMENTATION.
 
 
   METHOD class_constructor.
-    " Compared to ECMAscript, ABAP PCRE includes \u0085 and \u180e but not \ufeff
+    " Compared to ECMAscript,
+    " - ABAP REGEX includes \u200b but not \u205f nor \ufeff
+    " - ABAP PCRE includes \u0085 and \u180e but not \ufeff
     " https://www.pcre.org/original/doc/html/pcrepattern.html
     DATA(whitespace_chars) =
       ` ,\t,\n,\v,\f,\r,\u00a0,\u1680,\u2000,\u2001,\u2002,\u2003,\u2004,`
-      & `\u2005,\u2006,\u2007,\u2008,\u2009,\u200a,\u2028,\u2029,\u202f,\u205f,`
-      & `\u3000,\u0085,\u180e`. " added for ABAP PCRE
+      && `\u2005,\u2006,\u2007,\u2008,\u2009,\u200a,\u2028,\u2029,\u202f,`
+      && `\u3000,`
+      && `\u200b`. " added for POSIX REGEX
+      "&& `\u0085,\u180e` " added for PCRE
 
     SPLIT whitespace_chars AT ',' INTO TABLE DATA(characters).
     LOOP AT characters INTO DATA(character).

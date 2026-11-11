@@ -36,10 +36,10 @@ CLASS ltcl_semver_trim_whitespc IMPLEMENTATION.
       with = `[v=\s]*`
       occ  = 0 ).
     DATA(expected) = replace(
-      val  = input
-      pcre = pattern
-      with = /apmg/cl_semver_re=>comparator_trim_replace
-      occ  = 0 ).
+      val   = input
+      regex = pattern
+      with  = /apmg/cl_semver_re=>comparator_trim_replace
+      occ   = 0 ) ##REGEX_POSIX.
     cl_abap_unit_assert=>assert_equals(
       act = /apmg/cl_semver_trim_whitespc=>trim_comparator_whitespace( input )
       exp = expected
@@ -58,12 +58,12 @@ CLASS ltcl_semver_trim_whitespc IMPLEMENTATION.
 
   METHOD operator_whitespace.
     DATA(cases) = VALUE ty_cases(
-      ( input = ` > 1`     expected = ` >1` )
-      ( input = `>= vvv1`  expected = `>=vvv1` )
-      ( input = `>= v = 1` expected = `>=v = 1` )
-      ( input = `v = 1`   expected = `v = 1` )
-      ( input = `= = 1`   expected = `== 1` )
-      ( input = `> = 1`   expected = `>= 1` )
+      ( input = ` > 1`      expected = ` >1` )
+      ( input = `>= vvv1`   expected = `>=vvv1` )
+      ( input = `>= v = 1`  expected = `>=v = 1` )
+      ( input = `v = 1`     expected = `v = 1` )
+      ( input = `= = 1`     expected = `== 1` )
+      ( input = `> = 1`     expected = `>= 1` )
       ( input = `> invalid` expected = `> invalid` ) ).
     LOOP AT cases INTO DATA(test_case).
       cl_abap_unit_assert=>assert_equals(
@@ -137,9 +137,9 @@ CLASS ltcl_semver_trim_whitespc IMPLEMENTATION.
 
   METHOD identifier_fragments.
     DATA(fragments) = VALUE string_table(
-      ( `x.x.x` ) ( `x.x.x-` ) ( `x.x.x-01.2` ) ( `x.x.x-a+build` )
-      ( `1.2.3-` ) ( `1.2.3-A` ) ( `1.2.3-a.` ) ( `1.2.3+` )
-      ( `1.2.3+build.more` ) ( `1.2.3+build.` ) ( `1..2` ) ( `1.2.` ) ).
+      ( `x.x.x` )            ( `x.x.x-` )       ( `x.x.x-01.2` ) ( `x.x.x-a+build` )
+      ( `1.2.3-` )           ( `1.2.3-A` )      ( `1.2.3-a.` )   ( `1.2.3+` )
+      ( `1.2.3+build.more` ) ( `1.2.3+build.` ) ( `1..2` )       ( `1.2.` ) ).
     DO 4 TIMES.
       DATA(length) = /apmg/if_semver_constants=>max_length + sy-index - 2.
       DATA(digits) = repeat( val = `9` occ = length ).

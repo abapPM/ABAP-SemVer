@@ -125,7 +125,7 @@ CLASS ltcl_comparator_normalization IMPLEMENTATION.
     DATA(whitespace) = VALUE string_table(
       ( ` ` ) ( `  ` ) ( |\t| ) ( |\n| )
       ( CONV string( cl_abap_conv_in_ce=>uccp( '00A0' ) ) )
-      ( CONV string( cl_abap_conv_in_ce=>uccp( '0085' ) ) ) ). " JS tests FEFF but ABAP PCRE does not support that
+      ( CONV string( cl_abap_conv_in_ce=>uccp( '3000' ) ) ) ). " JS tests FEFF but ABAP does not support that
     DATA checked TYPE i.
 
     LOOP AT names INTO DATA(name).

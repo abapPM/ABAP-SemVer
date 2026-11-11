@@ -63,7 +63,8 @@ CLASS ltcl_semver_constants IMPLEMENTATION.
         char = ` `.
       ENDIF.
 
-      IF match( val = char pcre = '\s' ) = char.
+      " IF match( val = char pcre = '\s' ) = char
+      IF match( val = char regex = '\s' ) = char ##REGEX_POSIX.
         INSERT code INTO TABLE act.
       ENDIF.
 

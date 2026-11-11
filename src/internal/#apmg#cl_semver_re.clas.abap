@@ -9,8 +9,8 @@ CLASS /apmg/cl_semver_re DEFINITION
 * Ported to ABAP by apm.to Inc. <https://apm.to>
 * SPDX-License-Identifier: ISC
 ************************************************************************
-* TODO: Migrate POSIX to PCRE
-* https://help.sap.com/doc/abapdocu_latest_index_htm/latest/en-US/index.htm?file=abenregex_posix_pcre_incompat.htm
+* TODO: Migrate POSIX to PCRE (but required 7.55 or higher)
+* https://help.sap.com/docs/abap-cloud/abap-keywords-standard-abap/abenregex_posix_pcre_incompat.html
 ************************************************************************
   PUBLIC SECTION.
 
@@ -80,7 +80,6 @@ CLASS /apmg/cl_semver_re DEFINITION
       END OF token.
 
     CLASS-METHODS class_constructor.
-
   PROTECTED SECTION.
   PRIVATE SECTION.
 

@@ -998,7 +998,7 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
         res   = '1.2.3-dev' )
       ( range = '<' && uccp( '00A0' ) && '2.0.0'
         res   = '<2.0.0' )
-      ( range = '<' && uccp( '0085' ) && '2.0.0'  " JS FEFF
+      ( range = '<' && uccp( '3000' ) && '2.0.0'  " JS FEFF
         res   = '<2.0.0' )
       ( range = '1.2.3 = 1.2.3'
         res   = '1.2.3' )
@@ -1074,7 +1074,7 @@ CLASS /apmg/cl_semver_fixtures IMPLEMENTATION.
         res   = '1.2.3-preview' )
       ( range = '1.2.3-dev' && uccp( '0009' ) && '=' && uccp( '000A' ) && '1.2.3-dev'
         res   = '1.2.3-dev' )
-      ( range = '1.2.3-dev' && uccp( '00A0' ) && '=' && uccp( '0085' ) && '1.2.3-dev' " JS FEFF
+      ( range = '1.2.3-dev' && uccp( '00A0' ) && '=' && uccp( '3000' ) && '1.2.3-dev' " JS FEFF
         res   = '1.2.3-dev' )
       ( range = '1.2.3-dev+build = 1.2.3-dev'
         res   = '1.2.3-dev' )
