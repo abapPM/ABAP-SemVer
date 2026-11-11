@@ -15,7 +15,7 @@ CLASS /apmg/cl_semver_trim_whitespc DEFINITION
 ************************************************************************
   PUBLIC SECTION.
 
-    TYPES ty_whitespace_characters TYPE STANDARD TABLE OF i WITH DEFAULT KEY.
+    TYPES ty_whitespace_characters TYPE STANDARD TABLE OF i WITH KEY table_line.
 
     CLASS-DATA whitespace_characters TYPE ty_whitespace_characters READ-ONLY.
 
@@ -32,7 +32,6 @@ CLASS /apmg/cl_semver_trim_whitespc DEFINITION
         range         TYPE string
       RETURNING
         VALUE(result) TYPE string.
-
   PROTECTED SECTION.
   PRIVATE SECTION.
     CLASS-DATA whitespace TYPE string.

@@ -51,7 +51,7 @@ CLASS ltcl_semver_constants IMPLEMENTATION.
 
   METHOD whitespace.
 
-    TYPES ty_int TYPE STANDARD TABLE OF i WITH DEFAULT KEY.
+    TYPES ty_int TYPE STANDARD TABLE OF i WITH KEY table_line.
 
     DATA act TYPE ty_int.
 
@@ -93,10 +93,12 @@ CLASS ltcl_semver_re IMPLEMENTATION.
   METHOD semver.
     " Semver itself has a list of src, re, and tokens
     " Skipped since mostly irrelevant for ABAP
+    ASSERT 0 = 0.
   ENDMETHOD.
 
   METHOD comparator.
     " Comparator trim regexes stay exported but are not used by range parsing
     " Skipped since mostly irrelevant for ABAP
+    ASSERT 0 = 0.
   ENDMETHOD.
 ENDCLASS.
