@@ -296,14 +296,245 @@ CLASS ltcl_long_identifiers DEFINITION FOR TESTING RISK LEVEL HARMLESS
 
   PRIVATE SECTION.
 
+    TYPES:
+      ty_options TYPE STANDARD TABLE OF /apmg/if_semver_options=>ty_options WITH EMPTY KEY,
+      ty_lengths TYPE STANDARD TABLE OF i WITH EMPTY KEY.
+
+    CONSTANTS long_id TYPE string VALUE '928490632884417731e7af463c92b034d6a78268fc993bcb88a57944'.
+
+    DATA options TYPE ty_options.
+
     METHODS:
-      test FOR TESTING RAISING /apmg/cx_error.
+      setup,
+      long_prereleases FOR TESTING RAISING /apmg/cx_error,
+      build_metadata_limits FOR TESTING RAISING /apmg/cx_error,
+      invalid_version_limits FOR TESTING RAISING /apmg/cx_error.
+
+    METHODS check_range
+      IMPORTING
+        input    TYPE string
+        expected TYPE string
+        version  TYPE string
+        opts     TYPE /apmg/if_semver_options=>ty_options
+      RAISING
+        /apmg/cx_error.
+
+    METHODS check_invalid_range
+      IMPORTING
+        input TYPE string
+        opts  TYPE /apmg/if_semver_options=>ty_options
+      RAISING
+        /apmg/cx_error.
 
 ENDCLASS.
 
 CLASS ltcl_long_identifiers IMPLEMENTATION.
 
-  METHOD test.
+  METHOD setup.
+    options = VALUE #(
+      ( )
+      ( loose = abap_true )
+      ( incpre = abap_true )
+      ( loose = abap_true incpre = abap_true ) ).
+    /apmg/cl_semver_range=>clear_cache( ).
+  ENDMETHOD.
+
+  METHOD check_range.
+    DATA(context) = |{ input } [loose={ opts-loose }, incpre={ opts-incpre }]|.
+    DATA(versions) = VALUE string_table( ( `0.0.0-0` ) ( version ) ( `1.2.4` ) ).
+    DATA(range) = /apmg/cl_semver_range=>create( range = input loose = opts-loose incpre = opts-incpre ).
+
+    cl_abap_unit_assert=>assert_equals(
+      act = range->range( )
+      exp = expected
+      msg = |{ context }: Range preserves the identifier| ).
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_ranges=>valid_range( range = input loose = opts-loose incpre = opts-incpre )
+      exp = expected
+      msg = |{ context }: validRange preserves the identifier| ).
+    cl_abap_unit_assert=>assert_true(
+      act = range->test( version )
+      msg = |{ context }: Range.test accepts the matching version| ).
+    cl_abap_unit_assert=>assert_true(
+      act = /apmg/cl_semver_functions=>satisfies(
+        version = version range = input loose = opts-loose incpre = opts-incpre )
+      msg = |{ context }: satisfies accepts the matching version| ).
+    cl_abap_unit_assert=>assert_false(
+      act = /apmg/cl_semver_functions=>satisfies(
+        version = `0.0.0-0` range = input loose = opts-loose incpre = opts-incpre )
+      msg = |{ context }: excludes a different prerelease| ).
+    cl_abap_unit_assert=>assert_false(
+      act = /apmg/cl_semver_functions=>satisfies(
+        version = `1.2.4` range = input loose = opts-loose incpre = opts-incpre )
+      msg = |{ context }: excludes a different release| ).
+    DATA(minimum) = /apmg/cl_semver_ranges=>min_version(
+      range = input loose = opts-loose incpre = opts-incpre ).
+    cl_abap_unit_assert=>assert_bound( act = minimum msg = |{ context }: minVersion returns a version| ).
+    cl_abap_unit_assert=>assert_equals(
+      act = minimum->version
+      exp = version
+      msg = |{ context }: minVersion preserves the identifier| ).
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_ranges=>min_satisfying(
+        versions = versions range = input loose = opts-loose incpre = opts-incpre )
+      exp = version
+      msg = |{ context }: minSatisfying selects the version| ).
+    cl_abap_unit_assert=>assert_equals(
+      act = /apmg/cl_semver_ranges=>max_satisfying(
+        versions = versions range = input loose = opts-loose incpre = opts-incpre )
+      exp = version
+      msg = |{ context }: maxSatisfying selects the version| ).
+  ENDMETHOD.
+
+  METHOD check_invalid_range.
+    DATA(context) = |{ input } [loose={ opts-loose }, incpre={ opts-incpre }]|.
+    DATA(versions) = VALUE string_table( ( `1.2.3` ) ).
+
+    TRY.
+        /apmg/cl_semver_range=>create( range = input loose = opts-loose incpre = opts-incpre ).
+        cl_abap_unit_assert=>fail( msg = |{ context }: Range must reject| ).
+      CATCH /apmg/cx_error ##NO_HANDLER.
+    ENDTRY.
+    cl_abap_unit_assert=>assert_initial(
+      act = /apmg/cl_semver_ranges=>valid_range( range = input loose = opts-loose incpre = opts-incpre )
+      msg = |{ context }: validRange rejects| ).
+    cl_abap_unit_assert=>assert_false(
+      act = /apmg/cl_semver_functions=>satisfies(
+        version = `1.2.3` range = input loose = opts-loose incpre = opts-incpre )
+      msg = |{ context }: satisfies rejects| ).
+    TRY.
+        /apmg/cl_semver_ranges=>min_version( range = input loose = opts-loose incpre = opts-incpre ).
+        cl_abap_unit_assert=>fail( msg = |{ context }: minVersion must reject| ).
+      CATCH /apmg/cx_error ##NO_HANDLER.
+    ENDTRY.
+    cl_abap_unit_assert=>assert_initial(
+      act = /apmg/cl_semver_ranges=>min_satisfying(
+        versions = versions range = input loose = opts-loose incpre = opts-incpre )
+      msg = |{ context }: minSatisfying rejects| ).
+    cl_abap_unit_assert=>assert_initial(
+      act = /apmg/cl_semver_ranges=>max_satisfying(
+        versions = versions range = input loose = opts-loose incpre = opts-incpre )
+      msg = |{ context }: maxSatisfying rejects| ).
+  ENDMETHOD.
+
+  METHOD long_prereleases.
+    DATA(max) = /apmg/if_semver_constants=>max_safe_integer.
+    DATA(component_length) = /apmg/if_semver_constants=>max_safe_component_length.
+    DATA(versions) = VALUE string_table(
+      ( |0.0.0-{ long_id }| )
+      ( |1.1.1-{ long_id }| )
+      ( |{ max }.{ max }.{ max }-{ long_id }| ) ).
+    DATA(lengths) = VALUE ty_lengths(
+      ( component_length - 1 )
+      ( component_length )
+      ( component_length + 1 )
+      ( 18 )
+      ( /apmg/if_semver_constants=>max_length - strlen( `1.2.3-a` ) ) ).
+
+    LOOP AT lengths INTO DATA(length).
+      APPEND |1.2.3-{ repeat( val = `9` occ = length ) }a| TO versions.
+    ENDLOOP.
+
+    LOOP AT options INTO DATA(opts).
+      LOOP AT versions INTO DATA(version).
+        DATA(context) = |{ version } [loose={ opts-loose }, incpre={ opts-incpre }]|.
+        cl_abap_unit_assert=>assert_equals(
+          act = /apmg/cl_semver_functions=>valid( version = version loose = opts-loose incpre = opts-incpre )
+          exp = version
+          msg = |{ context }: valid accepts the long prerelease| ).
+        DATA(semver) = /apmg/cl_semver=>create( version = version loose = opts-loose incpre = opts-incpre ).
+        cl_abap_unit_assert=>assert_equals(
+          act = semver->version
+          exp = version
+          msg = |{ context }: SemVer preserves the prerelease| ).
+        check_range(
+          input = |= \t { version }|
+          expected = version
+          version = version
+          opts = opts ).
+        check_range(
+          input = |>= \t { version } <= \n { version }|
+          expected = |>={ version } <={ version }|
+          version = version
+          opts = opts ).
+        check_range(
+          input = |{ version } - { version }|
+          expected = |>={ version } <={ version }|
+          version = version
+          opts = opts ).
+      ENDLOOP.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD build_metadata_limits.
+    DATA(version) = `1.2.3`.
+    DATA(identifiers) = VALUE string_table(
+      ( long_id )
+      ( repeat( val = `9` occ = /apmg/if_semver_constants=>max_safe_component_length + 1 ) )
+      ( repeat( val = `9` occ = /apmg/if_semver_constants=>max_safe_build_length ) )
+      ( repeat( val = `9` occ = /apmg/if_semver_constants=>max_safe_build_length + 1 ) ) ).
+
+    LOOP AT options INTO DATA(opts).
+      LOOP AT identifiers INTO DATA(identifier).
+        DATA(input) = |{ version }+{ identifier }|.
+        DATA(context) = |{ input } [loose={ opts-loose }, incpre={ opts-incpre }]|.
+        IF strlen( input ) <= /apmg/if_semver_constants=>max_length.
+          cl_abap_unit_assert=>assert_equals(
+            act = /apmg/cl_semver_functions=>valid( version = input loose = opts-loose incpre = opts-incpre )
+            exp = version
+            msg = |{ context }: valid accepts metadata within the version limit| ).
+          DATA(semver) = /apmg/cl_semver=>create( version = input loose = opts-loose incpre = opts-incpre ).
+          DATA(build) = VALUE string_table( ( identifier ) ).
+          cl_abap_unit_assert=>assert_equals(
+            act = semver->build
+            exp = build
+            msg = |{ context }: SemVer preserves metadata| ).
+        ELSE.
+          cl_abap_unit_assert=>assert_initial(
+            act = /apmg/cl_semver_functions=>valid( version = input loose = opts-loose incpre = opts-incpre )
+            msg = |{ context }: valid retains the version length limit| ).
+          TRY.
+              /apmg/cl_semver=>create( version = input loose = opts-loose incpre = opts-incpre ).
+              cl_abap_unit_assert=>fail( msg = |{ context }: SemVer must reject| ).
+            CATCH /apmg/cx_error ##NO_HANDLER.
+          ENDTRY.
+        ENDIF.
+        check_range(
+          input = |= { input }|
+          expected = version
+          version = version
+          opts = opts ).
+        check_range(
+          input = |>= { input } <= { input }|
+          expected = |>={ version } <={ version }|
+          version = version
+          opts = opts ).
+      ENDLOOP.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD invalid_version_limits.
+    DATA(over_max) = /apmg/if_semver_constants=>max_safe_integer + 1.
+    DATA(versions) = VALUE string_table(
+      ( |1.2.3-{ repeat( val = `9` occ = /apmg/if_semver_constants=>max_length - strlen( `1.2.3-` ) ) }a| )
+      ( |{ over_max }.1.1| )
+      ( |1.{ over_max }.1| )
+      ( |1.1.{ over_max }| ) ).
+
+    LOOP AT options INTO DATA(opts).
+      LOOP AT versions INTO DATA(version).
+        DATA(context) = |{ version } [loose={ opts-loose }, incpre={ opts-incpre }]|.
+        cl_abap_unit_assert=>assert_initial(
+          act = /apmg/cl_semver_functions=>valid( version = version loose = opts-loose incpre = opts-incpre )
+          msg = |{ context }: valid rejects| ).
+        TRY.
+            /apmg/cl_semver=>create( version = version loose = opts-loose incpre = opts-incpre ).
+            cl_abap_unit_assert=>fail( msg = |{ context }: SemVer must reject| ).
+          CATCH /apmg/cx_error ##NO_HANDLER.
+        ENDTRY.
+        check_invalid_range( input = |= { version }| opts = opts ).
+      ENDLOOP.
+    ENDLOOP.
   ENDMETHOD.
 ENDCLASS.
 
