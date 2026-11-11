@@ -15,6 +15,10 @@ CLASS /apmg/cl_semver_trim_whitespc DEFINITION
 ************************************************************************
   PUBLIC SECTION.
 
+    TYPES ty_whitespace_characters TYPE STANDARD TABLE OF i WITH DEFAULT KEY.
+
+    CLASS-DATA whitespace_characters TYPE ty_whitespace_characters READ-ONLY.
+
     CLASS-METHODS class_constructor.
 
     CLASS-METHODS normalize_whitespace
@@ -44,138 +48,126 @@ CLASS /apmg/cl_semver_trim_whitespc DEFINITION
       END OF digit_runs.
 
     METHODS scan
-      RETURNING VALUE(result) TYPE string.
+      RETURNING
+        VALUE(result) TYPE string.
 
     METHODS character_at
-      IMPORTING position      TYPE i
-      RETURNING VALUE(result) TYPE string.
+      IMPORTING
+        position      TYPE i
+      RETURNING
+        VALUE(result) TYPE string.
 
     CLASS-METHODS is_whitespace
-      IMPORTING character     TYPE string
-      RETURNING VALUE(result) TYPE abap_bool.
+      IMPORTING
+        character     TYPE string
+      RETURNING
+        VALUE(result) TYPE abap_bool.
 
     CLASS-METHODS is_version_prefix
-      IMPORTING character     TYPE string
-      RETURNING VALUE(result) TYPE abap_bool.
+      IMPORTING
+        character     TYPE string
+      RETURNING
+        VALUE(result) TYPE abap_bool.
 
     CLASS-METHODS is_digit
-      IMPORTING character     TYPE string
-      RETURNING VALUE(result) TYPE abap_bool.
+      IMPORTING
+        character     TYPE string
+      RETURNING
+        VALUE(result) TYPE abap_bool.
 
     CLASS-METHODS is_letter
-      IMPORTING character     TYPE string
-      RETURNING VALUE(result) TYPE abap_bool.
+      IMPORTING
+        character     TYPE string
+      RETURNING
+        VALUE(result) TYPE abap_bool.
 
     CLASS-METHODS is_identifier_character
-      IMPORTING character     TYPE string
-      RETURNING VALUE(result) TYPE abap_bool.
+      IMPORTING
+        character     TYPE string
+      RETURNING
+        VALUE(result) TYPE abap_bool.
 
     CLASS-METHODS is_version_start
-      IMPORTING character     TYPE string
-      RETURNING VALUE(result) TYPE abap_bool.
+      IMPORTING
+        character     TYPE string
+      RETURNING
+        VALUE(result) TYPE abap_bool.
 
     METHODS find_digits_end
       IMPORTING
-        start                 TYPE i
-        limit                 TYPE i
-      RETURNING VALUE(result) TYPE i.
+        start         TYPE i
+        limit         TYPE i
+      RETURNING
+        VALUE(result) TYPE i.
 
     METHODS find_version_number_end
       IMPORTING
-        start                 TYPE i
-        loose                 TYPE abap_bool
-      RETURNING VALUE(result) TYPE i.
+        start         TYPE i
+        loose         TYPE abap_bool
+      RETURNING
+        VALUE(result) TYPE i.
 
     METHODS find_prerelease_identifier_end
       IMPORTING
-        start                 TYPE i
-        loose                 TYPE abap_bool
-      RETURNING VALUE(result) TYPE i.
+        start         TYPE i
+        loose         TYPE abap_bool
+      RETURNING
+        VALUE(result) TYPE i.
 
     METHODS find_prerelease_end
       IMPORTING
-        start                 TYPE i
-        loose                 TYPE abap_bool
-      RETURNING VALUE(result) TYPE i.
+        start         TYPE i
+        loose         TYPE abap_bool
+      RETURNING
+        VALUE(result) TYPE i.
 
     METHODS find_build_identifier_end
-      IMPORTING start         TYPE i
-      RETURNING VALUE(result) TYPE i.
+      IMPORTING
+        start         TYPE i
+      RETURNING
+        VALUE(result) TYPE i.
 
     METHODS find_build_end
-      IMPORTING start         TYPE i
-      RETURNING VALUE(result) TYPE i.
+      IMPORTING
+        start         TYPE i
+      RETURNING
+        VALUE(result) TYPE i.
 
     METHODS find_loose_full_version_end
-      IMPORTING start         TYPE i
-      RETURNING VALUE(result) TYPE i.
+      IMPORTING
+        start         TYPE i
+      RETURNING
+        VALUE(result) TYPE i.
 
     METHODS find_partial_component_end
-      IMPORTING start         TYPE i
-      RETURNING VALUE(result) TYPE i.
+      IMPORTING
+        start         TYPE i
+      RETURNING
+        VALUE(result) TYPE i.
 
     METHODS find_partial_version_end
-      IMPORTING start         TYPE i
-      RETURNING VALUE(result) TYPE i.
+      IMPORTING
+        start         TYPE i
+      RETURNING
+        VALUE(result) TYPE i.
 
     METHODS find_version_end
-      IMPORTING start         TYPE i
-      RETURNING VALUE(result) TYPE i.
+      IMPORTING
+        start         TYPE i
+      RETURNING
+        VALUE(result) TYPE i.
 
     METHODS find_removable_whitespace
-      IMPORTING start         TYPE i
-      RETURNING VALUE(result) TYPE i.
+      IMPORTING
+        start         TYPE i
+      RETURNING
+        VALUE(result) TYPE i.
+
 ENDCLASS.
 
 
 
 CLASS /apmg/cl_semver_trim_whitespc IMPLEMENTATION.
-
-  METHOD class_constructor.
-    SPLIT /apmg/if_semver_constants=>whitespace_characters AT ',' INTO TABLE DATA(characters).
-    LOOP AT characters INTO DATA(character).
-      " The constants contain JavaScript escapes, not ABAP control characters.
-      CASE character.
-        WHEN `\t`.
-          whitespace = whitespace && cl_abap_conv_in_ce=>uccp( '0009' ).
-        WHEN `\n`.
-          whitespace = whitespace && cl_abap_conv_in_ce=>uccp( '000A' ).
-        WHEN `\v`.
-          whitespace = whitespace && cl_abap_conv_in_ce=>uccp( '000B' ).
-        WHEN `\f`.
-          whitespace = whitespace && cl_abap_conv_in_ce=>uccp( '000C' ).
-        WHEN `\r`.
-          whitespace = whitespace && cl_abap_conv_in_ce=>uccp( '000D' ).
-        WHEN OTHERS.
-          IF strlen( character ) = 6 AND character(2) = `\u`.
-            DATA(codepoint) = to_upper( substring( val = character off = 2 len = 4 ) ).
-            whitespace = whitespace && cl_abap_conv_in_ce=>uccp( codepoint ).
-          ELSE.
-            whitespace = whitespace && character.
-          ENDIF.
-      ENDCASE.
-    ENDLOOP.
-  ENDMETHOD.
-
-
-  METHOD trim_comparator_whitespace.
-    DATA(scanner) = NEW /apmg/cl_semver_trim_whitespc( ).
-    scanner->text = range.
-    scanner->length = strlen( range ).
-    result = scanner->scan( ).
-  ENDMETHOD.
-
-  METHOD normalize_whitespace.
-    result = text.
-    DO strlen( whitespace ) TIMES.
-      DATA(offset) = sy-index - 1.
-      result = replace(
-        val  = result
-        sub  = whitespace+offset(1)
-        with = ` `
-        occ  = 0 ).
-    ENDDO.
-  ENDMETHOD.
 
 
   METHOD character_at.
@@ -185,120 +177,45 @@ CLASS /apmg/cl_semver_trim_whitespc IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD is_whitespace.
-    result = xsdbool( character IS NOT INITIAL AND whitespace CS character ).
-  ENDMETHOD.
+  METHOD class_constructor.
+    " Compared to ECMAscript, ABAP PCRE includes \u0085 and \u180e but not \ufeff
+    " https://www.pcre.org/original/doc/html/pcrepattern.html
+    DATA(whitespace_chars) =
+      ` ,\t,\n,\v,\f,\r,\u00a0,\u1680,\u2000,\u2001,\u2002,\u2003,\u2004,`
+      & `\u2005,\u2006,\u2007,\u2008,\u2009,\u200a,\u2028,\u2029,\u202f,\u205f,`
+      & `\u3000,\u0085,\u180e`. " added for ABAP PCRE
 
+    SPLIT whitespace_chars AT ',' INTO TABLE DATA(characters).
+    LOOP AT characters INTO DATA(character).
+      DATA(char) = ``.
+      " The constants contain JavaScript escapes, not ABAP control characters.
+      CASE character.
+        WHEN `\t`.
+          char = cl_abap_conv_in_ce=>uccp( '0009' ).
+        WHEN `\n`.
+          char = cl_abap_conv_in_ce=>uccp( '000A' ).
+        WHEN `\v`.
+          char = cl_abap_conv_in_ce=>uccp( '000B' ).
+        WHEN `\f`.
+          char = cl_abap_conv_in_ce=>uccp( '000C' ).
+        WHEN `\r`.
+          char = cl_abap_conv_in_ce=>uccp( '000D' ).
+        WHEN OTHERS.
+          IF strlen( character ) = 6 AND character(2) = `\u`.
+            DATA(codepoint) = to_upper( substring( val = character off = 2 len = 4 ) ).
+            char = cl_abap_conv_in_ce=>uccp( codepoint ).
+          ELSE.
+            char = character.
+          ENDIF.
+      ENDCASE.
 
-  METHOD is_version_prefix.
-    result = xsdbool( character = 'v' OR character = '=' OR is_whitespace( character ) = abap_true ).
-  ENDMETHOD.
+      whitespace = whitespace && char.
 
+      DATA(code) = cl_abap_conv_out_ce=>uccpi( char ).
+      INSERT code INTO TABLE whitespace_characters.
+    ENDLOOP.
 
-  METHOD is_digit.
-    result = xsdbool( character IS NOT INITIAL AND character CO '0123456789' ).
-  ENDMETHOD.
-
-
-  METHOD is_letter.
-    result = xsdbool( character IS NOT INITIAL AND character CO 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' ).
-  ENDMETHOD.
-
-
-  METHOD is_identifier_character.
-    result = xsdbool( is_digit( character ) = abap_true OR is_letter( character ) = abap_true OR character = '-' ).
-  ENDMETHOD.
-
-
-  METHOD is_version_start.
-    result = xsdbool( is_digit( character ) = abap_true OR character = 'x' OR character = 'X' OR character = '*' ).
-  ENDMETHOD.
-
-
-  METHOD find_digits_end.
-    result = start.
-    CHECK is_digit( character_at( start ) ) = abap_true.
-    IF start >= digit_runs-start AND start < digit_runs-end.
-      result = nmin( val1 = start + limit val2 = digit_runs-end ).
-    ELSEIF start >= digit_runs-previous_start AND start < digit_runs-previous_end.
-      result = nmin( val1 = start + limit val2 = digit_runs-previous_end ).
-    ELSE.
-      result = start + 1.
-      WHILE is_digit( character_at( result ) ) = abap_true.
-        result = result + 1.
-      ENDWHILE.
-      digit_runs-previous_start = digit_runs-start.
-      digit_runs-previous_end = digit_runs-end.
-      digit_runs-start = start.
-      digit_runs-end = result.
-      result = nmin( val1 = start + limit val2 = result ).
-    ENDIF.
-  ENDMETHOD.
-
-
-  METHOD find_version_number_end.
-    IF loose = abap_false AND character_at( start ) = '0'.
-      result = start + 1.
-    ELSE.
-      DATA(limit) = /apmg/if_semver_constants=>max_length.
-      IF loose = abap_false.
-        limit = limit + 1.
-      ENDIF.
-      result = find_digits_end( start = start limit = limit ).
-    ENDIF.
-  ENDMETHOD.
-
-
-  METHOD find_prerelease_identifier_end.
-    DATA(digits_end) = find_digits_end( start = start limit = /apmg/if_semver_constants=>max_length ).
-    DATA(character) = character_at( digits_end ).
-    IF is_letter( character ) = abap_true OR character = '-'.
-      result = digits_end + 1.
-      DATA(limit) = result + /apmg/if_semver_constants=>max_safe_build_length.
-      WHILE result < limit AND is_identifier_character( character_at( result ) ) = abap_true.
-        result = result + 1.
-      ENDWHILE.
-    ELSE.
-      result = find_version_number_end( start = start loose = loose ).
-    ENDIF.
-  ENDMETHOD.
-
-
-  METHOD find_prerelease_end.
-    result = start.
-    DATA(hyphen) = xsdbool( character_at( start ) = '-' ).
-    CHECK loose = abap_true OR hyphen = abap_true.
-    DATA(identifier_start) = start.
-    IF hyphen = abap_true.
-      identifier_start = identifier_start + 1.
-    ENDIF.
-    result = find_prerelease_identifier_end( start = identifier_start loose = loose ).
-    IF result = identifier_start.
-      IF loose = abap_false OR hyphen = abap_false.
-        result = start.
-        RETURN.
-      ENDIF.
-      result = find_prerelease_identifier_end( start = start loose = loose ).
-    ENDIF.
-    DATA(character) = character_at( result ).
-    WHILE character = '.'.
-      DATA(next_start) = result + 1.
-      DATA(next) = find_prerelease_identifier_end( start = next_start loose = loose ).
-      IF next = next_start.
-        RETURN.
-      ENDIF.
-      result = next.
-      character = character_at( result ).
-    ENDWHILE.
-  ENDMETHOD.
-
-
-  METHOD find_build_identifier_end.
-    result = start.
-    WHILE result - start < /apmg/if_semver_constants=>max_safe_build_length
-        AND is_identifier_character( character_at( result ) ) = abap_true.
-      result = result + 1.
-    ENDWHILE.
+    SORT whitespace_characters.
   ENDMETHOD.
 
 
@@ -322,6 +239,36 @@ CLASS /apmg/cl_semver_trim_whitespc IMPLEMENTATION.
       result = next.
       character = character_at( result ).
     ENDWHILE.
+  ENDMETHOD.
+
+
+  METHOD find_build_identifier_end.
+    result = start.
+    WHILE result - start < /apmg/if_semver_constants=>max_safe_build_length
+        AND is_identifier_character( character_at( result ) ) = abap_true.
+      result = result + 1.
+    ENDWHILE.
+  ENDMETHOD.
+
+
+  METHOD find_digits_end.
+    result = start.
+    CHECK is_digit( character_at( start ) ) = abap_true.
+    IF start >= digit_runs-start AND start < digit_runs-end.
+      result = nmin( val1 = start + limit val2 = digit_runs-end ).
+    ELSEIF start >= digit_runs-previous_start AND start < digit_runs-previous_end.
+      result = nmin( val1 = start + limit val2 = digit_runs-previous_end ).
+    ELSE.
+      result = start + 1.
+      WHILE is_digit( character_at( result ) ) = abap_true.
+        result = result + 1.
+      ENDWHILE.
+      digit_runs-previous_start = digit_runs-start.
+      digit_runs-previous_end = digit_runs-end.
+      digit_runs-start = start.
+      digit_runs-end = result.
+      result = nmin( val1 = start + limit val2 = result ).
+    ENDIF.
   ENDMETHOD.
 
 
@@ -378,10 +325,46 @@ CLASS /apmg/cl_semver_trim_whitespc IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD find_version_end.
-    result = find_loose_full_version_end( start ).
-    IF result = start.
-      result = find_partial_version_end( start ).
+  METHOD find_prerelease_end.
+    result = start.
+    DATA(hyphen) = xsdbool( character_at( start ) = '-' ).
+    CHECK loose = abap_true OR hyphen = abap_true.
+    DATA(identifier_start) = start.
+    IF hyphen = abap_true.
+      identifier_start = identifier_start + 1.
+    ENDIF.
+    result = find_prerelease_identifier_end( start = identifier_start loose = loose ).
+    IF result = identifier_start.
+      IF loose = abap_false OR hyphen = abap_false.
+        result = start.
+        RETURN.
+      ENDIF.
+      result = find_prerelease_identifier_end( start = start loose = loose ).
+    ENDIF.
+    DATA(character) = character_at( result ).
+    WHILE character = '.'.
+      DATA(next_start) = result + 1.
+      DATA(next) = find_prerelease_identifier_end( start = next_start loose = loose ).
+      IF next = next_start.
+        RETURN.
+      ENDIF.
+      result = next.
+      character = character_at( result ).
+    ENDWHILE.
+  ENDMETHOD.
+
+
+  METHOD find_prerelease_identifier_end.
+    DATA(digits_end) = find_digits_end( start = start limit = /apmg/if_semver_constants=>max_length ).
+    DATA(character) = character_at( digits_end ).
+    IF is_letter( character ) = abap_true OR character = '-'.
+      result = digits_end + 1.
+      DATA(limit) = result + /apmg/if_semver_constants=>max_safe_build_length.
+      WHILE result < limit AND is_identifier_character( character_at( result ) ) = abap_true.
+        result = result + 1.
+      ENDWHILE.
+    ELSE.
+      result = find_version_number_end( start = start loose = loose ).
     ENDIF.
   ENDMETHOD.
 
@@ -400,6 +383,70 @@ CLASS /apmg/cl_semver_trim_whitespc IMPLEMENTATION.
       position = position + 1.
     ENDIF.
     result = COND #( WHEN is_whitespace( character_at( position ) ) = abap_true THEN position ELSE -1 ).
+  ENDMETHOD.
+
+
+  METHOD find_version_end.
+    result = find_loose_full_version_end( start ).
+    IF result = start.
+      result = find_partial_version_end( start ).
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD find_version_number_end.
+    IF loose = abap_false AND character_at( start ) = '0'.
+      result = start + 1.
+    ELSE.
+      DATA(limit) = /apmg/if_semver_constants=>max_length.
+      IF loose = abap_false.
+        limit = limit + 1.
+      ENDIF.
+      result = find_digits_end( start = start limit = limit ).
+    ENDIF.
+  ENDMETHOD.
+
+
+  METHOD is_digit.
+    result = xsdbool( character IS NOT INITIAL AND character CO '0123456789' ).
+  ENDMETHOD.
+
+
+  METHOD is_identifier_character.
+    result = xsdbool( is_digit( character ) = abap_true OR is_letter( character ) = abap_true OR character = '-' ).
+  ENDMETHOD.
+
+
+  METHOD is_letter.
+    result = xsdbool( character IS NOT INITIAL AND character CO 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' ).
+  ENDMETHOD.
+
+
+  METHOD is_version_prefix.
+    result = xsdbool( character = 'v' OR character = '=' OR is_whitespace( character ) = abap_true ).
+  ENDMETHOD.
+
+
+  METHOD is_version_start.
+    result = xsdbool( is_digit( character ) = abap_true OR character = 'x' OR character = 'X' OR character = '*' ).
+  ENDMETHOD.
+
+
+  METHOD is_whitespace.
+    result = xsdbool( character IS NOT INITIAL AND whitespace CS character ).
+  ENDMETHOD.
+
+
+  METHOD normalize_whitespace.
+    result = text.
+    DO strlen( whitespace ) TIMES.
+      DATA(offset) = sy-index - 1.
+      result = replace(
+        val  = result
+        sub  = whitespace+offset(1)
+        with = ` `
+        occ  = 0 ).
+    ENDDO.
   ENDMETHOD.
 
 
@@ -431,5 +478,13 @@ CLASS /apmg/cl_semver_trim_whitespc IMPLEMENTATION.
       cursor = find_version_end( cursor ).
     ENDWHILE.
     result = result && substring( val = text off = copy_from ).
+  ENDMETHOD.
+
+
+  METHOD trim_comparator_whitespace.
+    DATA(scanner) = NEW /apmg/cl_semver_trim_whitespc( ).
+    scanner->text = range.
+    scanner->length = strlen( range ).
+    result = scanner->scan( ).
   ENDMETHOD.
 ENDCLASS.

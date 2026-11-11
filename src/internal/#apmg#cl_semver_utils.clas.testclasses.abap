@@ -76,7 +76,7 @@ CLASS ltcl_semver_utils IMPLEMENTATION.
   METHOD unicode_whitespace.
     DATA(characters) = VALUE string_table(
       ( CONV string( cl_abap_conv_in_ce=>uccp( '00A0' ) ) )
-      ( CONV string( cl_abap_conv_in_ce=>uccp( 'FEFF' ) ) ) ).
+      ( CONV string( cl_abap_conv_in_ce=>uccp( '0085' ) ) ) ). " JS tests FEFF but ABAP PCRE does not support that
     LOOP AT characters INTO DATA(character).
       cl_abap_unit_assert=>assert_equals(
         act = /apmg/cl_semver_utils=>trim( character && `test` && character && `test` && character )

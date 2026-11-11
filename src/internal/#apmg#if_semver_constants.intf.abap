@@ -43,9 +43,7 @@ INTERFACE /apmg/if_semver_constants PUBLIC.
     END OF release_types.
 
   " ECMAScript whitespace and line terminators matched by \s.
-  CONSTANTS whitespace_characters TYPE string
-    VALUE ` ,\t,\n,\v,\f,\r,\u00a0,\u1680,\u2000,\u2001,\u2002,\u2003,\u2004,`
-    & `\u2005,\u2006,\u2007,\u2008,\u2009,\u200a,\u2028,\u2029,\u202f,\u205f,`
-    & `\u3000,\ufeff`.
+  " Note: Value is too long for ABAP and defined in CL_SEMVER_TRIM_WHITESPC
+  " CONSTANTS whitespace_characters TYPE string VALUE ``
 
 ENDINTERFACE.

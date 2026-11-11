@@ -470,7 +470,7 @@ CLASS /apmg/cl_semver_range IMPLEMENTATION.
     " Reject detached build identifiers that can otherwise turn into a hyphen range.
     IF options-loose = abap_false.
       FIND REGEX `^\s*[^<>=~^|]+\s+\+[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\s+\+[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\s+\+[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*)*\s+=`
-        IN range_string.
+        IN range_string ##REGEX_POSIX.
       IF sy-subrc = 0.
         RAISE EXCEPTION TYPE /apmg/cx_error_text
           EXPORTING text = |Invalid SemVer Range: { range_string }|.
