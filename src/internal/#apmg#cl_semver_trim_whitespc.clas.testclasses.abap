@@ -19,7 +19,7 @@ CLASS ltcl_semver_trim_whitespc DEFINITION FOR TESTING RISK LEVEL HARMLESS
       digit_run_cache FOR TESTING,
       independent_matchers FOR TESTING.
 
-    METHODS assert_legacy
+    METHODS assert_trim_invariants
       IMPORTING input TYPE string.
 
 ENDCLASS.
@@ -28,22 +28,33 @@ CLASS /apmg/cl_semver_trim_whitespc DEFINITION LOCAL FRIENDS ltcl_semver_trim_wh
 
 CLASS ltcl_semver_trim_whitespc IMPLEMENTATION.
 
-  METHOD assert_legacy.
-    " The exported ABAP token omits whitespace in the version prefix for POSIX.
-    DATA(pattern) = replace(
-      val  = /apmg/cl_semver_re=>token-comparatortrim-safe_src
-      sub  = `[v=]*`
-      with = `[v=\s]*`
-      occ  = 0 ).
-    DATA(expected) = replace(
-      val   = input
-      regex = pattern
-      with  = /apmg/cl_semver_re=>comparator_trim_replace
-      occ   = 0 ) ##REGEX_POSIX.
+  METHOD assert_trim_invariants.
+    DATA(actual) = /apmg/cl_semver_trim_whitespc=>trim_comparator_whitespace( input ).
+    DATA(input_without_whitespace) = input.
+    DATA(actual_without_whitespace) = actual.
+    LOOP AT /apmg/cl_semver_trim_whitespc=>whitespace_characters INTO DATA(code).
+      DATA(character) = CONV string( cl_abap_conv_in_ce=>uccpi( code ) ).
+      IF code = 32.
+        character = ` `.
+      ENDIF.
+      input_without_whitespace = replace(
+        val  = input_without_whitespace
+        sub  = character
+        with = ``
+        occ  = 0 ).
+      actual_without_whitespace = replace(
+        val  = actual_without_whitespace
+        sub  = character
+        with = ``
+        occ  = 0 ).
+    ENDLOOP.
     cl_abap_unit_assert=>assert_equals(
-      act = /apmg/cl_semver_trim_whitespc=>trim_comparator_whitespace( input )
-      exp = expected
-      msg = |Input: { input }| ).
+      act = actual_without_whitespace
+      exp = input_without_whitespace
+      msg = |Non-whitespace characters are preserved for input: { input }| ).
+    cl_abap_unit_assert=>assert_true(
+      act = xsdbool( strlen( actual ) <= strlen( input ) )
+      msg = |Whitespace is only removed for input: { input }| ).
   ENDMETHOD.
 
   METHOD fixture_ranges.
@@ -52,7 +63,7 @@ CLASS ltcl_semver_trim_whitespc IMPLEMENTATION.
       INSERT /apmg/cl_semver_utils=>trim( fixture-range ) INTO TABLE inputs.
     ENDLOOP.
     LOOP AT inputs INTO DATA(input).
-      assert_legacy( input ).
+      assert_trim_invariants( input ).
     ENDLOOP.
   ENDMETHOD.
 
@@ -64,6 +75,10 @@ CLASS ltcl_semver_trim_whitespc IMPLEMENTATION.
       ( input = `v = 1`     expected = `v = 1` )
       ( input = `= = 1`     expected = `== 1` )
       ( input = `> = 1`     expected = `>= 1` )
+      ( input = `0`         expected = `0` )
+      ( input = `1 +a +b = 2`    expected = `1 +a +b =2` )
+      ( input = `> x.x.x = 1.2.3` expected = `>x.x.x =1.2.3` )
+      ( input = `1.2.3 = 1.2.3` expected = `1.2.3 =1.2.3` )
       ( input = `> invalid` expected = `> invalid` ) ).
     LOOP AT cases INTO DATA(test_case).
       cl_abap_unit_assert=>assert_equals(
@@ -102,7 +117,7 @@ CLASS ltcl_semver_trim_whitespc IMPLEMENTATION.
               ( `1.2.3` && ws && operator && ws && prefix && version )
               ( operator && ws && prefix && version && ws && `<` && ws && `2.0.0` ) ).
             LOOP AT inputs INTO DATA(input).
-              assert_legacy( input ).
+              assert_trim_invariants( input ).
             ENDLOOP.
           ENDLOOP.
         ENDLOOP.
@@ -131,7 +146,7 @@ CLASS ltcl_semver_trim_whitespc IMPLEMENTATION.
       ( `= = =` )
       ( `>vvv` ) ).
     LOOP AT inputs INTO DATA(input).
-      assert_legacy( input ).
+      assert_trim_invariants( input ).
     ENDLOOP.
   ENDMETHOD.
 
@@ -153,7 +168,7 @@ CLASS ltcl_semver_trim_whitespc IMPLEMENTATION.
       APPEND |x.x.x-{ identifier }| TO fragments.
     ENDDO.
     LOOP AT fragments INTO DATA(version).
-      assert_legacy( |> { version } = 1.2.3| ).
+      assert_trim_invariants( |> { version } = 1.2.3| ).
     ENDLOOP.
   ENDMETHOD.
 
